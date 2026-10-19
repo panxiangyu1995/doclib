@@ -1,51 +1,74 @@
-# CLAUDE.md — DocLib 仓库
+<!-- doclib-guide cli=0.4.0 structure=2 -->
+# DocLib 工作流
 
-> 本文件与 `AGENTS.md` 同步维护，内容保持一致；本文件无 doclib 版本戳（本仓库引导为手工维护，属"无戳不覆盖"保护对象）。
+<!-- doclib:managed-begin -->
 
-DocLib：把任意项目蒸馏成可复原的文档图书馆（系统化规格与验收系统）。本仓库已启用 DocLib 自身（身先士卒）。
+本仓库已启用 DocLib。图书馆：`doclib/`（唯一事实源，12 卷基线）｜簿记：`.doclib/`｜进度：`doclib/00-overview/feature-map.md`（状态事实源）+ `progress.md`（时间线）。
 
 ## 实时同步规则（最高优先级，12 卷一视同仁）
 
-开发中凡触及图书馆任一卷知识的改动，**当场更新入馆，不等 diff、不等会话结束**：
+开发中凡触及图书馆任一卷知识的改动，**必须当场更新入馆，不等 diff、不等会话结束**：
 
-| 改动类型 | 必须同步 |
+| 改动类型 | 必须同步的卷 |
 | --- | --- |
-| 修 bug / 踩坑 / 解决办法 | `doclib/95-lessons/lessons.md`（现象/根因/解决/规避） |
-| 新功能 / 行为变更 / 新命令 | `doclib/30-features/`（规格 + 验收标准）+ feature-map 状态 |
-| 模块增删 / 职责变化 | `doclib/20-modules/_index.md` |
-| 架构 / 数据模型 / 数据流 | `doclib/10-architecture/` |
-| 依赖增删换 | `doclib/10-architecture/dependencies.md` |
-| 数据库迁移 / Schema 变更 | `doclib/10-architecture/migrations.md`（先取号、后登记账本）+ `data-model.md` |
-| 新设计决策 | `doclib/10-architecture/decisions.md`（ADR） |
-| 测试变化 | `doclib/50-testing/testing.md` |
-| 构建 / lint / CI / 环境变量 | `doclib/60-config/config.md` |
-| 部署 / 发布 | `doclib/70-deploy/deploy.md` |
-| 界面 | `doclib/80-design/`（不适用须显式声明） |
-| 接口参考 | `doclib/90-reference/` |
-| 任何进度变化 | `doclib/00-overview/feature-map.md` + `progress.md` |
+| 修 bug / 踩坑 / 得出解决办法 | `95-lessons/`（现象/根因/解决/规避，实时入档） |
+| 新功能 / 行为变更 / 新命令 | `30-features/`（行为规格 + 验收标准）+ feature-map 状态 |
+| 模块增删 / 职责边界变化 | `20-modules/` |
+| 架构 / 数据模型 / 数据流变化 | `10-architecture/` |
+| 依赖增删换 | `10-architecture/dependencies.md` |
+| 数据库迁移 / Schema 变更 | `10-architecture/migrations.md`（先取号、后登记账本）+ `data-model.md` |
+| 新的设计决策 | `10-architecture/decisions.md`（ADR） |
+| 测试方案 / 用例 / 矩阵变化 | `50-testing/` |
+| 构建 / lint / CI / 环境变量变化 | `60-config/` |
+| 部署 / 发布变化 | `70-deploy/` |
+| 界面相关 | `80-design/`（不适用须显式声明，不得静默省略） |
+| 接口 / 协议 / 配置参考 | `90-reference/` |
+| API / 路由 / UI 资产（图标等）实体增删改 | **登记簿实时入账**（分散挂靠各卷：api→90-reference、ui-assets/routes→80-design、config→60-config、tasks→70-deploy、events→00-overview；五要素，标识·covers·状态进 frontmatter；废弃与未使用显式标注） |
+| 内容过时 | **三态更新**：失真→修正；过时→状态机降级或移 `99-archive/` 留墓碑，**默认不物理删除**；冗余→合并 |
+| 新文档落位 | **归位决策树定位唯一归宿** + 同步登记两级索引（INDEX + 卷 _index）；馆外是例外，例外必须显式 |
+| 功能移除 | **六步规程**：影响面预查→残留扫描→执行移除→馆内联动（retired/removed+墓碑）→`doclib check` 执法→留痕 |
+| 任何进度变化 | feature-map 状态推进 + `00-overview/progress.md` 补记 |
+| 引导文件（本文件）的维护 | 规则区由 `doclib sync` 再生；**项目定制区实时维护**——项目工作流/注意事项/教训产生的新 agent 规则，当场写入 custom 区 |
 
-## 会话纪律
+## 会话纪律（每个开发会话）
 
-1. 开始：`node dist/cli.js status`
-2. 结束前自检三问：**改动归档了吗？feature-map 状态推进了吗？progress.md 补记了吗？**
-
-## 开发流程（.plan 双锚点）
-
-1. `.plan/<日期>/<名称>.md` 规划，七栏目：目的与效果、问题点、研究结果、代码实际情况、设计方案、备选方案、实施清单
-2. 规划完成 → feature-map 登记 planned（锚点一）
-3. 开发中按实时同步规则随时入馆
-4. 开发完成 → 长期价值沉淀 ADR/规格/参考卷、状态 → implemented、progress.md 补记（锚点二）
-5. `node dist/cli.js snapshot --note "<主题>"` 固化基线
+1. 开始：`doclib status`（看漂移、基线、引导版本）
+2. 结束前自检四问：**改动归档了吗？feature-map 状态推进了吗？progress.md 补记了吗？引导文件（CLAUDE.md/AGENTS.md）需要更新吗？**
+3. 新功能开发走 `.plan/<日期>/` 双锚点：规划文档完成 → feature-map 登记 planned；开发完成 → 归档成果（长期价值沉淀 ADR/规格/参考卷）、状态 → implemented、progress 补记、`doclib snapshot` 固化基线
 
 ## 纪律底线
 
-- 每篇文档 frontmatter `covers` 指向真实代码路径，随改动保持准确
-- 文档写行为/契约/意图/验收标准；除 ≤10 行示意片段外禁止搬运源码
-- 兜底：`doclib diff` 揪漂移、`doclib reconcile` 对账重建——不依赖兜底
+- **引导文件与图书馆同为一体**：agent 必须知道的新规则/注意事项，先写进本文件 custom 区（实时）；确认长期普适的，沉淀进图书馆对应卷并提示用户运行 `doclib sync`
+- 每篇文档 frontmatter 的 `covers` 指向真实代码路径——它是增量更新的锚点，必须随改动保持准确
+- **先馆后码**：查实体（API 字段/图标位置/路由/配置）先查登记簿，无果或有疑才读代码；查码所得回填登记簿（查询即建账）
+- 文档写行为、契约、设计意图、验收标准；除 ≤10 行示意片段外禁止搬运源码（非克隆铁律）
+- 更新过时内容**默认降级保史**（登记簿状态机 / 墓碑 / `99-archive/`），物理删除仅限失真与用户显式指令
+- **归位宪法**：馆内是默认，馆外是例外，例外必须显式；落文档先走决策树，落位即登记两级索引；命名 kebab-case，日期不进文件名
+- **无账不答（反幻觉）**：查登记簿无果禁止凭空回答实体问题——读码验证并回填建账；不确定就声明不确定
+- **入馆写协调**：入馆写前先跑 `doclib check` 对账；同一时间单会话入馆写
+- 记忆与图书馆冲突时**以馆为准**；新增引导规则先自问"删掉会犯错吗"——不会则入 skill/入馆，不进引导
+- 数据库迁移：实体在代码 `migrations/`（`NNN_YYYYMMDD_<slug>.sql`），取号登记在 `10-architecture/migrations.md` 账本；forward-only、applied 不可变
+- 忘了同步由兜底接住：`doclib check` 强验证（漏更/无归属/迁移违规/引导过期/孤儿文档 + 治理健康分 + revision，可挂 pre-commit --strict 门禁）、`doclib diff` 揪漂移、`doclib reconcile` 对账重建——但兜底不是用来依赖的
 
-## 命令与结构速查
+## skills 与 CLI 速查
 
-- `npm run build`（tsc + copy-assets）/ `npm run typecheck` / `npm test`
-- CLI：`node dist/cli.js status / diff / plan / snapshot / verify / init`（详见 AGENTS.md CLI 速查）
-- 结构与约定详见 `AGENTS.md`；需求 `docs/PRD.md`；架构 `docs/DESIGN.md`
-- 进度：`doclib/00-overview/feature-map.md`（14+ 条目）｜时间线 `doclib/00-overview/progress.md`
+skills 按名称加载：`build`=蒸馏建馆｜`bootstrap`=新项目文档先行｜`resume`=半成品接手｜`dev`=日常开发★主力｜`update`=增量更新｜`rebuild`=从零复原｜`reconcile`=对账重建｜`audit`=质量审计｜`accept`=验收执行
+CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`verify` 覆盖度｜`init` 骨架落位｜`sync` 引导/skills 同步｜`check` 强验证+治理分｜`ack` 路径豁免｜`hook` 提交门禁
+
+<!-- doclib:managed-end -->
+
+<!-- doclib:custom-begin -->
+## 本项目定制（DocLib 仓库）
+
+> 本文件与 AGENTS.md 由 doclib sync 同步管理规则区；定制区内容两文件保持一致。
+
+- 定位：把任意项目蒸馏成可复原的文档图书馆；本仓库已启用 DocLib 自身（身先士卒）
+- 命令：`npm run build`（tsc + copy-assets）｜`npm run typecheck`｜`npm test`｜CLI 试运行 `node dist/cli.js <命令>`；版本 0.3.0（structure v2）
+- 结构：`src/cli.ts` 入口；`src/commands/` 十命令（init/plan/diff/snapshot/status/verify/sync/check/ack/hook）；`src/core/` 纯逻辑（fsutil/frontmatter/state/detect/mapping/check/ledger/guides/assets/agents/prompts/version）；`assets/` 模板与引导源（guides=managed 区再生源，改引导规则须改此处再 sync）；`skills/` 手册源；`docs/` PRD+DESIGN
+- 约定：ESM（导入带 .js 后缀）；strict + noUncheckedIndexedAccess；运行时仅依赖 ignore；源码不写注释；错误一律抛 DoclibError；术语见 doclib/10-architecture/prd.md §4
+- 验证：typecheck + test 全绿后，命令行为改动须临时目录冒烟（init --agents claude,opencode → plan → snapshot → 改文件 → diff → plan → verify）
+- skills 状态：10/10 全部实现（build/update/rebuild + dev/bootstrap/resume/setup/reconcile/audit/accept，feature-map #6）
+- 进度指针：`doclib/10-architecture/prd.md`（v0.23）｜`doclib/10-architecture/design.md`（v2）｜`doclib/00-overview/feature-map.md`｜`doclib/00-overview/progress.md`
+- 术语：图书馆=doclib/、簿记=.doclib/、任务书=.doclib/tasks/、基线=snapshot、漂移=drift、锚点=covers
+- 治理状态：规划载体 `.plan/<日期>/` 已声明（F9 默认实例）；登记簿落点已拍板——**分散挂靠各卷**（Q25，挂靠表见 PRD §7）；复原基准测试体系已立项（F14，首个基准项目 **colinhacks/zod**【Q31】，操作指南 `40-guides/benchmark.md`；**复原须与建馆不同会话/实例/模型，防先验污染**）；历史遗留已清零（v0.23）：50-reference 已归位 90-reference、PRD/DESIGN 已迁入 `doclib/10-architecture/`；写协调乐观锁 revision 已立项（Q36）
+<!-- doclib:custom-end -->

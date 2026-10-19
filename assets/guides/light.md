@@ -1,5 +1,7 @@
 <!-- doclib-guide cli=%CLI_VERSION% structure=%STRUCTURE_VERSION% -->
-# DocLib 工作流（轻量引导）
+# DocLib 工作流
+
+<!-- doclib:managed-begin -->
 
 本仓库已启用 DocLib。图书馆：`doclib/`（唯一事实源，12 卷基线）｜簿记：`.doclib/`｜进度：`doclib/00-overview/feature-map.md`（状态事实源）+ `progress.md`（时间线）。
 
@@ -21,21 +23,40 @@
 | 部署 / 发布变化 | `70-deploy/` |
 | 界面相关 | `80-design/`（不适用须显式声明，不得静默省略） |
 | 接口 / 协议 / 配置参考 | `90-reference/` |
+| API / 路由 / UI 资产（图标等）实体增删改 | **登记簿实时入账**（分散挂靠各卷：api→90-reference、ui-assets/routes→80-design、config→60-config、tasks→70-deploy、events→00-overview；五要素，标识·covers·状态进 frontmatter；废弃与未使用显式标注） |
+| 内容过时 | **三态更新**：失真→修正；过时→状态机降级或移 `99-archive/` 留墓碑，**默认不物理删除**；冗余→合并 |
+| 新文档落位 | **归位决策树定位唯一归宿** + 同步登记两级索引（INDEX + 卷 _index）；馆外是例外，例外必须显式 |
+| 功能移除 | **六步规程**：影响面预查→残留扫描→执行移除→馆内联动（retired/removed+墓碑）→`doclib check` 执法→留痕 |
 | 任何进度变化 | feature-map 状态推进 + `00-overview/progress.md` 补记 |
+| 引导文件（本文件）的维护 | 规则区由 `doclib sync` 再生；**项目定制区实时维护**——项目工作流/注意事项/教训产生的新 agent 规则，当场写入 custom 区 |
 
 ## 会话纪律（每个开发会话）
 
 1. 开始：`doclib status`（看漂移、基线、引导版本）
-2. 结束前自检三问：**改动归档了吗？feature-map 状态推进了吗？progress.md 补记了吗？**
+2. 结束前自检四问：**改动归档了吗？feature-map 状态推进了吗？progress.md 补记了吗？引导文件（CLAUDE.md/AGENTS.md）需要更新吗？**
 3. 新功能开发走 `.plan/<日期>/` 双锚点：规划文档完成 → feature-map 登记 planned；开发完成 → 归档成果（长期价值沉淀 ADR/规格/参考卷）、状态 → implemented、progress 补记、`doclib snapshot` 固化基线
 
 ## 纪律底线
 
+- **引导文件与图书馆同为一体**：agent 必须知道的新规则/注意事项，先写进本文件 custom 区（实时）；确认长期普适的，沉淀进图书馆对应卷并提示用户运行 `doclib sync`
 - 每篇文档 frontmatter 的 `covers` 指向真实代码路径——它是增量更新的锚点，必须随改动保持准确
+- **先馆后码**：查实体（API 字段/图标位置/路由/配置）先查登记簿，无果或有疑才读代码；查码所得回填登记簿（查询即建账）
 - 文档写行为、契约、设计意图、验收标准；除 ≤10 行示意片段外禁止搬运源码（非克隆铁律）
-- 忘了同步由兜底接住：`doclib diff` 揪漂移、`doclib reconcile` 对账重建——但兜底不是用来依赖的
+- 更新过时内容**默认降级保史**（登记簿状态机 / 墓碑 / `99-archive/`），物理删除仅限失真与用户显式指令
+- **归位宪法**：馆内是默认，馆外是例外，例外必须显式；落文档先走决策树，落位即登记两级索引；命名 kebab-case，日期不进文件名
+- **无账不答（反幻觉）**：查登记簿无果禁止凭空回答实体问题——读码验证并回填建账；不确定就声明不确定
+- **入馆写协调**：入馆写前先跑 `doclib check` 对账；同一时间单会话入馆写
+- 记忆与图书馆冲突时**以馆为准**；新增引导规则先自问"删掉会犯错吗"——不会则入 skill/入馆，不进引导
+- 数据库迁移：实体在代码 `migrations/`（`NNN_YYYYMMDD_<slug>.sql`），取号登记在 `10-architecture/migrations.md` 账本；forward-only、applied 不可变
+- 忘了同步由兜底接住：`doclib check` 强验证（漏更/无归属/迁移违规/引导过期/孤儿文档 + 治理健康分 + revision，可挂 pre-commit --strict 门禁）、`doclib diff` 揪漂移、`doclib reconcile` 对账重建——但兜底不是用来依赖的
 
 ## skills 与 CLI 速查
 
 skills 按名称加载：`build`=蒸馏建馆｜`bootstrap`=新项目文档先行｜`resume`=半成品接手｜`dev`=日常开发★主力｜`update`=增量更新｜`rebuild`=从零复原｜`reconcile`=对账重建｜`audit`=质量审计｜`accept`=验收执行
-CLI：`status`（概览）/`diff`（漂移）/`plan`（生成任务书至 `.doclib/tasks/`）/`snapshot`（固化基线）/`verify`（覆盖度）/`init`（骨架与落位）
+CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`verify` 覆盖度｜`init` 骨架落位｜`sync` 引导/skills 同步｜`check` 强验证+治理分｜`ack` 路径豁免｜`hook` 提交门禁
+
+<!-- doclib:managed-end -->
+
+<!-- doclib:custom-begin -->
+<!-- 本区由本项目 agent/用户维护：项目定制说明与注意事项。doclib sync 更新时保留本区内容 -->
+<!-- doclib:custom-end -->

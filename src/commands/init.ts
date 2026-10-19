@@ -6,13 +6,13 @@ import { resolveAgents } from "../core/agents.js";
 import { isInteractive, askAgents, askGuide } from "../core/prompts.js";
 import { writeGuides } from "../core/guides.js";
 import { STRUCTURE_VERSION } from "../core/version.js";
-import { DoclibError, LIBRARY_DIR, TASKS_DIR, loadState, saveState } from "../core/state.js";
+import { DoclibError, DEFAULT_PLANNING, LIBRARY_DIR, TASKS_DIR, loadState, saveState } from "../core/state.js";
 
 export type CommandResult = { text: string; json?: unknown };
 
 export async function runInit(
   root: string,
-  opts: { force?: boolean; agents?: string; guide?: "light" | "none" },
+  opts: { force?: boolean; agents?: string; guide?: "light" | "none"; planning?: string },
 ): Promise<CommandResult> {
   if (opts.guide !== undefined && opts.guide !== "light" && opts.guide !== "none") {
     throw new DoclibError("--guide 仅支持 light | none");
@@ -56,6 +56,10 @@ export async function runInit(
   const state = await loadState(root);
   state.agents = targets.map((t) => t.id);
   state.structureVersion = STRUCTURE_VERSION;
+  const planningSpec = opts.planning?.trim();
+  state.planning = planningSpec
+    ? planningSpec.split(",").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => (p.endsWith("/") ? p : `${p}/`))
+    : [...DEFAULT_PLANNING];
   await saveState(root, state);
 
   const lines = [
@@ -63,6 +67,7 @@ export async function runInit(
     `- 图书馆模板: ${LIBRARY_DIR}/ (${templatesRel.length} 个文件)`,
     `- agents: ${targets.map((t) => t.id).join(", ")}`,
     `- skills 落位: ${skillsInstalled.length > 0 ? skillsInstalled.join(", ") : "无"}`,
+    `- 规划载体: ${state.planning.join(", ")}`,
     `- 引导文件: ${guides.written.length > 0 ? `写入 ${guides.written.join(", ")}` : "未写入"}${guides.skipped.length > 0 ? `（跳过已有无戳文件: ${guides.skipped.join(", ")}，合并请交由 agent 处理）` : ""}`,
     "- 簿记: .doclib/",
     "",

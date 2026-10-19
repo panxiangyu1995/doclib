@@ -2,6 +2,8 @@
 title: 模块索引
 covers:
   - src/
+  - assets/
+  - skills/
 status: stable
 ---
 
@@ -26,4 +28,10 @@ status: stable
 | commands/snapshot | 基线记录（版本 +1） | 待成卷 | src/commands/snapshot.ts |
 | commands/status | 版本/基线/漂移/引导概览 | 待成卷 | src/commands/status.ts |
 | commands/verify | 覆盖度/失效文档/INDEX/引导检查 | 待成卷 | src/commands/verify.ts |
+| commands/sync | 引导规则区与 skills 同步（幂等） | 30-features/（待写） | src/commands/sync.ts |
+| commands/check | 强验证对账报告与 strict 门禁 | 30-features/check.md | src/commands/check.ts |
+| commands/ack | 路径豁免登记（once/standing/remove） | 30-features/（待写） | src/commands/ack.ts |
+| commands/hook | pre-commit 钩子安装/移除 + CI 模板 | 30-features/（待写） | src/commands/hook.ts |
+| core/ledger | 文档账收集与迁移账本解析/校验 | 待成卷 | src/core/ledger.ts |
+| core/check | 双账本对账六分类引擎 | 待成卷 | src/core/check.ts |
 | scripts/copy-assets | 构建期资产拷贝（零依赖脚本） | 待成卷 | scripts/copy-assets.js |

@@ -20,6 +20,15 @@ export type Snapshot = {
   note: string;
   stats: SnapshotStats;
   files: Record<string, string>;
+  docs?: Record<string, string>;
+};
+
+export type StateAck = {
+  path: string;
+  note: string;
+  at: string;
+  kind: "once" | "standing";
+  baseline?: string;
 };
 
 export type State = {
@@ -28,12 +37,26 @@ export type State = {
   snapshots: Snapshot[];
   structureVersion: number;
   agents: string[];
+  acks: StateAck[];
+  revision: number;
+  planning: string[];
 };
 
 export class DoclibError extends Error {}
 
+export const DEFAULT_PLANNING = [".plan/"];
+
 export function emptyState(): State {
-  return { version: 0, latest: null, snapshots: [], structureVersion: 0, agents: [] };
+  return {
+    version: 0,
+    latest: null,
+    snapshots: [],
+    structureVersion: 0,
+    agents: [],
+    acks: [],
+    revision: 0,
+    planning: [...DEFAULT_PLANNING],
+  };
 }
 
 export async function loadState(root: string): Promise<State> {
@@ -48,6 +71,9 @@ export async function loadState(root: string): Promise<State> {
       snapshots: parsed.snapshots,
       structureVersion: parsed.structureVersion ?? 1,
       agents: Array.isArray(parsed.agents) ? parsed.agents : [],
+      acks: Array.isArray(parsed.acks) ? parsed.acks : [],
+      revision: typeof parsed.revision === "number" ? parsed.revision : 0,
+      planning: Array.isArray(parsed.planning) && parsed.planning.length > 0 ? parsed.planning : [...DEFAULT_PLANNING],
     };
   } catch {
     return emptyState();

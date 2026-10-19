@@ -2,6 +2,7 @@ import path from "node:path";
 import { collectFiles, hashAll } from "../core/fsutil.js";
 import { buildCoverIndex, docsForPath } from "../core/mapping.js";
 import { computeDrift, DoclibError, LIBRARY_DIR, latestSnapshot, loadState, type Drift } from "../core/state.js";
+import { loadPlanningPaths, planningIgnores } from "../core/planning.js";
 import type { CommandResult } from "./init.js";
 
 export type ImpactedRow = { path: string; change: "added" | "modified" | "removed"; docs: string[] };
@@ -17,7 +18,7 @@ export async function analyzeDrift(root: string): Promise<{
   if (!latest) {
     throw new DoclibError("尚无基线快照：先执行 doclib snapshot（若图书馆还没构建，先 doclib plan 生成 BUILD 任务书）");
   }
-  const files = await collectFiles(root);
+  const files = await collectFiles(root, planningIgnores(loadPlanningPaths(state)));
   const hashes = await hashAll(root, files);
   const drift = computeDrift(latest.files, hashes);
 

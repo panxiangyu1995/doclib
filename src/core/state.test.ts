@@ -10,6 +10,7 @@ test("emptyState 为 v2 归零结构", () => {
   assert.equal(s.version, 0);
   assert.equal(s.latest, null);
   assert.equal(s.structureVersion, 0);
+  assert.equal(s.revision, 0);
   assert.deepEqual(s.agents, []);
 });
 
@@ -25,5 +26,7 @@ test("旧版 state.json 兼容归一化", async () => {
   const state = await loadState(root);
   assert.equal(state.structureVersion, 1);
   assert.deepEqual(state.agents, []);
+  assert.deepEqual(state.acks, []);
   assert.equal(state.latest, "snap-001");
+  assert.equal(state.revision, 0);
 });

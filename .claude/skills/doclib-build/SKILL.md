@@ -21,7 +21,7 @@ description: 将任意代码项目蒸馏为"可复原的文档图书馆"。当�
    - 第一遍·骨架：清单文件、入口、路由/页面/命令清单、目录职责、依赖图
    - 第二遍·数据：数据模型/Schema/存储格式/接口契约/配置项全集
    - 第三遍·行为：逐功能梳理触发方式、正常路径、边界、错误、并发/幂等/性能约束
-3. **填充图书馆**：按骨架逐卷撰写。顺序：00-overview → 10-architecture → 20-modules → 30-features → 40-guides → 50-reference → 最后更新 INDEX.md
+3. **填充图书馆**：按骨架逐卷撰写。顺序：00-overview → 10-architecture → 20-modules → 30-features → 40-guides → 90-reference → 最后更新 INDEX.md
 4. **自检**：执行下方"覆盖度清单"，全过才算完成
 5. **收尾**：运行 `doclib verify`，然后 `doclib snapshot --note "initial build"` 固化基线
 

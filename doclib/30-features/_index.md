@@ -15,7 +15,11 @@ status: stable
 | snapshot（基线记录） | 待写 | src/commands/snapshot.ts | implemented（规格欠账） |
 | status（概览） | 待写 | src/commands/status.ts | implemented（规格欠账） |
 | verify（覆盖度/引导检查） | 待写 | src/commands/verify.ts | implemented（规格欠账） |
-| 引导文件体系（light/full + 版本戳） | 待写 | assets/guides/、src/core/guides.ts | in-progress（规格欠账） |
+| 引导文件体系（light/full + 版本戳 + 区域契约） | 待写 | assets/guides/、src/core/guides.ts | implemented（规格欠账） |
+| doclib sync（引导/skills 可重入同步） | 待写 | src/commands/sync.ts | implemented（规格欠账） |
+| doclib check（强验证对账） | [check.md](check.md) | src/commands/check.ts、src/core/check.ts、src/core/ledger.ts | implemented |
+| doclib ack（路径豁免） | 待写 | src/commands/ack.ts | implemented（规格欠账） |
+| doclib hook（提交门禁） | 待写 | src/commands/hook.ts | implemented（规格欠账） |
 | BOOTSTRAP/RESUME 任务书 | 待写 | — | planned |
 | .plan 检测与双锚点提醒 | 待写 | — | planned |
 | 进度对账与 reconcile | 待写 | — | planned |

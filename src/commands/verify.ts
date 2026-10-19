@@ -5,6 +5,7 @@ import { languageOf } from "../core/detect.js";
 import { buildCoverIndex, groupByTopDir, isDocStale, normalizePath } from "../core/mapping.js";
 import { LIBRARY_DIR, latestSnapshot, loadState } from "../core/state.js";
 import { guideStampReport } from "../core/guides.js";
+import { loadPlanningPaths, planningIgnores } from "../core/planning.js";
 import type { CommandResult } from "./init.js";
 
 export async function runVerify(root: string, opts: { json?: boolean }): Promise<CommandResult> {
@@ -18,7 +19,7 @@ export async function runVerify(root: string, opts: { json?: boolean }): Promise
     files = Object.keys(latest.files);
     baselineNote = `基线 ${latest.id} (version ${latest.version})`;
   } else {
-    files = await collectFiles(root);
+    files = await collectFiles(root, planningIgnores(loadPlanningPaths(state)));
     baselineNote = "尚无基线快照，按当前文件扫描";
   }
 

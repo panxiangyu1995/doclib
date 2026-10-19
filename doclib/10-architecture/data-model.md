@@ -19,6 +19,8 @@ status: stable
 | snapshots[].stats | object | files/primary/languages/frameworks 检测统计 |
 | structureVersion | number | 图书馆结构版本（12 卷基线=2）；旧文件缺省归一化为 1 |
 | agents | string[] | 已安装的 agent 适配目标；旧文件缺省 [] |
+| acks | StateAck[] | 豁免登记 {path, note, at, kind: once\|standing, baseline?}；once 随 snapshot 清除；旧文件缺省 [] |
+| snapshots[].docs | Record<path, sha256>（optional） | 文档账（v3 起）：doclib/**/*.md + CLAUDE.md + AGENTS.md；缺省 undefined 表示 v1 旧快照（check 降级） |
 
 ## 文档 frontmatter（YAML 子集）
 

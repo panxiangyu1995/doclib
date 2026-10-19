@@ -1,6 +1,14 @@
+---
+title: DocLib 架构设计（v2）
+covers:
+  - src/
+  - assets/
+status: living
+---
+
 # DocLib 架构设计（v2，对齐 PRD v0.13）
 
-> 本文档回答"DocLib 如何构成与如何运转"。需求以 `docs/PRD.md` 为唯一事实源，本文不得与 PRD 冲突。
+> 本文档回答"DocLib 如何构成与如何运转"。需求以 [prd.md](prd.md) 为唯一事实源，本文不得与 PRD 冲突。
 > v0.1 代码为参考原型；标注【已实现】的部分已存在，其余按路线图落地。
 
 ## 1. 系统总览
@@ -47,6 +55,10 @@
 | `snapshot` | 记录基线（版本 +1，快照链上限 20） | 【已实现】 |
 | `status` | 版本/基线/漂移概览 + `.plan` 待登记/待归档提醒 + 引导版本戳检测 | 【部分实现】 |
 | `verify` | 覆盖度 + 失效文档 + INDEX 完整性 + 类别完备性 + 引导版本戳 | 【部分实现】 |
+| `sync` | 引导文件规则区与 skills 同步到已装 agent（区域化契约：managed 再生/custom 保留，幂等） | 【已实现】 |
+| `check` | 强验证：双账本对账（漏更/无归属/迁移违规/引导过期），--strict 门禁退出码 1 | 【已实现】 |
+| `ack` | 路径豁免登记（once 绑定基线自动清除 / standing 长期 / --remove） | 【已实现】 |
+| `hook` | pre-commit 钩子安装/移除（--strict；--ci github 发 CI 模板） | 【已实现】 |
 | `reconcile` | 进度对账重建：疑似完成清单 → agent 确认补录 | 【规划】 |
 | `setup` | skills/引导文件安装与更新（等价于 init 的可重入部分） | 【规划】 |
 
@@ -86,20 +98,23 @@
 
 1. **实时层（主）**：引导文件中的实时同步规则约束 agent——开发中凡触及 12 卷任一卷的改动即时入馆
 2. **流程层**：`.plan/` 双锚点（规划完成登记 planned；开发完成归档成果并推进状态）
-3. **兜底层**：diff → UPDATE 任务书；CLI 对账报告；`reconcile` 终极重建——进度永不真正丢失（代码 hash + covers 映射即底层账本）
+3. **兜底层**：`diff` → UPDATE 任务书；`check` 强验证（state v3 双账本：代码账 + 文档账，确定性对账，--strict 可挂 pre-commit/CI 门禁）；CLI 对账报告；`reconcile` 终极重建——进度永不真正丢失（代码 hash + covers 映射即底层账本）
 
 ## 5. 状态模型（state.json v2）
 
 ```jsonc
 {
-  "version": 3,                       // 图书馆版本，snapshot +1
+  "version": 3,                       // 图书馆版本，snapshot 时 +1
   "latest": "snap-003",
   "structureVersion": 2,              // 图书馆结构版本（12 卷基线=2），引导版本戳检测用
   "agents": ["claude", "opencode"],   // 已安装的 agent 适配目标
+  "acks": [],                         // 豁免登记 {path,note,at,kind:"once"|"standing",baseline?}；once 随 snapshot 清除
   "snapshots": [                      // 上限 20 条
     { "id": "snap-003", "version": 3, "at": "ISO", "note": "…",
       "stats": { "files": 420, "primary": "TypeScript", "…": "…" },
-      "files": { "src/a.ts": "<sha256>" } }
+      "files": { "src/a.ts": "<sha256>" },        // 代码账
+      "docs": { "doclib/README.md": "<sha256>" }  // 文档账（v3 起）：doclib/**/*.md + CLAUDE.md + AGENTS.md
+    }
   ]
 }
 ```

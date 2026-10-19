@@ -22,6 +22,20 @@ status: living
 - 解决：补 writeTask 调用；冒烟验证必须包含"输出后立即读取文件"的断言习惯
 - 规避：命令收尾输出路径时，同命令内验证文件存在再打印
 
+## 2026-10-19 · 子命令风格的 CLI 参数必须显式映射
+
+- 现象：冒烟中 `doclib hook remove` 没有执行移除，反而以默认参数重新安装了钩子（覆盖了 strict 版）
+- 根因：`remove` 被解析为位置参数后丢弃，runHook 未收到 remove 信号，落入 install 分支
+- 解决：cli 对 hook 的位置参数做子命令映射（args[1] === "remove" → remove: true）；ack 的路径参数同理显式取 args[1]
+- 规避：凡设计为 `命令 子命令` 的 CLI 面，解析层必须把子命令映射进选项；冒烟用例要覆盖"用户会自然输入的调用形式"而非只测旗标形式
+
+## 2026-10-19 · sync 消费构建产物，改模板后必须先 build
+
+- 现象：编辑 assets/guides/light.md 后运行 `doclib sync`，输出"无变化"，新规则没有传播到引导文件
+- 根因：sync 的 writeGuides 读取的是 dist/assets/（copy-assets 的产物），源模板改动不经过 build 不会进入 dist
+- 解决：先 `npm run build` 再 sync；引导/模板变更的标准流程固化为"改 assets → build → sync"
+- 规避：任何"源资产 → 构建产物 → 运行时消费"链路，变更入口处必须提示构建步骤（未来可在 sync 输出中检测 dist 资产早于 assets 源时给出提示）
+
 ## 2026-10-17 · 脚手架命令必须区分"模板资产"与"用户内容"
 
 - 现象：阶段 1 执行到本仓库迁移时发现，`init --force 覆盖同名模板`会摧毁 doclib/ 中 9 个手写同名文件（feature-map/progress/lessons 等真实数据）

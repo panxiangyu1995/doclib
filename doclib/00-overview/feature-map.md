@@ -18,12 +18,18 @@ status: living
 | 3 | 需求与架构文档体系 | PRD v0.13 + DESIGN v2 | docs/ | implemented |
 | 4 | 图书馆启用（dogfooding） | 本仓库 12 卷图书馆 + 引导文件 + 进度账 | doclib/ | implemented |
 | 5 | 12 卷基线模板 | assets/templates/library 22 文件 + copy-assets 构建链 | .plan/2026-10-17/phase1-skeleton-v2.md | implemented |
-| 6 | 十 skill 体系 | +setup/bootstrap/resume/dev/reconcile/audit/accept | skills/（待建） | planned |
+| 6 | 十 skill 体系 | +setup/bootstrap/resume/dev/reconcile/audit/accept | skills/ | implemented |
 | 7 | npx 发布与 agent 适配 | npm 包 + init 交互/参数 + 适配表 + setup 命令 | 70-deploy/ | planned |
-| 8 | BOOTSTRAP/RESUME 任务书 | plan 新增两种任务书类型 | 30-features/（待写） | planned |
-| 9 | .plan 检测与双锚点提醒 | .plan 忽略 + status/plan 时间感知提醒 | 30-features/（待写） | planned |
-| 10 | 进度对账与 reconcile | 对账报告 + reconcile 重建命令 + core/ledger.ts | 30-features/（待写） | planned |
-| 11 | 引导文件模板与版本戳 | 轻量/完整两档 + 版本戳 + status/verify 检测 | .plan/2026-10-17/phase1-skeleton-v2.md | in-progress |
+| 8 | BOOTSTRAP/RESUME 任务书 | plan --bootstrap/--resume 两种任务书类型（互斥校验） | .plan/2026-10-19/skills-cli-completion.md | implemented |
+| 9 | 规划载体声明与双锚点提醒 | state.planning 声明（init --planning 多路径）+ 自定义载体不进快照 + 待登记/待归档提醒 | .plan/2026-10-19/skills-cli-completion.md | implemented |
+| 10 | 进度对账与 reconcile | doclib reconcile 三段报告（疑似完成/进度不符/待推进）+ core/reconcile.ts | .plan/2026-10-19/skills-cli-completion.md | implemented |
+| 11 | 引导文件模板与版本戳 | light/full 两档 + 区域契约（managed/custom）+ 版本戳检测 + 任务书收尾检查 | .plan/2026-10-19/guides-sync.md | implemented |
 | 12 | 类别完备性检查 | verify 对照 12 卷基线报告缺失类别 | 30-features/（待写） | planned |
 | 13 | git 感知基线 | 以 commit 为锚点的快照 | — | planned |
 | 14 | watch 模式与多图书馆 | 文件监听自动提醒；多馆管理 | — | planned |
+| 15 | doclib sync 引导同步命令 | 规则区再生/定制区保留/幂等/legacy 再生提示 | .plan/2026-10-19/guides-sync.md | implemented |
+| 16 | 强验证体系 | doclib check 双账本对账（漏更/无归属/迁移/引导过期）+ ack 豁免 + strict 门禁 + pre-commit hook | .plan/2026-10-19/strong-validation.md | implemented |
+| 17 | 文档治理全周期 + 双层图书馆 | 冷启动资产盘点/init 即 snapshot/规划载体适配（不输出工作流只回收知识）/存量迁移收编/孤儿文档检测/治理健康分/登记簿开放册制+99-archive 墓碑归档/归位宪法与三级索引编号体系/check 文档质量检测/无账不答与写协调纪律 | doclib/10-architecture/prd.md（v0.17–v0.23，Q20–Q40） | planned |
+| 18 | 复原基准测试体系 | 基准库准入 + 同题共答双跑 + 缺陷四分类 + 复原档案 + 污染防护（不同模型/实例）+ 回归重跑 | doclib/10-architecture/prd.md（F14）+ 40-guides/benchmark.md | planned |
+| 19 | 移除规程与扫描器集成 | 六步移除规程（影响面预查→残留扫描→馆内联动→check 执法→留痕）+ F15 分阶段工具集成（ast-grep 主选/codegraph 实验/三铁律）+ 引导四纪律（裁剪判据/硬预算/记忆以馆为准/单点强调） | doclib/10-architecture/prd.md（F2/F15）+ ADR #10 | planned |
+| 20 | 强验证完成包 | 孤儿检测（第七分类+Q20 豁免清单）+ 治理健康分（Q22 五分项加权+等级）+ 乐观锁 revision（Q36）+ 引导硬预算（Q37/38 ≤150 行） | .plan/2026-10-19/check-governance-pack.md + 30-features/check.md | implemented |

@@ -12,15 +12,15 @@ status: living
 
 1. 总入口: [INDEX.md](INDEX.md)
 2. 是什么 → `00-overview/`（含功能进度总账 feature-map 与进度时间线 progress.md）
-3. 怎么设计的 → `10-architecture/` 与 [docs/DESIGN.md](../docs/DESIGN.md)
-4. 需求事实源 → [docs/PRD.md](../docs/PRD.md)
+3. 怎么设计的 → `10-architecture/` 与 [design.md](10-architecture/design.md)
+4. 需求事实源 → [prd.md](10-architecture/prd.md)
 
 ## 目录结构（12 卷基线）
 
 | 目录 | 内容 | 本项目状态 |
 | --- | --- | --- |
 | 00-overview/ | 定位、术语、功能总账、进度时间线 | 已启用 |
-| 10-architecture/ | 架构、数据模型、依赖、ADR | 骨架（指向 docs/DESIGN.md） |
+| 10-architecture/ | 架构、数据模型、依赖、ADR、PRD/DESIGN | 已启用（prd.md/design.md 已迁入） |
 | 20-modules/ | 模块卷 | 骨架 |
 | 30-features/ | 行为规格 + 验收标准 | 骨架 |
 | 40-guides/ | 路线图、约定、工作流 | 骨架 |

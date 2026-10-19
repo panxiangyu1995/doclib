@@ -18,7 +18,7 @@ status: stable
 | node 版本 | >=18 | test runner / fs promises |
 | 注释 | 源码不写注释 | 知识一律入图书馆，代码内注释会腐烂 |
 | 错误 | 一律抛 DoclibError，cli 统一捕获 | 统一错误面 |
-| 版本 | 0.2.0（structure v2） | 阶段 1 起版本与结构版本分离追踪 |
+| 版本 | 0.4.0（structure v2） | v0.4.0：CLI 地基（BOOTSTRAP/RESUME 任务书/载体声明与提醒/reconcile）+ skills 10/10；版本与结构版本分离追踪 |
 
 ## 构建
 

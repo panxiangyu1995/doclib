@@ -21,7 +21,7 @@ status: stable
 
 - 实时层：开发中按 40-guides/workflow.md 映射表当场入馆（agent 行为，CLI 不参与）
 - 流程层：.plan 双锚点（登记 planned / 归档 implemented）
-- 兜底层：`diff`（hashAll vs 最新快照 → drift → covers 映射受影响文档）→ `plan` 生成 UPDATE 任务书 → agent 执行 → `verify` → `snapshot`
+- 兜底层：`check` 强验证（双账本对账，--strict 可挂 pre-commit/CI 门禁）→ `diff`（hashAll vs 最新快照 → drift → covers 映射受影响文档）→ `plan` 生成 UPDATE 任务书 → agent 执行 → `verify` → `snapshot`
 
 ## 流 3 · 复原（已规划，REBUILD 任务书已可生成）
 

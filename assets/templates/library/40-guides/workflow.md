@@ -14,10 +14,10 @@ status: living
 ## 实时同步规则（12 卷一视同仁）
 
 开发中凡触及任一卷知识的改动，实时更新入馆，不等 diff：
-bug 与解决办法→`95-lessons/`；测试→`50-testing/`；配置/lint/CI→`60-config/`；部署→`70-deploy/`；界面→`80-design/`；接口→`90-reference/`；架构决策→`10-architecture/decisions.md`；功能/行为→`30-features/`；依赖变更→`10-architecture/dependencies.md`；**数据库迁移/Schema 变更→`10-architecture/migrations.md`（先取号、后登记账本）与 data-model.md**；进度→feature-map 与 progress.md
+bug 与解决办法→`95-lessons/`；测试→`50-testing/`；配置/lint/CI→`60-config/`；部署→`70-deploy/`；界面→`80-design/`；接口→`90-reference/`；架构决策→`10-architecture/decisions.md`；功能/行为→`30-features/`；依赖变更→`10-architecture/dependencies.md`；**数据库迁移/Schema 变更→`10-architecture/migrations.md`（先取号、后登记账本）与 data-model.md**；进度→feature-map 与 progress.md；**引导文件（CLAUDE.md/AGENTS.md）→规则区由 `doclib sync` 再生，定制区实时维护（新规则/注意事项当场写入）**
 
 ## 会话纪律
 
 - 会话开始：`doclib status`（漂移与待办）
-- 会话结束自检：改动归档了吗？feature-map 状态推进了吗？progress.md 补记了吗？
+- 会话结束自检四问：改动归档了吗？feature-map 状态推进了吗？progress.md 补记了吗？引导文件需要更新吗？
 - 兜底：忘记上述任何一步，`doclib diff` / `doclib reconcile` 会把漂移揪出来——但不要依赖兜底
