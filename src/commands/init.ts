@@ -3,7 +3,7 @@ import path from "node:path";
 import { collectFiles } from "../core/fsutil.js";
 import { assetsRoot, copyDir, renderTemplate } from "../core/assets.js";
 import { resolveAgents } from "../core/agents.js";
-import { isInteractive, askAgents, askGuide } from "../core/prompts.js";
+import { isInteractive, askAgents, askGuide, askPlanning } from "../core/prompts.js";
 import { writeGuides } from "../core/guides.js";
 import { STRUCTURE_VERSION } from "../core/version.js";
 import { DoclibError, DEFAULT_PLANNING, LIBRARY_DIR, TASKS_DIR, loadState, saveState } from "../core/state.js";
@@ -39,8 +39,10 @@ export async function runInit(
 
   let agentSpec = opts.agents;
   let guide = opts.guide;
+  let planningSpec = opts.planning;
   if (!agentSpec && isInteractive()) agentSpec = (await askAgents()).join(",");
   if (!guide && isInteractive()) guide = await askGuide();
+  if (!planningSpec && isInteractive()) planningSpec = await askPlanning();
   const targets = resolveAgents(agentSpec);
 
   const skillsInstalled: string[] = [];
@@ -56,7 +58,6 @@ export async function runInit(
   const state = await loadState(root);
   state.agents = targets.map((t) => t.id);
   state.structureVersion = STRUCTURE_VERSION;
-  const planningSpec = opts.planning?.trim();
   state.planning = planningSpec
     ? planningSpec.split(",").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => (p.endsWith("/") ? p : `${p}/`))
     : [...DEFAULT_PLANNING];

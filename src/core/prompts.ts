@@ -30,3 +30,14 @@ export async function askGuide(): Promise<"light" | "none"> {
     rl.close();
   }
 }
+
+export async function askPlanning(): Promise<string> {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    const answer = await rl.question("规划载体路径（逗号分隔多个，回车=.plan/）: ");
+    const trimmed = answer.trim();
+    return trimmed === "" ? ".plan" : trimmed;
+  } finally {
+    rl.close();
+  }
+}

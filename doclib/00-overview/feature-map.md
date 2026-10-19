@@ -19,7 +19,7 @@ status: living
 | 4 | 图书馆启用（dogfooding） | 本仓库 12 卷图书馆 + 引导文件 + 进度账 | doclib/ | implemented |
 | 5 | 12 卷基线模板 | assets/templates/library 22 文件 + copy-assets 构建链 | .plan/2026-10-17/phase1-skeleton-v2.md | implemented |
 | 6 | 十 skill 体系 | +setup/bootstrap/resume/dev/reconcile/audit/accept | skills/ | implemented |
-| 7 | npx 发布与 agent 适配 | npm 包 + init 交互/参数 + 适配表 + setup 命令 | 70-deploy/ | planned |
+| 7 | npx 发布与 agent 适配 | npm 包元数据+clean build+prepublishOnly 门禁+release.yml 自动发版+冷包验收；init 交互问卷含载体（askPlanning）；setup 独立命令未做（init/sync 已覆盖其职能） | .plan/2026-10-19/npm-release.md + 70-deploy/deploy.md | in-progress |
 | 8 | BOOTSTRAP/RESUME 任务书 | plan --bootstrap/--resume 两种任务书类型（互斥校验） | .plan/2026-10-19/skills-cli-completion.md | implemented |
 | 9 | 规划载体声明与双锚点提醒 | state.planning 声明（init --planning 多路径）+ 自定义载体不进快照 + 待登记/待归档提醒 | .plan/2026-10-19/skills-cli-completion.md | implemented |
 | 10 | 进度对账与 reconcile | doclib reconcile 三段报告（疑似完成/进度不符/待推进）+ core/reconcile.ts | .plan/2026-10-19/skills-cli-completion.md | implemented |

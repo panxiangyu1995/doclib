@@ -42,6 +42,7 @@ status: living
 | v0.23 | 2026-10-19 | Q20–Q39 批量拍板落地（提问工具四批拍板 + Q31 候选调研三选一）：孤儿豁免工具链全目录（Q20）、README 保留独立摘要（Q21）、治理分精细分制（Q22）、载体提醒 soft（Q23）/声明可中途改（Q24）、登记簿分散挂靠各卷（Q25）、frontmatter+自由条目（Q26）、档案永久保留（Q27）、扫描器全主流语言一次到位（Q28）、复用性判据（Q29）、50-reference 归位重编号（Q30，已执行）、**首个基准项目 colinhacks/zod**（Q31）、PRD/DESIGN 迁入图书馆（Q32，已执行）、强制三位序号+阈值30+存量不追溯（Q33）、前缀命名空间 ID+@版本（Q34）、第一批五册认可（Q35）、**写协调升级乐观锁 revision 一步到位**（Q36）、引导 ≤150 行只显示（Q37/38）、以馆为准采纳（Q39）；本仓库实体操作：50-reference→90-reference、docs/→doclib/10-architecture/（ADR #11） |
 | v0.24 | 2026-10-19 | 强验证完成包实现（.plan/2026-10-19/check-governance-pack.md）：F13 第七分类孤儿检测（src/core/orphan.ts，Q20 豁免清单+工具链目录）、治理健康分（Q22 五分项加权+等级，check/status 输出）、乐观锁 revision（Q36，state 字段+snapshot 递增+check/status/plan 输出）、引导硬预算（Q37/38，GUIDE_BUDGET_LINES=150，status 只显示）；F5/F6/F13 对应条款落地；版本 0.3.0（feature-map #20） |
 | v0.25 | 2026-10-19 | CLI 地基与 Skills 补全（.plan/2026-10-19/skills-cli-completion.md，用户纠正开发顺序：先补全工具后做基准实验）：F8 落地——plan 新增 BOOTSTRAP（--bootstrap 对话式挖掘）/RESUME（--resume 半成品接手）任务书类型（与 --rebuild 互斥）；F9 落地——载体声明（state.planning，init --planning 多路径，归一化默认 .plan/）+ 自定义载体不进快照/漂移（六处 collectFiles 接 planningIgnores）+ 双锚点提醒（待登记=载体 mtime 晚于基线/待归档=feature-map 解析，status/plan 输出）；F11 落地——doclib reconcile（疑似完成/进度不符/待推进三段报告，implemented 条目 covers 漂移+文档未同步判定）；F7 落地——skills 10/10 建齐（dev/bootstrap/resume/setup/reconcile/audit/accept）；version 命令修复硬编码（→CLI_VERSION）；版本 0.4.0（feature-map #6/#8/#9/#10） |
+| v0.26 | 2026-10-19 | npm 发布工程就绪（.plan/2026-10-19/npm-release.md，五项拍板由用户授权按可持续视角代定）：发布通道=Actions tag 触发（release.yml：npm ci→test→publish --provenance）；license=MIT（LICENSE 文件）；clean build（dist 先清——消灭 v0.1 孤儿残留 dist/templates）；包元数据（repository/homepage/bugs/keywords/prepublishOnly 门禁/files 移除 AGENTS.md）；F9 交互尾巴（askPlanning 载体问卷）；冷包验收通过（tgz 全新目录 init/plan/snapshot/status 全流程）；发布流程入 70-deploy（tag 流程/用户前置/回滚=dist-tag forward-only） |
 
 ## 1. 背景与问题
 
@@ -418,9 +419,9 @@ doclib/
 5. **判活标准**（提案）：图书馆在开发流程中被实际消费——每次新开发从图书馆出发（规划引用既有文档）、以图书馆验收；生成后无人消费的图书馆视为失败；**治理健康分（F13）持续可读且保持健康水位**——分数长期下滑 = 治理失效信号（机器维度）
 6. **基准校准指标【v0.19】**（提案）：复原基准实验（F14）产出复原度得分（验收双跑通过率）；**缺陷密度按卷/登记簿分布**——暴露哪类知识最难写全（如 80-design 最易盲），指导 skill 方法论改进重点与治理健康分权重定稿（Q22）
 
-### F10 安装与分发（P0）【已确认方向，细节待澄清】
+### F10 安装与分发（P0）【已确认；发布工程就绪 v0.26，首发待用户侧 npm 凭证】
 
-- 分发形态【已确认】：发布为 npm 包（bin: doclib），任意 repo 中 `npx doclib init` 即可安装使用
+- 分发形态【已确认】：发布为 npm 包（bin: doclib），任意 repo 中 `npx doclib init` 即可安装使用；发布通道=GitHub Actions tag 触发（release.yml，provenance），冷包验收已通过 v0.26
 - Agent 适配【已确认 Q13】：首版适配 **Claude Code、opencode、Cursor** 等主流 agent，skills 与引导文件按各 agent 目录约定安装（Claude Code `.claude/skills/` + `CLAUDE.md`、opencode 对应目录 + `AGENTS.md`、Cursor rules 目录等）；适配表设计为可持续扩充，其余 agent 逐步纳入
 - 交互形态【已确认 Q14】：`npx doclib init` 默认交互式问卷（选择 agent 与选项），同时提供 CLI 参数（如 `--agents claude,opencode,cursor`）供脚本化/非交互场景
 - 适配表【提案】：CLI 内维护"agent → 目录约定"映射表；`.doclib/state.json` 记录已安装目标，后续 skills/引导文件更新时同步到正确位置
