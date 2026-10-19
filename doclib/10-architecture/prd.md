@@ -238,7 +238,7 @@ status: living
 
 | Skill | 使命 | 触发场景 | 关联 CLI |
 | --- | --- | --- | --- |
-| doclib-setup【已实现】 | 安装适配：skills 落位到目标 agent 目录、引导文件模板落盘与定制补充、版本戳写入 | `npx doclib init` 之后 | init / setup |
+| doclib-setup【已实现】 | 安装适配：skills 落位到目标 agent 目录、引导文件模板落盘与定制补充、版本戳写入 | `npx @panxiangyu1995/doclib init` 之后 | init / setup |
 | doclib-build【已实现】 | 存量项目蒸馏建馆 | BUILD 任务书 | plan(BUILD) |
 | doclib-bootstrap【已实现】 | 新项目对话式挖掘建馆 → 文档先行开发验收 | BOOTSTRAP 任务书 | plan(BOOTSTRAP) |
 | doclib-resume【已实现】 | 半成品接手：已有代码蒸馏为 implemented + 规划整理为 planned | RESUME 任务书 | plan(RESUME) |
@@ -421,9 +421,9 @@ doclib/
 
 ### F10 安装与分发（P0）【已确认；发布工程就绪 v0.26，首发待用户侧 npm 凭证】
 
-- 分发形态【已确认】：发布为 npm 包（bin: doclib），任意 repo 中 `npx doclib init` 即可安装使用；发布通道=GitHub Actions tag 触发（release.yml，provenance），冷包验收已通过 v0.26
+- 分发形态【已确认】：发布为 npm 包（bin: doclib），任意 repo 中 `npx @panxiangyu1995/doclib init` 即可安装使用；发布通道=GitHub Actions tag 触发（release.yml，provenance），冷包验收已通过 v0.26
 - Agent 适配【已确认 Q13】：首版适配 **Claude Code、opencode、Cursor** 等主流 agent，skills 与引导文件按各 agent 目录约定安装（Claude Code `.claude/skills/` + `CLAUDE.md`、opencode 对应目录 + `AGENTS.md`、Cursor rules 目录等）；适配表设计为可持续扩充，其余 agent 逐步纳入
-- 交互形态【已确认 Q14】：`npx doclib init` 默认交互式问卷（选择 agent 与选项），同时提供 CLI 参数（如 `--agents claude,opencode,cursor`）供脚本化/非交互场景
+- 交互形态【已确认 Q14】：`npx @panxiangyu1995/doclib init` 默认交互式问卷（选择 agent 与选项），同时提供 CLI 参数（如 `--agents claude,opencode,cursor`）供脚本化/非交互场景
 - 适配表【提案】：CLI 内维护"agent → 目录约定"映射表；`.doclib/state.json` 记录已安装目标，后续 skills/引导文件更新时同步到正确位置
 - 与 F5/F9 衔接：安装即完成源项目轻量引导落位；复原项目的完整引导在复原收尾阶段落位
 
