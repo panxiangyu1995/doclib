@@ -1,5 +1,9 @@
 # DocLib
 
+[![npm version](https://img.shields.io/npm/v/@panxiangyu1995/doclib.svg)](https://www.npmjs.com/package/@panxiangyu1995/doclib)
+[![license](https://img.shields.io/npm/l/@panxiangyu1995/doclib.svg)](LICENSE)
+[![release](https://github.com/panxiangyu1995/doclib/actions/workflows/release.yml/badge.svg)](https://github.com/panxiangyu1995/doclib/actions/workflows/release.yml)
+
 把任意项目蒸馏成**可复原的文档图书馆**：有索引、有层次、覆盖全。任何 agent 或人，只凭这套文档，就能在别处**从零重新开发**出功能 ≥90% 复原的项目。
 
 这是文档驱动的重新开发，**不是克隆**——文档承载行为、契约、设计意图与验收标准，而不是字节。
@@ -18,28 +22,34 @@
 
 ```
 init → plan(BUILD) → agent 构建 → verify → snapshot        （蒸馏）
+init → plan(--bootstrap) → agent 对话挖掘 → 文档先行开发     （新项目）
+init → plan(--resume) → agent 蒸馏+登记规划 → 转日常开发     （半成品接手）
 改代码 → diff → plan(UPDATE) → agent 增量更新 → verify → snapshot （保活）
 任意时刻: plan --rebuild → agent 只凭图书馆从零复原          （复原）
 ```
 
-## 安装
+## 安装与使用
+
+**一键进入（发布版，推荐）**——任意 repo 中：
 
 ```bash
-npm install
-npm run build
-npm link          # 可选：全局可用 doclib 命令
+npx @panxiangyu1995/doclib init --agents claude,opencode
 ```
 
-安装 skills（给 agent 的操作手册）——`doclib init --agents claude,opencode` 会按适配表自动落位到各 agent 目录；也可手动把 `skills/` 下目录复制到你的 agent 的 skills 目录（如 Claude Code 的 `.claude/skills/`）：
+init 会落位图书馆骨架（12 卷）、`.doclib/` 簿记、**10 个 skills**（自动安装到各 agent 目录）与轻量引导文件（`CLAUDE.md`/`AGENTS.md`，规则区由 CLI 管理，定制区归你）。
 
-- `doclib-build`：如何把项目蒸馏成图书馆
-- `doclib-update`：如何增量更新图书馆
-- `doclib-rebuild`：如何只凭图书馆从零复原
+skills 全家福（agent 按名称加载）：`doclib-build`（蒸馏建馆）、`doclib-update`（增量更新）、`doclib-rebuild`（从零复原）、`doclib-dev`★（日常开发主力）、`doclib-bootstrap`（新项目对话式建馆）、`doclib-resume`（半成品接手）、`doclib-setup`（安装适配）、`doclib-reconcile`（进度对账重建）、`doclib-audit`（质量审计）、`doclib-accept`（验收执行）。
+
+**开发者本地构建**（参与 DocLib 开发时）：
+
+```bash
+npm install && npm run build && npm link   # 全局可用 doclib 命令
+```
 
 ## 快速开始
 
 ```bash
-doclib init --agents claude,opencode   # 图书馆骨架(12卷) + .doclib/ + skills 落位 + 轻量引导
+npx @panxiangyu1995/doclib init --agents claude,opencode
 doclib plan      # 生成 BUILD 任务书（含自动采集的项目清单）
 # → 让 agent 加载 doclib-build，按任务书构建图书馆
 doclib verify    # 覆盖度报告
@@ -67,17 +77,18 @@ doclib plan --rebuild --to ../myproj-rebuild
 | 命令 | 职责 |
 | --- | --- |
 | `init` | 初始化 `doclib/` 图书馆骨架与 `.doclib/` 簿记目录 |
-| `plan` | 生成任务书：BUILD（无基线）/ UPDATE（有漂移）/ REBUILD（`--rebuild`） |
+| `plan` | 生成任务书：BUILD（无基线）/ UPDATE（有漂移）/ REBUILD（`--rebuild`）/ BOOTSTRAP（`--bootstrap` 新项目对话式建馆）/ RESUME（`--resume` 半成品接手） |
 | `diff` | 当前代码 vs 基线快照：漂移清单 + 每个变更路径影响的文档 |
-| `snapshot` | 记录当前代码状态为新基线（图书馆版本 +1，快照链上限 20 条） |
-| `status` | 版本、基线、漂移、治理健康分、引导预算概览、任务书列表 |
+| `snapshot` | 记录当前代码状态为新基线（图书馆版本 +1，快照链上限 20 条，revision +1） |
+| `status` | 版本、基线、漂移、治理健康分、引导预算、载体提醒概览、任务书列表 |
 | `verify` | 覆盖度报告：未覆盖路径 / 失效文档 / INDEX 完整性 |
 | `sync` | 引导文件规则区与 skills 同步再生（幂等，定制区保留） |
-| `check` | 强验证：代码账+文档账双账本对账（漏更/无归属/迁移违规/引导过期/孤儿文档），`--strict` 门禁 |
+| `check` | 强验证：代码账+文档账双账本对账（漏更/无归属/迁移违规/引导过期/孤儿文档）+ 治理健康分 + revision，`--strict` 门禁 |
 | `ack` | 路径豁免登记（once 绑定基线自动清除 / standing 长期） |
 | `hook` | pre-commit 钩子安装/移除（`--strict`；`--ci github` 出 CI 模板） |
+| `reconcile` | 进度对账重建：疑似完成 / 进度不符 / 待推进三段报告 |
 
-通用选项：`--json`、`--note`、`--to`、`--force`、`--rebuild`；init 专用：`--agents`（claude/opencode/cursor/generic）、`--guide`（light/none）。
+通用选项：`--json`、`--note`、`--to`、`--force`、`--rebuild`、`--bootstrap`、`--resume`；init 专用：`--agents`（claude/opencode/cursor/generic）、`--guide`（light/none）、`--planning`（规划载体路径，逗号分隔，默认 `.plan/`）。
 
 ## 文档图书馆结构
 
@@ -112,3 +123,7 @@ doclib/
 ## 设计
 
 见 [doclib/10-architecture/design.md](doclib/10-architecture/design.md) 与 [doclib/10-architecture/prd.md](doclib/10-architecture/prd.md)。
+
+## License
+
+[MIT](LICENSE)
