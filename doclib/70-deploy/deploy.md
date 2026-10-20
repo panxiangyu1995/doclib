@@ -2,6 +2,7 @@
 title: 部署
 covers:
   - package.json
+  - LICENSE
   - .github/workflows/release.yml
   - scripts/copy-assets.js
 status: stable
