@@ -10,7 +10,7 @@ test("renderGuide 写入版本戳与区域标记", async () => {
   const content = await renderGuide("light");
   const stamp = parseGuideStamp(content);
   assert.ok(stamp);
-  assert.equal(stamp.structure, 2);
+  assert.equal(stamp.structure, 3);
   assert.ok(content.includes("实时同步规则"));
   assert.ok(content.includes("doclib:managed-begin"));
   assert.ok(content.includes("doclib:custom-begin"));

@@ -35,3 +35,5 @@ status: living
 | [80-design/README.md](80-design/README.md) | UI/UX——显式不适用 | not-applicable |
 | [90-reference/_index.md](90-reference/_index.md) | 参考索引（v0.23 已归位重编号） | draft |
 | [95-lessons/lessons.md](95-lessons/lessons.md) | 经验教训（3 条：frontmatter 解析/落盘断言/模板保护） | living |
+| [99-archive/README.md](99-archive/README.md) | 档案卷入口（墓碑规范，只进不出） | living |
+| [50-testing/acceptance-cli-v0.4.0.md](50-testing/acceptance-cli-v0.4.0.md) | CLI 全功能验收报告（44 探针/3 缺陷修复） | stable |

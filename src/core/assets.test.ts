@@ -29,6 +29,7 @@ const EXPECTED_TEMPLATES = [
   "80-design/README.md",
   "90-reference/_index.md",
   "95-lessons/lessons.md",
+  "99-archive/README.md",
 ];
 
 test("12 卷基线模板清单完整", async () => {

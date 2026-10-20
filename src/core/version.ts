@@ -13,4 +13,4 @@ function readVersion(): string {
 }
 
 export const CLI_VERSION: string = readVersion();
-export const STRUCTURE_VERSION = 2;
+export const STRUCTURE_VERSION = 3;

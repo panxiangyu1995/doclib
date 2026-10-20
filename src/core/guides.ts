@@ -101,13 +101,15 @@ export async function managedRegionFresh(root: string): Promise<string[]> {
 
 export async function guideStampReport(root: string): Promise<string> {
   const parts: string[] = [];
+  const fresh = new Set(await managedRegionFresh(root));
   for (const rel of ["CLAUDE.md", "AGENTS.md"]) {
     const raw = await fs.readFile(path.join(root, rel), "utf8").catch(() => null);
     if (raw === null) continue;
     const stamp = parseGuideStamp(raw);
     if (stamp === null) parts.push(`${rel} 无戳(非 doclib 管理)`);
-    else if (stamp.structure === STRUCTURE_VERSION && stamp.cli === CLI_VERSION) parts.push(`${rel} ✓`);
-    else parts.push(`${rel} 过期 → doclib sync`);
+    else if (stamp.structure !== STRUCTURE_VERSION || stamp.cli !== CLI_VERSION) parts.push(`${rel} 过期 → doclib sync`);
+    else if (fresh.has(rel)) parts.push(`${rel} 内容过期 → doclib sync`);
+    else parts.push(`${rel} ✓`);
   }
   return parts.length > 0 ? parts.join(" · ") : "未安装";
 }

@@ -56,6 +56,20 @@ export async function runVerify(root: string, opts: { json?: boolean }): Promise
     if (unlisted.length > 0) indexIssues.push(`未被索引收录: ${unlisted.join(", ")}`);
   }
 
+  const brokenLinks = new Set<string>();
+  for (const md of mdFiles) {
+    if (md === "INDEX.md") continue;
+    const raw = await fs.readFile(path.join(libRoot, md), "utf8").catch(() => null);
+    if (raw === null) continue;
+    for (const m of raw.matchAll(/\[[^\]]*\]\(([^)\s]+\.md)\)/g)) {
+      const l = m[1]!;
+      if (/^(https?:|#|\/)/.test(l)) continue;
+      const target = normalizePath(path.join(path.dirname(md), l).replace(/\\/g, "/"));
+      if (!allMd.includes(target)) brokenLinks.add(`${md} → ${l}`);
+    }
+  }
+  if (brokenLinks.size > 0) indexIssues.push(`链接失效（两级核对）: ${[...brokenLinks].join(", ")}`);
+
   const pct = codeFiles.length > 0 ? Math.round((covered.size / codeFiles.length) * 100) : 100;
   const groups = groupByTopDir(uncovered);
 
