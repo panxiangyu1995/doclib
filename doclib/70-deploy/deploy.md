@@ -11,7 +11,8 @@ status: stable
 
 ## 发布形态
 
-- npm 包 `doclib`（bin=dist/cli.js）——任意 repo `npx @panxiangyu1995/doclib init` 一键进入
+- npm 包 **@panxiangyu1995/doclib**（bin=`doclib`，命令名不变）——任意 repo `npx @panxiangyu1995/doclib init` 一键进入
+- **新包首发走 npm staging 审批**（上传成功后 0.0.0-stage，maintainer 网页/CLI 转正为正式版本）；已存在的包后续版本 direct 发布无需审批
 - 运行时依赖仅 `ignore`；assets（templates/guides/skills）经 copy-assets 进入 `dist/assets`，发布包内相对 import.meta.url 解析
 
 ## 构建与门禁
