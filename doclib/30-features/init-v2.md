@@ -23,6 +23,7 @@ status: stable
 | --force | 允许向已存在的 doclib/ 写入（同名模板覆盖，多余文件不动） | 目录已存在且无 force 则报错 |
 | --agents | 逗号分隔：claude,opencode,cursor,generic；未知 id 报 DoclibError；去重 | TTY 问卷；非 TTY → generic |
 | --guide | light \| none；非法值报 DoclibError | TTY 问卷；非 TTY → light |
+| --planning | 逗号分隔多路径（默认 .plan/），尾斜杠归一 | TTY 问卷（askPlanning：回车=.plan/）；非 TTY → .plan/ |
 
 ## 行为
 

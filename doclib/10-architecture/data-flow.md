@@ -11,6 +11,8 @@ status: stable
 
 ## 流 1 · init 落位（当前实现）
 
+> v0.26：init 交互链新增 askPlanning（载体确认，回车=.plan/）；声明结果写入 state.planning，供快照忽略与载体提醒消费。
+
 1. 解析选项：agents = `--agents` > TTY 问卷 > 非交互默认 generic；guide = `--guide` > TTY 问卷 > 默认 light
 2. 写 22 个图书馆模板（doclib/）；建 .doclib/tasks/
 3. 按 AGENT_TARGETS 复制 skills（copyDir，覆盖式）
