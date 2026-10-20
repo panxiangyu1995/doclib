@@ -116,7 +116,7 @@ async function main(): Promise<void> {
       console.log((await runSnapshot(root, flags)).text);
       break;
     case "status":
-      console.log((await runStatus(root)).text);
+      console.log((await runStatus(root, flags)).text);
       break;
     case "verify":
       console.log((await runVerify(root, flags)).text);

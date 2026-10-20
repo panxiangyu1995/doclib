@@ -27,12 +27,14 @@ status: stable
 
 ## 行为
 
-1. 模板：拷贝 assets/templates/library 全部 22 文件到 doclib/（保留目录结构）
+1. 模板：拷贝 assets/templates/library 全部模板文件到 doclib/（v3 骨架 24 文件；保留目录结构）
 2. 簿记：建 .doclib/tasks/
 3. skills：对 skillsDir 非空的目标（claude→.claude/skills、opencode→.opencode/skills）copyDir 覆盖式同步
 4. 引导（--guide light 时）：writeGuides——**有戳更新、无戳跳过（用户内容保护）、缺失写入**
-5. 状态：loadState（兼容归一化）→ agents=目标 id 列表、structureVersion=2 → saveState（既有快照链保留）
+5. 状态：loadState（兼容归一化）→ agents=目标 id 列表、structureVersion=STRUCTURE_VERSION（当前 3）→ saveState（既有快照链保留）
 6. 输出：模板数、agents、skills 落位、引导写入/跳过清单、下一步指引
+
+> v0.4.0 后续（2026-10-20）：version.ts 增导出 `PACKAGE_NAME`（读 package.json name，回退 @panxiangyu1995/doclib）——CI 模板包名单一事实源（hook 消费）；init 仍只消费 STRUCTURE_VERSION 与引导渲染的 CLI_VERSION。
 
 ## 边界与错误
 
@@ -46,7 +48,7 @@ status: stable
 
 ## 验收标准
 
-- Given 空目录 When `init --agents claude,opencode` Then doclib/ 含 22 模板、.claude/skills 与 .opencode/skills 各含 3 skill、CLAUDE.md/AGENTS.md 首行为 `<!-- doclib-guide cli=… structure=2 -->`、state.agents=[claude,opencode]
+- Given 空目录 When `init --agents claude,opencode` Then doclib/ 含 24 模板、.claude/skills 与 .opencode/skills 各含 10 skill 目录、CLAUDE.md/AGENTS.md 首行为 `<!-- doclib-guide cli=… structure=3 -->`、state.agents=[claude,opencode]
 - Given 已有手写 CLAUDE.md（无戳）When `init --force` Then CLAUDE.md 内容原样保留且输出"跳过"
 - Given 非 TTY When `init`（无参数）Then agents=generic、guide=light 自动落位
 - Given --agents foo When init Then 报错并列出可选 id

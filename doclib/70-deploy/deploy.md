@@ -28,7 +28,7 @@ status: stable
 3. `git push --tags` → push tag `v*` 触发 `.github/workflows/release.yml`：
    - npm ci → npm test → `npm publish --provenance`（id-token OIDC 供应链凭证）
    - 凭证：repo Secret `NPM_TOKEN`（granular token，仅 doclib 包读写）
-4. npmjs.com/package/doclib 人工确认（版本/README/provenance 徽章）
+4. npmjs.com/package/@panxiangyu1995/doclib 人工确认（版本/README/provenance 徽章）
 
 ## 用户前置操作（首次发布）
 
@@ -44,5 +44,5 @@ status: stable
 
 ## 回滚
 
-- npm：`npm dist-tag add doclib@<旧版> latest`（latest 指针回退；已发布版本不可撤回——forward-only 语义）
+- npm：`npm dist-tag add @panxiangyu1995/doclib@<旧版> latest`（latest 指针回退；已发布版本不可撤回——forward-only 语义）
 - 代码：revert 后按发布流程重发新版本

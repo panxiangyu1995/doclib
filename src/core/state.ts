@@ -1,5 +1,4 @@
 import fs from "node:fs/promises";
-import { readFileOrNull } from "./fsutil.js";
 
 export const LIBRARY_DIR = "doclib";
 export const STATE_DIR = ".doclib";
@@ -59,25 +58,40 @@ export function emptyState(): State {
   };
 }
 
+async function backupCorruptState(root: string, p: string): Promise<void> {
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  await fs.copyFile(p, `${root}/${STATE_DIR}/state.json.corrupt-${stamp}`).catch(() => {});
+}
+
 export async function loadState(root: string): Promise<State> {
-  const raw = await readFileOrNull(`${root}/${STATE_DIR}/state.json`);
-  if (!raw) return emptyState();
+  const p = `${root}/${STATE_DIR}/state.json`;
+  let raw: string;
   try {
-    const parsed = JSON.parse(raw) as Partial<State>;
-    if (typeof parsed.version !== "number" || !Array.isArray(parsed.snapshots)) return emptyState();
-    return {
-      version: parsed.version,
-      latest: parsed.latest ?? null,
-      snapshots: parsed.snapshots,
-      structureVersion: parsed.structureVersion ?? 1,
-      agents: Array.isArray(parsed.agents) ? parsed.agents : [],
-      acks: Array.isArray(parsed.acks) ? parsed.acks : [],
-      revision: typeof parsed.revision === "number" ? parsed.revision : 0,
-      planning: Array.isArray(parsed.planning) && parsed.planning.length > 0 ? parsed.planning : [...DEFAULT_PLANNING],
-    };
-  } catch {
-    return emptyState();
+    raw = await fs.readFile(p, "utf8");
+  } catch (e) {
+    const code = (e as NodeJS.ErrnoException).code;
+    if (code === "ENOENT" || code === "ENOTDIR") return emptyState();
+    await backupCorruptState(root, p);
+    throw new DoclibError(`状态文件 ${STATE_DIR}/state.json 不可读（${code ?? String(e)}）：已尝试备份为 state.json.corrupt-*，请从备份或 git 恢复后重试`);
   }
+  let parsed: Partial<State>;
+  try {
+    parsed = JSON.parse(raw) as Partial<State>;
+  } catch {
+    await backupCorruptState(root, p);
+    throw new DoclibError(`状态文件 ${STATE_DIR}/state.json 已损坏（含空文件）：已备份为 state.json.corrupt-*，请从备份或 git 恢复后重试`);
+  }
+  if (typeof parsed.version !== "number" || !Array.isArray(parsed.snapshots)) return emptyState();
+  return {
+    version: parsed.version,
+    latest: parsed.latest ?? null,
+    snapshots: parsed.snapshots,
+    structureVersion: parsed.structureVersion ?? 1,
+    agents: Array.isArray(parsed.agents) ? parsed.agents : [],
+    acks: Array.isArray(parsed.acks) ? parsed.acks : [],
+    revision: typeof parsed.revision === "number" ? parsed.revision : 0,
+    planning: Array.isArray(parsed.planning) && parsed.planning.length > 0 ? parsed.planning : [...DEFAULT_PLANNING],
+  };
 }
 
 export async function saveState(root: string, state: State): Promise<void> {

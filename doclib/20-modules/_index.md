@@ -33,5 +33,6 @@ status: stable
 | commands/ack | 路径豁免登记（once/standing/remove） | 30-features/（待写） | src/commands/ack.ts |
 | commands/hook | pre-commit 钩子安装/移除 + CI 模板 | 30-features/（待写） | src/commands/hook.ts |
 | core/ledger | 文档账收集与迁移账本解析/校验 | 待成卷 | src/core/ledger.ts |
-| core/check | 双账本对账六分类引擎 | 待成卷 | src/core/check.ts |
+| core/check | 双账本对账引擎（九分类含文档质量） | 待成卷 | src/core/check.ts |
+| core/docquality | 馆内断链扫描与两级索引（卷 _index）核对 | 待成卷 | src/core/docquality.ts |
 | scripts/copy-assets | 构建期资产拷贝（零依赖脚本） | 待成卷 | scripts/copy-assets.js |

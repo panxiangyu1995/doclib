@@ -33,7 +33,7 @@
   "scripts": {
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.json && node scripts/copy-assets.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node --test dist/core/frontmatter.test.js dist/core/mapping.test.js dist/core/fsutil.test.js dist/core/agents.test.js dist/core/guides.test.js dist/core/assets.test.js dist/core/state.test.js dist/core/ledger.test.js dist/core/check.test.js dist/core/orphan.test.js dist/core/planning.test.js dist/core/reconcile.test.js dist/commands/plan.test.js dist/commands/hook.test.js",
+    "test": "npm run build && node --test dist/core/frontmatter.test.js dist/core/mapping.test.js dist/core/fsutil.test.js dist/core/agents.test.js dist/core/guides.test.js dist/core/assets.test.js dist/core/state.test.js dist/core/ledger.test.js dist/core/check.test.js dist/core/orphan.test.js dist/core/docquality.test.js dist/core/planning.test.js dist/core/reconcile.test.js dist/commands/plan.test.js dist/commands/hook.test.js",
     "prepublishOnly": "npm run typecheck && npm test",
     "dev": "tsc --watch"
   },

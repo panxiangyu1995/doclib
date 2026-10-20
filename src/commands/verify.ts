@@ -3,6 +3,7 @@ import path from "node:path";
 import { collectFiles } from "../core/fsutil.js";
 import { languageOf } from "../core/detect.js";
 import { buildCoverIndex, groupByTopDir, isDocStale, normalizePath } from "../core/mapping.js";
+import { scanBrokenLinks, checkVolumeIndexes } from "../core/docquality.js";
 import { LIBRARY_DIR, latestSnapshot, loadState } from "../core/state.js";
 import { guideStampReport } from "../core/guides.js";
 import { loadPlanningPaths, planningIgnores } from "../core/planning.js";
@@ -56,19 +57,12 @@ export async function runVerify(root: string, opts: { json?: boolean }): Promise
     if (unlisted.length > 0) indexIssues.push(`未被索引收录: ${unlisted.join(", ")}`);
   }
 
-  const brokenLinks = new Set<string>();
-  for (const md of mdFiles) {
-    if (md === "INDEX.md") continue;
-    const raw = await fs.readFile(path.join(libRoot, md), "utf8").catch(() => null);
-    if (raw === null) continue;
-    for (const m of raw.matchAll(/\[[^\]]*\]\(([^)\s]+\.md)\)/g)) {
-      const l = m[1]!;
-      if (/^(https?:|#|\/)/.test(l)) continue;
-      const target = normalizePath(path.join(path.dirname(md), l).replace(/\\/g, "/"));
-      if (!allMd.includes(target)) brokenLinks.add(`${md} → ${l}`);
-    }
-  }
-  if (brokenLinks.size > 0) indexIssues.push(`链接失效（两级核对）: ${[...brokenLinks].join(", ")}`);
+  const brokenLinks = await scanBrokenLinks(root);
+  if (brokenLinks.length > 0) indexIssues.push(`链接失效（两级核对）: ${brokenLinks.join(", ")}`);
+
+  const vol = await checkVolumeIndexes(libRoot);
+  for (const m of vol.missingIndex) indexIssues.push(`卷缺 _index（soft 提示）: ${m}/`);
+  for (const u of vol.unlisted) indexIssues.push(`卷级索引未收录: ${u.dir}/ → ${u.docs.join(", ")}`);
 
   const pct = codeFiles.length > 0 ? Math.round((covered.size / codeFiles.length) * 100) : 100;
   const groups = groupByTopDir(uncovered);
@@ -106,7 +100,7 @@ export async function runVerify(root: string, opts: { json?: boolean }): Promise
   }
   lines.push(`无锚点文档（frontmatter 无 covers，导览/索引类属正常，请人工确认）: ${unanchoredDocs.length > 0 ? unanchoredDocs.join(", ") : "无"}`);
   lines.push(`失效文档（covers 指向的代码已全部不存在）: ${staleDocs.length > 0 ? staleDocs.join(", ") : "无"}`);
-  lines.push(`INDEX 完整性: ${indexIssues.length > 0 ? indexIssues.join("；") : "通过"}`);
+  lines.push(`索引完整性: ${indexIssues.length > 0 ? indexIssues.join("；") : "通过"}`);
   lines.push("");
   return { text: lines.join("\n"), json: { coveragePct: pct } };
 }

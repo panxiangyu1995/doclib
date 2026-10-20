@@ -226,24 +226,26 @@ export async function runPlan(
   root: string,
   opts: { rebuild?: boolean; to?: string; bootstrap?: boolean; resume?: boolean },
 ): Promise<CommandResult> {
+  const state0 = await loadState(root);
+  const revLine = `revision: ${state0.revision}`;
   const modes = [opts.rebuild, opts.bootstrap, opts.resume].filter(Boolean).length;
   if (modes > 1) throw new DoclibError("--rebuild / --bootstrap / --resume 互斥，一次只能生成一种任务书");
   if (opts.rebuild) {
     const t = await rebuildTask(root, opts.to);
     await writeTask(root, t.name, t.content);
-    const text = [`已生成复原任务书: ${t.name}`, `位置: ${path.join(root, TASKS_DIR, t.name)}`, "", "下一步: 让 agent 加载 doclib-rebuild skill 并执行该任务书。", ""].join("\n");
+    const text = [`已生成复原任务书: ${t.name}`, `位置: ${path.join(root, TASKS_DIR, t.name)}`, revLine, "", "下一步: 让 agent 加载 doclib-rebuild skill 并执行该任务书。", ""].join("\n");
     return { text, json: { task: t.name } };
   }
   if (opts.bootstrap) {
     const t = await bootstrapTask(root);
     await writeTask(root, t.name, t.content);
-    const text = [`已生成任务书: ${t.name}`, `位置: ${path.join(root, TASKS_DIR, t.name)}`, "", "下一步: 让 agent 加载 doclib-bootstrap skill 并执行该任务书（对话式挖掘 → 文档先行）。", ""].join("\n");
+    const text = [`已生成任务书: ${t.name}`, `位置: ${path.join(root, TASKS_DIR, t.name)}`, revLine, "", "下一步: 让 agent 加载 doclib-bootstrap skill 并执行该任务书（对话式挖掘 → 文档先行）。", ""].join("\n");
     return { text, json: { task: t.name } };
   }
   if (opts.resume) {
     const t = await resumeTask(root);
     await writeTask(root, t.name, t.content);
-    const text = [`已生成任务书: ${t.name}`, `位置: ${path.join(root, TASKS_DIR, t.name)}`, "", "下一步: 让 agent 加载 doclib-resume skill 并执行该任务书（蒸馏 implemented + 登记规划）。", ""].join("\n");
+    const text = [`已生成任务书: ${t.name}`, `位置: ${path.join(root, TASKS_DIR, t.name)}`, revLine, "", "下一步: 让 agent 加载 doclib-resume skill 并执行该任务书（蒸馏 implemented + 登记规划）。", ""].join("\n");
     return { text, json: { task: t.name } };
   }
   const state = await loadState(root);
@@ -260,6 +262,7 @@ export async function runPlan(
   const text = [
     `已生成任务书: ${t.name}`,
     `位置: ${path.join(root, TASKS_DIR, t.name)}`,
+    revLine,
     "",
     reminder.length > 0 ? `${reminder}\n` : "",
     `下一步: 让 agent 加载 ${skill} skill 并执行该任务书。`,

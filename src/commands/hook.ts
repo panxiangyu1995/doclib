@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { DoclibError } from "../core/state.js";
-import { CLI_VERSION } from "../core/version.js";
+import { CLI_VERSION, PACKAGE_NAME } from "../core/version.js";
 import type { CommandResult } from "./init.js";
 
 const MARKER = "# doclib-hook";
@@ -38,7 +38,7 @@ jobs:
         with:
           node-version: 20
       # 版本在安装时固化，保证 CI 可复现
-      - run: npx --yes doclib@${CLI_VERSION} check --strict
+      - run: npx --yes ${PACKAGE_NAME}@${CLI_VERSION} check --strict
 `;
 
 export async function runHook(

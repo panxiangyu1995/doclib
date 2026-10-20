@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { runHook } from "./hook.js";
 import { DoclibError } from "../core/state.js";
+import { CLI_VERSION, PACKAGE_NAME } from "../core/version.js";
 
 async function tmpGit(): Promise<string> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "doclib-hook-"));
@@ -48,5 +49,5 @@ test("hook --ci github：生成 workflow 模板（版本固化）", async () => 
   await runHook(root, { ci: "github" });
   const wf = await fs.readFile(path.join(root, ".github", "workflows", "doclib-check.yml"), "utf8");
   assert.ok(wf.includes("check --strict"));
-  assert.ok(/npx --yes doclib@\d+\.\d+\.\d+ check --strict/.test(wf));
+  assert.ok(wf.includes(`npx --yes ${PACKAGE_NAME}@${CLI_VERSION} check --strict`));
 });

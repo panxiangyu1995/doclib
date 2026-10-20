@@ -5,6 +5,7 @@ covers:
   - src/core/check.ts
   - src/core/ledger.ts
   - src/core/orphan.ts
+  - src/core/docquality.ts
   - src/core/state.ts
   - src/commands/ack.ts
   - src/commands/hook.ts
@@ -19,7 +20,7 @@ status: stable
 
 ## 行为
 
-`doclib check [--strict] [--json]`——无 AI、无网络、可复现。七分类：
+`doclib check [--strict] [--json]`——无 AI、无网络、可复现。九分类：
 
 | 分类 | 判定 | 违规 |
 | --- | --- | --- |
@@ -31,6 +32,7 @@ status: stable
 | 迁移违规 | migrations/ 脚本未登记、编号重复、断号、账本指向不存在、命名不符 | 是 |
 | 引导过期 | 引导 managed 区落后模板 | 提示 sync |
 | 孤儿文档 | 馆外知识型 .md 未收编且未豁免（豁免：根 README/CHANGELOG/CONTRIBUTING + .github/.claude/.opencode/.cursor/ 工具链目录） | 是（strict 计入门禁；默认 soft 报告语义） |
+| 文档质量 | 馆内相对 .md 链接失效（外链/锚点/根绝对路径跳过；INDEX.md 自身跳过，与 verify 同源扫描 `core/docquality.ts`） | 是（strict 计入门禁） |
 
 - `--strict`：存在违规 → 退出码 1（可挂 pre-commit/CI）
 - 旧基线无文档账：降级（仅无归属/迁移/引导检查）并提示重建基线
@@ -47,7 +49,7 @@ status: stable
 | 迁移纪律 | 每项违规扣 0.2 | 20% |
 | 归位卫生 | 每个孤儿扣 0.1 | 20% |
 | 引导新鲜度 | 每项过期扣 0.5 | 10% |
-| 文档质量 | 检测未实现，预留满分 | 10% |
+| 文档质量 | 馆内相对链接失效每项扣 0.1 | 10% |
 
 - 等级：A ≥90 / B ≥75 / C ≥60 / D ≥40 / F <40；check 附分项明细百分比
 - 权重可由 F14 基准实验数据校准（ADR #11）
@@ -76,6 +78,7 @@ status: stable
 - Given v1 旧快照（无 docs 字段）When check Then 降级警告且不崩
 - Given hook install --strict When 查看钩子 Then 含标记与 --strict 且可执行；remove 后不存在
 - Given 馆外散落 .md When check Then 孤儿文档检出；standing ack 后转为已豁免；根 README 与 .claude/ 等工具链路径不检出
+- Given 馆内文档含失效相对链接 When check Then 文档质量检出（path=所在文档）且质量分项 0.9、总分下降；--strict 退出码 1
 - Given 全绿基线 When check Then 治理 100/100 (A)；产生漏更后对账分项归零、总分下降、等级按阈值变化
 - Given snapshot 执行 When 查看 revision Then 递增 1；check/status/plan 输出该值
 - Given managed 区超 150 行 When status Then 引导预算显示实际行数与超限提示

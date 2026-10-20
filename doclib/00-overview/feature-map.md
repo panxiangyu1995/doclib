@@ -17,7 +17,7 @@ status: living
 | 2 | 三核心 skills | build/update/rebuild 操作手册 | skills/ | implemented |
 | 3 | 需求与架构文档体系 | PRD v0.13 + DESIGN v2 | docs/ | implemented |
 | 4 | 图书馆启用（dogfooding） | 本仓库 12 卷图书馆 + 引导文件 + 进度账 | doclib/ | implemented |
-| 5 | 12 卷基线模板 | assets/templates/library 22 文件 + copy-assets 构建链 | .plan/2026-10-17/phase1-skeleton-v2.md | implemented |
+| 5 | 12 卷基线模板 | assets/templates/library 12 卷 + 99-archive 骨架 + copy-assets 构建链 | .plan/2026-10-17/phase1-skeleton-v2.md | implemented |
 | 6 | 十 skill 体系 | +setup/bootstrap/resume/dev/reconcile/audit/accept | skills/ | implemented |
 | 7 | npx 发布与 agent 适配 | **已发布 @panxiangyu1995/doclib@0.4.0**（scoped 改名：npm 名称相似度保护；public repo+provenance；staging 首发转正）+ init 交互问卷含载体；setup 独立命令未做（init/sync 已覆盖） | .plan/2026-10-19/npm-release.md + 70-deploy/deploy.md | implemented |
 | 8 | BOOTSTRAP/RESUME 任务书 | plan --bootstrap/--resume 两种任务书类型（互斥校验） | .plan/2026-10-19/skills-cli-completion.md | implemented |
@@ -33,3 +33,4 @@ status: living
 | 18 | 复原基准测试体系 | 基准库准入 + 同题共答双跑 + 缺陷四分类 + 复原档案 + 污染防护（不同模型/实例）+ 回归重跑 | doclib/10-architecture/prd.md（F14）+ 40-guides/benchmark.md | planned |
 | 19 | 移除规程与扫描器集成 | 六步移除规程（影响面预查→残留扫描→馆内联动→check 执法→留痕）+ F15 分阶段工具集成（ast-grep 主选/codegraph 实验/三铁律）+ 引导四纪律（裁剪判据/硬预算/记忆以馆为准/单点强调） | doclib/10-architecture/prd.md（F2/F15）+ ADR #10 | planned |
 | 20 | 强验证完成包 | 孤儿检测（第七分类+Q20 豁免清单）+ 治理健康分（Q22 五分项加权+等级）+ 乐观锁 revision（Q36）+ 引导硬预算（Q37/38 ≤150 行） | .plan/2026-10-19/check-governance-pack.md + 30-features/check.md | implemented |
+| 21 | 质量符合性修复包 | CI 包名事实源（PACKAGE_NAME 读 package.json）/status --json 完整载荷/plan stdout 输出 revision/check 文档质量分类（馆内断链检出，quality 分项 0.1/项扣减）/verify 两级索引核对（卷 _index 双向+缺卷 soft）/state.json 损坏防护（.corrupt 备份+fail-fast） | .plan/2026-10-20/quality-conformance-pack.md + 30-features/check.md | implemented |

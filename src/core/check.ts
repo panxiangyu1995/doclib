@@ -5,6 +5,7 @@ import { buildCoverIndex, docsForPath } from "./mapping.js";
 import { hashDocs, validateMigrations, type CheckFinding } from "./ledger.js";
 import { managedRegionFresh } from "./guides.js";
 import { detectOrphanDocs } from "./orphan.js";
+import { scanBrokenLinks } from "./docquality.js";
 import { loadPlanningPaths, planningIgnores } from "./planning.js";
 
 export type { CheckFinding, CheckFindingKind } from "./ledger.js";
@@ -22,13 +23,14 @@ export function healthScore(inputs: {
   migration: number;
   orphan: number;
   guideStale: number;
+  brokenLinks: number;
 }): HealthReport {
   const accounting =
     inputs.driftTotal === 0 ? 1 : Math.max(0, 1 - (inputs.unaccounted + inputs.uncovered) / inputs.driftTotal);
   const migration = Math.max(0, 1 - 0.2 * inputs.migration);
   const placement = Math.max(0, 1 - 0.1 * inputs.orphan);
   const guides = Math.max(0, 1 - 0.5 * inputs.guideStale);
-  const quality = 1;
+  const quality = Math.max(0, 1 - 0.1 * inputs.brokenLinks);
   const score = Math.round(40 * accounting + 20 * migration + 20 * placement + 10 * guides + 10 * quality);
   const grade = score >= 90 ? "A" : score >= 75 ? "B" : score >= 60 ? "C" : score >= 40 ? "D" : "F";
   return { score, grade, parts: { accounting, migration, placement, guides, quality } };
@@ -129,6 +131,11 @@ export async function runCheckCore(root: string): Promise<CheckResult> {
   const unaccountedCount = findings.filter((f) => f.kind === "unaccounted").length;
   const uncoveredCount = findings.filter((f) => f.kind === "uncovered").length;
   const migrationCount = findings.filter((f) => f.kind === "migration").length;
+  const brokenLinks = await scanBrokenLinks(root);
+  for (const b of brokenLinks) {
+    const sep = b.indexOf(" → ");
+    findings.push({ kind: "doc-quality", path: b.slice(0, sep), detail: b.slice(sep + 3) });
+  }
   const health = healthScore({
     driftTotal: changedPaths.length,
     unaccounted: unaccountedCount,
@@ -136,6 +143,7 @@ export async function runCheckCore(root: string): Promise<CheckResult> {
     migration: migrationCount,
     orphan: orphans.length,
     guideStale: staleGuides.length,
+    brokenLinks: brokenLinks.length,
   });
 
   return {

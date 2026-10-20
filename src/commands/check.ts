@@ -14,6 +14,8 @@ function kindLabel(kind: CheckFinding["kind"]): string {
       return "引导过期";
     case "orphan-doc":
       return "孤儿文档";
+    case "doc-quality":
+      return "文档质量";
   }
 }
 
@@ -31,7 +33,7 @@ export async function runCheck(root: string, opts: { json?: boolean; strict?: bo
   );
   lines.push(`已对账: ${r.accounted} ｜ 文档先行: ${r.docFirst.length} ｜ 已豁免: ${r.exempted.length}`);
   lines.push("");
-  const kinds: CheckFinding["kind"][] = ["unaccounted", "uncovered", "migration", "guide-stale", "orphan-doc"];
+  const kinds: CheckFinding["kind"][] = ["unaccounted", "uncovered", "migration", "guide-stale", "orphan-doc", "doc-quality"];
   let any = false;
   for (const kind of kinds) {
     const items = r.findings.filter((f) => f.kind === kind);

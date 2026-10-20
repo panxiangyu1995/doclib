@@ -139,12 +139,28 @@ test("check：治理分——全绿满分 A；有漏更降分", async () => {
   assert.ok(dirty.health.grade !== "A" || dirty.health.score >= 90);
 });
 
+test("check：馆内断链 → 文档质量 finding + quality 分项扣减", async () => {
+  const root = await tmp();
+  await setupBaseline(root, true);
+  await fs.writeFile(path.join(root, "doclib", "30-features", "z.md"), "[断链](ghost.md)", "utf8");
+  const r = await runCheckCore(root);
+  const f = r.findings.find((x) => x.kind === "doc-quality");
+  assert.ok(f);
+  assert.equal(f.path, "30-features/z.md");
+  assert.equal(f.detail, "ghost.md");
+  assert.equal(r.health.parts.quality, 0.9);
+  assert.ok(r.health.score < 100);
+});
+
 test("check：健康分等级边界", () => {
-  const full = healthScore({ driftTotal: 0, unaccounted: 0, uncovered: 0, migration: 0, orphan: 0, guideStale: 0 });
+  const full = healthScore({ driftTotal: 0, unaccounted: 0, uncovered: 0, migration: 0, orphan: 0, guideStale: 0, brokenLinks: 0 });
   assert.equal(full.score, 100);
   assert.equal(full.grade, "A");
-  const heavy = healthScore({ driftTotal: 4, unaccounted: 4, uncovered: 0, migration: 0, orphan: 0, guideStale: 0 });
+  const heavy = healthScore({ driftTotal: 4, unaccounted: 4, uncovered: 0, migration: 0, orphan: 0, guideStale: 0, brokenLinks: 0 });
   assert.equal(heavy.parts.accounting, 0);
   assert.equal(heavy.score, 60);
   assert.equal(heavy.grade, "C");
+  const linked = healthScore({ driftTotal: 0, unaccounted: 0, uncovered: 0, migration: 0, orphan: 0, guideStale: 0, brokenLinks: 1 });
+  assert.equal(linked.parts.quality, 0.9);
+  assert.equal(linked.score, 99);
 });

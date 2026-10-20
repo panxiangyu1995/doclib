@@ -8,7 +8,7 @@ import { loadPlanningPaths, planningReminderReport, planningIgnores } from "../c
 import { runCheckCore } from "../core/check.js";
 import type { CommandResult } from "./init.js";
 
-export async function runStatus(root: string): Promise<CommandResult> {
+export async function runStatus(root: string, opts: { json?: boolean } = {}): Promise<CommandResult> {
   const state = await loadState(root);
   const latest = latestSnapshot(state);
   const lines: string[] = [];
@@ -21,23 +21,29 @@ export async function runStatus(root: string): Promise<CommandResult> {
   lines.push(
     `结构版本: ${state.structureVersion}${state.agents.length > 0 ? ` · agents: ${state.agents.join(", ")}` : ""}`,
   );
-  lines.push(`引导: ${await guideStampReport(root)}`);
-  lines.push(`引导预算: ${await guideBudgetReport(root)}`);
+  const stamp = await guideStampReport(root);
+  const budget = await guideBudgetReport(root);
+  lines.push(`引导: ${stamp}`);
+  lines.push(`引导预算: ${budget}`);
   lines.push(
     latest
       ? `基线: ${latest.id} @ ${latest.at}${latest.note ? `（${latest.note}）` : ""} · 快照链 ${state.snapshots.length} 条 · revision ${state.revision}`
       : "基线: 无（尚未 snapshot）",
   );
 
+  let drift: { added: number; modified: number; removed: number } | null = null;
+  let health: { score: number; grade: "A" | "B" | "C" | "D" | "F" } | null = null;
   if (latest) {
     const files = await collectFiles(root, planningIgnores(loadPlanningPaths(state)));
     const hashes = await hashAll(root, files);
-    const drift = computeDrift(latest.files, hashes);
+    const d = computeDrift(latest.files, hashes);
+    drift = { added: d.added.length, modified: d.modified.length, removed: d.removed.length };
     lines.push(
-      `漂移: +${drift.added.length} 新增 / ~${drift.modified.length} 修改 / -${drift.removed.length} 删除（相对 ${latest.id}）`,
+      `漂移: +${drift.added} 新增 / ~${drift.modified} 修改 / -${drift.removed} 删除（相对 ${latest.id}）`,
     );
     try {
       const h = (await runCheckCore(root)).health;
+      health = { score: h.score, grade: h.grade };
       lines.push(`治理: ${h.score}/100 (${h.grade})`);
     } catch {
       lines.push("治理: -");
@@ -59,5 +65,26 @@ export async function runStatus(root: string): Promise<CommandResult> {
   const tasks = await fs.readdir(path.join(root, TASKS_DIR)).catch(() => [] as string[]);
   lines.push(`任务书: ${tasks.length > 0 ? tasks.join(", ") : "无"}`);
   lines.push("");
+  if (opts.json) {
+    const payload = {
+      library: {
+        initialized: libExists,
+        version: state.version,
+        structureVersion: state.structureVersion,
+        agents: state.agents,
+      },
+      revision: state.revision,
+      baseline: latest
+        ? { id: latest.id, at: latest.at, note: latest.note, snapshotCount: state.snapshots.length }
+        : null,
+      drift,
+      health,
+      planning: { paths: loadPlanningPaths(state), reminder },
+      guides: { stamp, budget },
+      detection: det,
+      tasks,
+    };
+    return { text: JSON.stringify(payload, null, 2), json: payload };
+  }
   return { text: lines.join("\n"), json: { state, detection: det } };
 }
