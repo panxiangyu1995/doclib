@@ -67,9 +67,11 @@ skills 已安装至本仓库的 agent 适配目录（如 `.claude/skills/`、`.o
 | doclib verify | 覆盖度 + 类别完备性 + 引导版本检查 |
 | doclib sync | 引导规则区与 skills 同步（幂等，定制区保留） |
 | doclib check | 强验证：双账本对账（漏更/无归属/迁移/引导过期/孤儿文档）+ 治理健康分 + revision，--strict 门禁 |
-| doclib ack | 路径豁免登记（once/standing/remove） |
+| doclib ack | 路径豁免登记（once/standing/remove）；--dir <前缀> 登记目录豁免 |
+| doclib place | 孤儿归位：list（列出待归位与建议归宿）/ collect（收编入馆）/ archive（入棺归档）/ ack（登记豁免）/ restore（还原归档）；写操作默认干跑，--apply 执行 |
 | doclib hook | pre-commit 钩子安装/移除（--strict；--ci github） |
 | doclib reconcile | 进度对账重建 |
+| doclib graph | 代码知识图谱（可选增强，需 Node >= 22.5）：index 建图(增量同步)/status 状态/draft 登记簿候选草稿/explore 符号查询；图输出只是候选，禁止直接入馆 |
 
 ## 注意事项
 

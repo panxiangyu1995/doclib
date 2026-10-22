@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { collectFiles, renderTree } from "../core/fsutil.js";
+import { graphIndexPresent } from "../core/codegraph/engine.js";
 import { detectProject } from "../core/detect.js";
 import { DoclibError, LIBRARY_DIR, STATE_DIR, TASKS_DIR, latestSnapshot, loadState, pad3 } from "../core/state.js";
 import { analyzeDrift } from "./diff.js";
@@ -28,6 +29,13 @@ async function buildTask(root: string): Promise<{ name: string; content: string 
   const det = await detectProject(root, files);
   const tree = renderTree(files, 2);
   const baselineDesc = state.version === 0 ? "尚未建立基线" : `已有基线，本任务书用于重建/补全`;
+  const graphSection = (await graphIndexPresent(root))
+    ? `
+## 知识图谱候选（可选加速器）
+
+本仓库已建代码知识图谱（.codegraph/）。可用 \`doclib graph draft\` 产出登记簿候选草稿至 .doclib/drafts/（routes/modules/dependencies/unused 四册），并在 \`doclib graph explore <query>\` 中做符号导航——**图输出只是候选，禁止直接入馆**；agent 逐条裁决、补写行为契约后按归位宪法回灌。未建图则忽略本节（纯 agent 扫描不受影响）。
+`
+    : "";
   const content = `# BUILD-${number} · 文档图书馆构建任务书
 
 生成时间: ${new Date().toISOString()}
@@ -54,7 +62,7 @@ async function buildTask(root: string): Promise<{ name: string; content: string 
 \`\`\`
 ${tree}
 \`\`\`
-
+${graphSection}
 ## 执行要求
 
 按 doclib-build skill 的方法论与覆盖度清单完成图书馆全部章节。
@@ -120,6 +128,7 @@ async function rebuildTask(root: string, to?: string): Promise<{ name: string; c
   const content = `# REBUILD-${number} · 从零复原任务书
 
 图书馆: ${LIBRARY_DIR}/ (version ${state.version})
+当前 revision: ${state.revision}（入馆写前记录此值；写后 doclib check 比对，revision 已变即重新对账）
 目标目录: ${target}
 生成时间: ${new Date().toISOString()}
 执行者: 携带 doclib-rebuild skill 的 agent
@@ -131,7 +140,7 @@ async function rebuildTask(root: string, to?: string): Promise<{ name: string; c
 
 ## 执行
 
-1. 依序阅读 ${LIBRARY_DIR}/README.md → INDEX.md → 40-guides/rebuild-plan.md
+1. 依序阅读 ${LIBRARY_DIR}/README.md → INDEX.md → 40-guides/roadmap.md（复原施工路线图）
 2. 在目标目录生成 REBUILD-LOG.md: 阶段计划、每阶段验收记录、决策与差异清单
 3. 按 30-features/ 的验收标准逐项自检
 

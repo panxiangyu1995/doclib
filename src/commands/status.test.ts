@@ -1,0 +1,166 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { runStatus } from "./status.js";
+import { runInit } from "./init.js";
+import { runSnapshot } from "./snapshot.js";
+import { CLI_VERSION, STRUCTURE_VERSION } from "../core/version.js";
+import { docMd, put, tmpRoot } from "./testkit.js";
+
+type StatusJson = {
+  library: { initialized: boolean; version: number; structureVersion: number; agents: string[] };
+  revision: number;
+  baseline: { id: string; at: string; note: string; snapshotCount: number } | null;
+  drift: { added: number; modified: number; removed: number } | null;
+  health: { score: number; grade: string } | null;
+  planning: { paths: string[]; reminder: string };
+  guides: { stamp: string; budget: string };
+  detection: { primary: string };
+  tasks: string[];
+};
+
+test("status：全新目录（未初始化形态）不崩溃且各行齐备", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  const r = await runStatus(root, {});
+  assert.match(r.text, /图书馆: doclib\/ 未初始化（运行 doclib init）/);
+  assert.match(r.text, /结构版本: 0/);
+  assert.match(r.text, /基线: 无（尚未 snapshot）/);
+  assert.match(r.text, /漂移: -/);
+  assert.match(r.text, /治理: -/);
+  assert.match(r.text, /任务书: 无/);
+  const j = JSON.parse((await runStatus(root, { json: true })).text) as StatusJson;
+  assert.equal(j.library.initialized, false);
+  assert.equal(j.baseline, null);
+  assert.equal(j.drift, null);
+  assert.equal(j.health, null);
+  assert.deepEqual(j.tasks, []);
+});
+
+test("status：--json 全载荷字段（library/baseline/drift/health/planning/guides/detection/tasks）", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, { agents: "claude,opencode" });
+  await put(root, "src/a.ts", "v1");
+  await put(root, ".doclib/tasks/BUILD-001.md", "任务书");
+  await runSnapshot(root, { note: "initial" });
+  const r = await runStatus(root, { json: true });
+  const j = JSON.parse(r.text) as StatusJson;
+  assert.deepEqual(j.library, {
+    initialized: true,
+    version: 1,
+    structureVersion: STRUCTURE_VERSION,
+    agents: ["claude", "opencode"],
+  });
+  assert.equal(j.revision, 1);
+  assert.equal(j.baseline!.id, "snap-001");
+  assert.equal(j.baseline!.note, "initial");
+  assert.equal(j.baseline!.snapshotCount, 1);
+  assert.deepEqual(j.drift, { added: 0, modified: 0, removed: 0 });
+  assert.equal(j.health!.score, 100);
+  assert.equal(j.health!.grade, "A");
+  assert.deepEqual(j.planning.paths, [".plan/"]);
+  assert.equal(typeof j.guides.stamp, "string");
+  assert.equal(typeof j.guides.budget, "string");
+  assert.equal(j.detection.primary, "TypeScript");
+  assert.deepEqual(j.tasks, ["BUILD-001.md"]);
+});
+
+test("status：文本形态含基线备注/快照链/revision/漂移/治理分", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, {});
+  await put(root, "src/a.ts", "v1");
+  await runSnapshot(root, { note: "里程碑" });
+  const r = await runStatus(root, {});
+  assert.match(r.text, /图书馆: doclib\/ \(version 1\)/);
+  assert.match(r.text, /基线: snap-001 @ .+（里程碑） · 快照链 1 条 · revision 1/);
+  assert.match(r.text, /漂移: \+0 新增 \/ ~0 修改 \/ -0 删除（相对 snap-001）/);
+  assert.match(r.text, /治理: 100\/100 \(A\)/);
+  assert.match(r.text, /检测: 主语言 TypeScript/);
+});
+
+test("status：漂移三类计数；治理分随漏更下降", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, {});
+  await put(root, "src/a.ts", "v1");
+  await runSnapshot(root, {});
+  await put(root, "src/a.ts", "v2");
+  await put(root, "src/b.ts", "new");
+  await fs.rm(path.join(root, "src", "a.ts"));
+  const r = await runStatus(root, {});
+  assert.match(r.text, /漂移: \+1 新增 \/ ~0 修改 \/ -1 删除（相对 snap-001）/);
+  assert.match(r.text, /治理: \d+\/100 \([B-F]\)/);
+  const j = (await runStatus(root, { json: true })).json as unknown as StatusJson;
+  assert.deepEqual(j.drift, { added: 1, modified: 0, removed: 1 });
+  assert.ok(j.health!.score < 100);
+});
+
+test("status：待归档提醒（feature-map planned/in-progress 计数）", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, {});
+  await put(
+    root,
+    "doclib/00-overview/feature-map.md",
+    "| # | 功能 | 描述 | 对应文档 | 状态 |\n| --- | --- | --- | --- | --- |\n| 1 | A | a | 30-features/a.md | planned |\n| 2 | B | b | 30-features/b.md | in-progress |\n| 3 | C | c | 30-features/c.md | implemented |\n",
+  );
+  const r = await runStatus(root, {});
+  assert.match(r.text, /待归档（锚点二）: 1 planned \/ 1 in-progress——完成的请归档成果并推进 implemented/);
+});
+
+test("status：载体文档晚于基线 → 待登记提醒", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, {});
+  await put(root, "src/a.ts", "v1");
+  await runSnapshot(root, {});
+  await put(root, ".plan/late-idea.md", "晚于基线的构想");
+  const r = await runStatus(root, {});
+  assert.match(r.text, /待登记（锚点一）: 1 份载体规划文档晚于最新基线/);
+  assert.match(r.text, /\.plan\/late-idea\.md/);
+});
+
+test("status：引导戳过期识别（cli/structure 不匹配 → doclib sync）", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, {});
+  await put(
+    root,
+    "AGENTS.md",
+    `<!-- doclib-guide cli=0.0.1 structure=1 -->\n<!-- doclib:managed-begin -->\n规则区\n<!-- doclib:managed-end -->\n<!-- doclib:custom-begin -->\n定制\n<!-- doclib:custom-end -->\n`,
+  );
+  const r = await runStatus(root, {});
+  assert.match(r.text, /AGENTS\.md 过期 → doclib sync/);
+});
+
+test("status：引导预算超限警示（managed 区 >150 行）", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, {});
+  const filler = Array.from({ length: 160 }, (_, i) => `规则第 ${i} 条`).join("\n");
+  await put(
+    root,
+    "AGENTS.md",
+    `<!-- doclib-guide cli=${CLI_VERSION} structure=${STRUCTURE_VERSION} -->\n<!-- doclib:managed-begin -->\n${filler}\n<!-- doclib:managed-end -->\n<!-- doclib:custom-begin -->\n定制\n<!-- doclib:custom-end -->\n`,
+  );
+  const r = await runStatus(root, {});
+  assert.match(r.text, /AGENTS\.md 16[0-9]\/150 行 ⚠ 超限 → 瘦身/);
+});
+
+test("status：任务书列表（多文件逗号分隔）", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, {});
+  await put(root, ".doclib/tasks/BUILD-001.md", "a");
+  await put(root, ".doclib/tasks/BOOTSTRAP-001.md", "b");
+  const r = await runStatus(root, {});
+  assert.match(r.text, /任务书: /);
+  assert.ok(r.text.includes("BUILD-001.md"));
+  assert.ok(r.text.includes("BOOTSTRAP-001.md"));
+});
+
+test("status：--json stdout 与 json 同源可解析；无基线时 drift/health 为 null", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, {});
+  const r = await runStatus(root, { json: true });
+  const j = JSON.parse(r.text) as StatusJson;
+  assert.equal(j.baseline, null);
+  assert.equal(j.drift, null);
+  assert.equal(j.health, null);
+  assert.equal(j.library.version, 0);
+  assert.deepEqual(j, (await runStatus(root, { json: true })).json);
+});

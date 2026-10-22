@@ -32,7 +32,7 @@ async function setupBaseline(root: string, withDocs: boolean): Promise<void> {
     files,
   };
   if (withDocs) snapshot.docs = docs;
-  await saveState(root, { version: 1, latest: "snap-001", snapshots: [snapshot], structureVersion: 2, agents: [], acks: [], revision: 1, planning: [".plan/"] });
+  await saveState(root, { version: 1, latest: "snap-001", snapshots: [snapshot], structureVersion: 2, agents: [], acks: [], revision: 1, planning: [".plan/"], archives: [], dirExempts: [] });
 }
 
 test("check：改代码不改文档 → 漏更", async () => {
@@ -163,4 +163,67 @@ test("check：健康分等级边界", () => {
   const linked = healthScore({ driftTotal: 0, unaccounted: 0, uncovered: 0, migration: 0, orphan: 0, guideStale: 0, brokenLinks: 1 });
   assert.equal(linked.parts.quality, 0.9);
   assert.equal(linked.score, 99);
+});
+
+test("check：工具链目录/引导文件/归档指针 → notices 豁免，不判孤儿", async () => {
+  const root = await tmp();
+  await setupBaseline(root, true);
+  await fs.mkdir(path.join(root, ".agents", "skills", "demo"), { recursive: true });
+  await fs.mkdir(path.join(root, "packages", "api"), { recursive: true });
+  await fs.mkdir(path.join(root, "docs"), { recursive: true });
+  await fs.writeFile(path.join(root, ".agents", "skills", "demo", "SKILL.md"), "技能", "utf8");
+  await fs.writeFile(path.join(root, "packages", "api", "AGENTS.md"), "嵌套引导", "utf8");
+  await fs.writeFile(path.join(root, "docs", "gone.md"), "<!-- doclib:archived-pointer -->\n\n> 已归档", "utf8");
+  await fs.writeFile(path.join(root, "docs", "real.md"), "真知识", "utf8");
+  const r = await runCheckCore(root);
+  assert.ok(!r.findings.some((x) => x.kind === "orphan-doc" && (x.path ?? "").includes(".agents")));
+  assert.ok(!r.findings.some((x) => x.kind === "orphan-doc" && (x.path ?? "").includes("AGENTS.md")));
+  assert.ok(!r.findings.some((x) => x.kind === "orphan-doc" && (x.path ?? "").includes("gone.md")));
+  assert.ok(r.findings.some((x) => x.kind === "orphan-doc" && x.path === "docs/real.md"));
+  assert.ok(r.notices.some((n) => n.kind === "toolchain-exempt" && n.path === ".agents"));
+  assert.ok(r.notices.some((n) => n.kind === "guide-exempt" && n.path === "packages"));
+  assert.ok(r.notices.some((n) => n.kind === "pointer-exempt" && n.path === "docs"));
+});
+
+test("check：dirExempts（ack --dir）→ 目录内 .md 不判孤儿，仍进代码账", async () => {
+  const root = await tmp();
+  await setupBaseline(root, true);
+  await fs.mkdir(path.join(root, ".foo", "skills"), { recursive: true });
+  await fs.writeFile(path.join(root, ".foo", "skills", "SKILL.md"), "技能", "utf8");
+  let r = await runCheckCore(root);
+  assert.ok(!r.findings.some((x) => x.kind === "orphan-doc" && (x.path ?? "") === ".foo/skills/SKILL.md"));
+  assert.ok(r.notices.some((n) => n.kind === "toolchain-suspect" && (n.path ?? "").startsWith(".foo")));
+  const state = await loadState(root);
+  state.dirExempts = [".foo/"];
+  await saveState(root, state);
+  r = await runCheckCore(root);
+  assert.ok(!r.findings.some((x) => x.kind === "orphan-doc" && (x.path ?? "") === ".foo/skills/SKILL.md"));
+  assert.ok(r.notices.some((n) => n.kind === "toolchain-exempt" && (n.path ?? "") === ".foo"));
+  assert.ok(r.stats.codeDrift.added >= 1);
+});
+
+test("check：疑似新工具目录 → notices 提示，不判违规", async () => {
+  const root = await tmp();
+  await setupBaseline(root, true);
+  await fs.mkdir(path.join(root, ".bar", "skills", "demo"), { recursive: true });
+  await fs.writeFile(path.join(root, ".bar", "skills", "demo", "SKILL.md"), "技能", "utf8");
+  const r = await runCheckCore(root);
+  assert.ok(r.notices.some((n) => n.kind === "toolchain-suspect" && n.path === ".bar"));
+  assert.ok(r.notices.some((n) => n.kind === "toolchain-suspect" && (n.path ?? "").startsWith(".bar/")));
+  assert.ok(!r.findings.some((x) => x.kind === "orphan-doc" && (x.path ?? "").startsWith(".bar/")));
+});
+
+test("check：被新忽略规则移出代码账 ≠ 真删除 → 不产生无归属违规", async () => {
+  const root = await tmp();
+  await setupBaseline(root, true);
+  await fs.mkdir(path.join(root, "vendor", "lib"), { recursive: true });
+  await fs.writeFile(path.join(root, "vendor", "lib", "README.md"), "第三方", "utf8");
+  const state = await loadState(root);
+  const snap = state.snapshots[0]!;
+  snap.files["vendor/lib/README.md"] = "hash-vendor";
+  await saveState(root, state);
+  const r = await runCheckCore(root);
+  assert.ok(!r.findings.some((x) => x.kind === "uncovered" && x.path === "vendor/lib/README.md"));
+  assert.ok(r.notices.some((n) => n.kind === "newly-ignored" && n.detail.includes("vendor/lib/README.md")));
+  assert.equal(r.stats.codeDrift.removed, 0);
 });

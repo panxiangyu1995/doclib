@@ -10,4 +10,4 @@ status: draft
 
 | 参考文档 | 内容 | covers |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| doclib graph 命令参考 | graph 命令族精确行为面（index/status/draft/explore 的参数/输出/错误/降级）——规格与验收见 [30-features/graph.md](../30-features/graph.md)，避免双源漂移 | src/commands/graph.ts |

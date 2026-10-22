@@ -1,12 +1,39 @@
+import fs from "node:fs/promises";
+import path from "node:path";
 import { DoclibError, latestSnapshot, loadState, saveState } from "../core/state.js";
 import type { CommandResult } from "./init.js";
 
 export async function runAck(
   root: string,
-  opts: { path?: string; note?: string; standing?: boolean; remove?: boolean },
+  opts: { path?: string; note?: string; standing?: boolean; remove?: boolean; dir?: boolean },
 ): Promise<CommandResult> {
-  if (!opts.path) throw new DoclibError("ack 需要路径参数：doclib ack <路径> [--note 文本] [--standing] [--remove]");
+  if (!opts.path) throw new DoclibError("ack 需要路径参数：doclib ack <路径> [--note 文本] [--standing] [--remove] | doclib ack --dir <目录前缀> [--note 文本] [--remove]");
   const state = await loadState(root);
+
+  if (opts.dir === true) {
+    const prefix = opts.path.replace(/\/+$/, "") + "/";
+    if (opts.remove === true) {
+      const before = state.dirExempts.length;
+      state.dirExempts = state.dirExempts.filter((p) => p !== prefix);
+      const removed = before - state.dirExempts.length;
+      await saveState(root, state);
+      return { text: `已移除目录豁免: ${prefix}（${removed} 条）\n`, json: { removed, prefix } };
+    }
+    const dirAbs = path.join(root, prefix.replace(/\/$/, ""));
+    const isDir = await fs
+      .stat(dirAbs)
+      .then((s) => s.isDirectory())
+      .catch(() => false);
+    if (!isDir) {
+      throw new DoclibError(`目录豁免目标不存在或不是目录：${prefix}——目录豁免用于已存在的 agent 工具目录（拼写错误会永久无效）`);
+    }
+    if (!state.dirExempts.includes(prefix)) state.dirExempts.push(prefix);
+    await saveState(root, state);
+    return {
+      text: `已登记目录豁免: ${prefix}（长期有效，--remove 可移除）——不判孤儿但仍进代码账；完全不跟踪请用 .doclibignore\n`,
+      json: { prefix, dirExempts: state.dirExempts },
+    };
+  }
 
   if (opts.remove === true) {
     const before = state.acks.length;

@@ -1,0 +1,223 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { runCheck } from "./check.js";
+import { DoclibError } from "../core/state.js";
+import { CLI_VERSION, STRUCTURE_VERSION } from "../core/version.js";
+import { docMd, put, seedState, snapshotRow, tmpRoot } from "./testkit.js";
+import { runSnapshot } from "./snapshot.js";
+
+async function seedBase(root: string): Promise<void> {
+  await put(root, "src/a.ts", "v1");
+  await put(root, "doclib/30-features/a.md", docMd("A", ["src/a.ts"]));
+  await runSnapshot(root, { note: "base" });
+}
+
+function withExit(fn: () => Promise<void>): Promise<void> {
+  return (async () => {
+    const prev = process.exitCode;
+    try {
+      await fn();
+    } finally {
+      process.exitCode = prev;
+    }
+  })();
+}
+
+test("check：无基线 → DoclibError", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await assert.rejects(
+    () => runCheck(root, {}),
+    (e: unknown) => e instanceof DoclibError && /尚无基线快照：先执行 doclib snapshot/.test(e.message),
+  );
+});
+
+test("check：全绿 → 违规: 无 / strict 门禁通过 / 治理 100 A / 不动退出码", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await withExit(async () => {
+    const r = await runCheck(root, { strict: true });
+    assert.match(r.text, /强验证报告（基线 snap-001）/);
+    assert.match(r.text, /违规: 无/);
+    assert.match(r.text, /strict 门禁: 通过/);
+    assert.match(r.text, /治理: 100\/100 \(A\)/);
+    assert.notEqual(process.exitCode, 1);
+  });
+});
+
+test("check：漏更 → 漏更分类 + 覆盖文档提示 + --strict 退出码 1", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await put(root, "src/a.ts", "v2");
+  await withExit(async () => {
+    const r = await runCheck(root, { strict: true });
+    assert.match(r.text, /漏更 \(1\)/);
+    assert.match(r.text, /- src\/a\.ts  —  覆盖文档未更新: doclib\/30-features\/a\.md/);
+    assert.match(r.text, /strict 门禁: 未通过（1 项违规，--strict 时退出码 1）/);
+    assert.equal(process.exitCode, 1);
+  });
+});
+
+test("check：无归属 → 新文件无 covers；已对账计数", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await put(root, "src/new.ts", "x");
+  await put(root, "src/a.ts", "v2");
+  await put(root, "doclib/30-features/a.md", docMd("A", ["src/a.ts"], "v2 行为\n"));
+  const r = await runCheck(root, {});
+  assert.match(r.text, /无归属 \(1\)/);
+  assert.match(r.text, /- src\/new\.ts/);
+  assert.match(r.text, /已对账: 1/);
+});
+
+test("check：删除已覆盖代码 → 漏更（覆盖文档仍在）", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await fs.rm(path.join(root, "src", "a.ts"));
+  const r = await runCheck(root, {});
+  assert.match(r.text, /漏更 \(1\)/);
+  assert.match(r.text, /- src\/a\.ts  —  覆盖文档未更新: doclib\/30-features\/a\.md/);
+});
+
+test("check：文档先行（只改文档）→ 无违规，计入文档变更", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await put(root, "doclib/30-features/a.md", docMd("A", ["src/a.ts"], "文档先行更新\n"));
+  const r = await runCheck(root, {});
+  assert.match(r.text, /违规: 无/);
+  assert.match(r.text, /文档变更: 1/);
+  assert.match(r.text, /文档先行: 1/);
+});
+
+test("check：迁移违规——未登记/命名不符/断号/重复/指向不存在脚本", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await put(root, "migrations/001_20260101_init.sql", "CREATE TABLE t();");
+  await put(root, "migrations/002_20260102_add.sql", "ALTER TABLE t;");
+  await put(root, "migrations/BAD_NAME.sql", "-- 命名不符");
+  await put(
+    root,
+    "doclib/10-architecture/migrations.md",
+    "| 编号 | 日期 | 文件 | 目的 | 状态 |\n| --- | --- | --- | --- | --- |\n| 001 | 2026-01-01 | migrations/001_20260101_init.sql | 初始化 | applied |\n| 001 | 2026-01-02 | migrations/002_20260102_add.sql | 重复编号 | applied |\n| 005 | 2026-01-05 | migrations/missing_005.sql | 断号 | applied |\n| 007 | 2026-01-07 | legacy/007.sql | 非法路径不校验 | applied |\n",
+  );
+  const r = await runCheck(root, {});
+  assert.match(r.text, /迁移违规 \(8\)/);
+  assert.match(r.text, /migrations\/002_20260102_add\.sql  —  脚本未在账本登记（编号 002）/);
+  assert.match(r.text, /migrations\/BAD_NAME\.sql  —  命名不符 NNN_YYYYMMDD_slug\.sql/);
+  assert.match(r.text, /账本编号重复：001/);
+  assert.match(r.text, /账本指向不存在的脚本：migrations\/missing_005\.sql/);
+  const j = r.json as { findings: Array<{ kind: string; detail?: string }> };
+  const details = j.findings.filter((f) => f.kind === "migration").map((f) => f.detail);
+  for (const n of ["002", "003", "004", "006"]) {
+    assert.ok(details.some((d) => d!.includes(`断号：${n}`)), `缺断号 ${n}`);
+  }
+  assert.ok(!details.some((d) => d!.includes("legacy/007.sql")));
+});
+
+test("check：引导过期检出（managed 区被篡改）", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await put(
+    root,
+    "CLAUDE.md",
+    `<!-- doclib-guide cli=${CLI_VERSION} structure=${STRUCTURE_VERSION} -->\n<!-- doclib:managed-begin -->\n被篡改的规则区\n<!-- doclib:managed-end -->\n<!-- doclib:custom-begin -->\n<!-- doclib:custom-end -->\n`,
+  );
+  const r = await runCheck(root, {});
+  assert.match(r.text, /引导过期 \(1\)/);
+  assert.match(r.text, /- CLAUDE\.md  —  规则区落后模板 → doclib sync/);
+});
+
+test("check：孤儿文档检出/豁免路径（根级豁免/前缀豁免/covers 有主；豁免 ≠ 免无归属）", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await put(root, "notes/stray.md", "散落知识");
+  await put(root, "docs/covered.md", "被馆内 covers 覆盖");
+  await put(root, ".github/workflows-note.md", "前缀豁免");
+  await put(root, "CHANGELOG.md", "根级豁免");
+  await put(root, "doclib/30-features/docs.md", docMd("Docs", ["docs/"]));
+  const r = await runCheck(root, {});
+  assert.match(r.text, /孤儿文档 \(1\)/);
+  assert.match(r.text, /- notes\/stray\.md  —  馆外知识文档 → doclib place collect\/archive 或 doclib ack/);
+  assert.ok(!r.text.includes(".github/workflows-note.md  —"));
+  assert.ok(!r.text.includes("CHANGELOG.md  —"));
+  assert.ok(!r.text.includes("docs/covered.md  —"));
+  assert.match(r.text, /无归属 [\s\S]*- \.github\/workflows-note\.md[\s\S]*- CHANGELOG\.md/);
+});
+
+test("check：自定义规划载体目录不判孤儿", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  const state = await fs.readFile(path.join(root, ".doclib", "state.json"), "utf8");
+  const parsed = JSON.parse(state) as { planning: string[] };
+  parsed.planning = ["notes/"];
+  await fs.writeFile(path.join(root, ".doclib", "state.json"), JSON.stringify(parsed), "utf8");
+  await put(root, "notes/stray.md", "散落知识但属规划载体");
+  const r = await runCheck(root, {});
+  assert.match(r.text, /违规: 无/);
+});
+
+test("check：旧基线无文档账 → 降级提示且不报漏更", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await put(root, "src/a.ts", "v1");
+  await put(root, "doclib/30-features/a.md", docMd("A", ["src/a.ts"]));
+  await seedState(root, {
+    version: 1,
+    latest: "snap-001",
+    snapshots: [snapshotRow(1, ["src/a.ts"], "2026-10-19T00:00:00.000Z")],
+    revision: 1,
+  });
+  await put(root, "src/a.ts", "v2");
+  const r = await runCheck(root, {});
+  assert.match(r.text, /旧基线无文档账，漏更检测降级——重新 doclib snapshot 后生效/);
+  assert.match(r.text, /违规: 无/);
+});
+
+test("check：--json 输出结构（baseline/hasDocLedger/accounted/findings/health/stats）", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await put(root, "src/a.ts", "v2");
+  const r = await runCheck(root, { json: true });
+  const j = JSON.parse(r.text) as {
+    baseline: string;
+    hasDocLedger: boolean;
+    accounted: number;
+    docFirst: string[];
+    exempted: unknown[];
+    findings: Array<{ kind: string }>;
+    health: { score: number; grade: string };
+    stats: { codeDrift: { modified: number }; docsChanged: string[] };
+  };
+  assert.equal(j.baseline, "snap-001");
+  assert.equal(j.hasDocLedger, true);
+  assert.equal(j.accounted, 0);
+  assert.deepEqual(j.stats.codeDrift, { added: 0, modified: 1, removed: 0 });
+  assert.equal(j.findings[0]!.kind, "unaccounted");
+  assert.equal(j.health.grade, "C");
+});
+
+test("check：治理分组件展示（对账/迁移/归位/引导/质量百分比）", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await put(root, "doclib/30-features/z.md", "[断链](ghost.md)");
+  const r = await runCheck(root, {});
+  assert.match(r.text, /治理: \d+\/100 \([A-F]\) ｜ 对账 100% · 迁移 100% · 归位 100% · 引导 100% · 质量 90%/);
+});
+
+test("check：ack 豁免联动——standing 免除漏更", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await put(root, "src/a.ts", "v2");
+  await withExit(async () => {
+    let r = await runCheck(root, {});
+    assert.match(r.text, /漏更 \(1\)/);
+    const st = JSON.parse(await fs.readFile(path.join(root, ".doclib", "state.json"), "utf8")) as {
+      acks: Array<{ path: string; note?: string; at?: string; kind: string; baseline?: string }>;
+    };
+    st.acks.push({ path: "src/a.ts", note: "生成物", at: "2026-10-19T00:00:00.000Z", kind: "standing" });
+    await fs.writeFile(path.join(root, ".doclib", "state.json"), JSON.stringify(st), "utf8");
+    r = await runCheck(root, {});
+    assert.match(r.text, /违规: 无/);
+    assert.match(r.text, /已豁免: 1/);
+  });
+});

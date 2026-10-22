@@ -4,6 +4,7 @@ export const LIBRARY_DIR = "doclib";
 export const STATE_DIR = ".doclib";
 export const TASKS_DIR = `${STATE_DIR}/tasks`;
 export const MAX_SNAPSHOTS = 20;
+export const MAX_ARCHIVES = 200;
 
 export type SnapshotStats = {
   files: number;
@@ -30,6 +31,18 @@ export type StateAck = {
   baseline?: string;
 };
 
+export type ArchiveEntry = {
+  id: string;
+  kind: "archived" | "collected";
+  from: string;
+  to: string;
+  reason: string;
+  at: string;
+  pointer?: string;
+  originStatus?: string;
+  originCovers?: string[];
+};
+
 export type State = {
   version: number;
   latest: string | null;
@@ -39,6 +52,8 @@ export type State = {
   acks: StateAck[];
   revision: number;
   planning: string[];
+  archives: ArchiveEntry[];
+  dirExempts: string[];
 };
 
 export class DoclibError extends Error {}
@@ -55,6 +70,8 @@ export function emptyState(): State {
     acks: [],
     revision: 0,
     planning: [...DEFAULT_PLANNING],
+    archives: [],
+    dirExempts: [],
   };
 }
 
@@ -91,11 +108,14 @@ export async function loadState(root: string): Promise<State> {
     acks: Array.isArray(parsed.acks) ? parsed.acks : [],
     revision: typeof parsed.revision === "number" ? parsed.revision : 0,
     planning: Array.isArray(parsed.planning) && parsed.planning.length > 0 ? parsed.planning : [...DEFAULT_PLANNING],
+    archives: Array.isArray(parsed.archives) ? parsed.archives : [],
+    dirExempts: Array.isArray(parsed.dirExempts) ? parsed.dirExempts : [],
   };
 }
 
 export async function saveState(root: string, state: State): Promise<void> {
   state.snapshots = state.snapshots.slice(-MAX_SNAPSHOTS);
+  state.archives = state.archives.slice(-MAX_ARCHIVES);
   await fs.mkdir(`${root}/${STATE_DIR}`, { recursive: true });
   await fs.writeFile(`${root}/${STATE_DIR}/state.json`, `${JSON.stringify(state, null, 2)}\n`, "utf8");
 }
@@ -124,4 +144,13 @@ export function computeDrift(baseline: Record<string, string>, current: Record<s
 
 export function pad3(n: number): string {
   return String(n).padStart(3, "0");
+}
+
+export function nextArchiveId(state: State): string {
+  let max = 0;
+  for (const a of state.archives) {
+    const m = /^arc-(\d+)$/.exec(a.id);
+    if (m) max = Math.max(max, Number(m[1]));
+  }
+  return `arc-${pad3(max + 1)}`;
 }

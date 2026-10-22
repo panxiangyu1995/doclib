@@ -18,7 +18,9 @@ status: stable
 | 引导文件体系（light/full + 版本戳 + 区域契约） | 待写 | assets/guides/、src/core/guides.ts | implemented（规格欠账） |
 | doclib sync（引导/skills 可重入同步） | 待写 | src/commands/sync.ts | implemented（规格欠账） |
 | doclib check（强验证对账） | [check.md](check.md) | src/commands/check.ts、src/core/check.ts、src/core/ledger.ts | implemented |
-| doclib ack（路径豁免） | 待写 | src/commands/ack.ts | implemented（规格欠账） |
+| doclib place（孤儿归位与处置闭环） | [place.md](place.md) | src/commands/place.ts、src/core/place.ts、src/core/orphan.ts | implemented |
+| doclib graph（代码知识图谱加速器，F15 阶段 2） | [graph.md](graph.md) | src/commands/graph.ts、src/core/codegraph/、vendor/codegraph/ | implemented |
+| doclib ack（路径豁免） | 待写 | src/commands/ack.ts | implemented（规格欠账；--dir 目录豁免登记时校验目录存在） |
 | doclib hook（提交门禁） | 待写 | src/commands/hook.ts | implemented（规格欠账） |
 | BOOTSTRAP/RESUME 任务书 | 待写 | — | planned |
 | .plan 检测与双锚点提醒 | 待写 | — | planned |

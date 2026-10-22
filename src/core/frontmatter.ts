@@ -49,3 +49,21 @@ export function coversOf(data: Record<string, string | string[]>): string[] {
   const list = Array.isArray(covers) ? covers : [covers];
   return list.map((c) => c.trim()).filter((c) => c.length > 0);
 }
+
+export function renderFrontmatter(data: Record<string, string | string[]>): string {
+  const lines: string[] = ["---"];
+  for (const [key, value] of Object.entries(data)) {
+    if (Array.isArray(value)) {
+      if (value.length === 0) {
+        lines.push(`${key}: []`);
+        continue;
+      }
+      lines.push(`${key}:`);
+      for (const v of value) lines.push(`  - ${v}`);
+      continue;
+    }
+    lines.push(`${key}: ${value}`);
+  }
+  lines.push("---", "");
+  return lines.join("\n");
+}

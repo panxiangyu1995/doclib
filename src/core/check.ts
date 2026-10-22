@@ -1,14 +1,47 @@
 import path from "node:path";
-import { collectFiles, hashAll } from "./fsutil.js";
+import { collectFiles, fileExists, hashAll } from "./fsutil.js";
 import { computeDrift, DoclibError, latestSnapshot, LIBRARY_DIR, loadState } from "./state.js";
 import { buildCoverIndex, docsForPath } from "./mapping.js";
 import { hashDocs, validateMigrations, type CheckFinding } from "./ledger.js";
 import { managedRegionFresh } from "./guides.js";
-import { detectOrphanDocs } from "./orphan.js";
+import { detectSuspectedToolchainDirs, scanExternalDocs } from "./orphan.js";
 import { scanBrokenLinks } from "./docquality.js";
 import { loadPlanningPaths, planningIgnores } from "./planning.js";
 
 export type { CheckFinding, CheckFindingKind } from "./ledger.js";
+
+export type CheckNoticeKind = "toolchain-exempt" | "guide-exempt" | "pointer-exempt" | "toolchain-suspect" | "newly-ignored";
+
+export type CheckNotice = {
+  kind: CheckNoticeKind;
+  path?: string;
+  detail: string;
+};
+
+const EXEMPT_NOTICE_KINDS: CheckNoticeKind[] = ["toolchain-exempt", "guide-exempt", "pointer-exempt"];
+
+function aggregateExemptNotices(notices: CheckNotice[]): CheckNotice[] {
+  const groups = new Map<string, { kind: CheckNoticeKind; dir: string; count: number; reason: string; samples: string[] }>();
+  const kept: CheckNotice[] = [];
+  for (const n of notices) {
+    if (!EXEMPT_NOTICE_KINDS.includes(n.kind)) {
+      kept.push(n);
+      continue;
+    }
+    const dir = n.path === undefined ? "(root)" : n.path.includes("/") ? n.path.split("/")[0]! : n.path;
+    const key = `${n.kind}|${dir}`;
+    const g = groups.get(key) ?? { kind: n.kind, dir, count: 0, reason: n.detail, samples: [] };
+    g.count += 1;
+    if (g.samples.length < 3 && n.path !== undefined) g.samples.push(n.path);
+    groups.set(key, g);
+  }
+  const aggregated: CheckNotice[] = [];
+  for (const g of groups.values()) {
+    const sample = g.samples.length > 0 ? `（例：${g.samples.join(", ")}）` : "";
+    aggregated.push({ kind: g.kind, path: g.dir, detail: `${g.reason}｜${g.count} 个文件${sample}` });
+  }
+  return [...aggregated, ...kept];
+}
 
 export type HealthReport = {
   score: number;
@@ -43,6 +76,7 @@ export type CheckResult = {
   docFirst: string[];
   exempted: Array<{ path: string; note: string }>;
   findings: CheckFinding[];
+  notices: CheckNotice[];
   health: HealthReport;
   stats: {
     codeDrift: { added: number; modified: number; removed: number };
@@ -75,10 +109,24 @@ export async function runCheckCore(root: string): Promise<CheckResult> {
   const acks = state.acks ?? [];
   const findings: CheckFinding[] = [];
   const exempted: Array<{ path: string; note: string }> = [];
+  const notices: CheckNotice[] = [];
   let accounted = 0;
   const triggeredDocs = new Set<string>();
 
-  const changedPaths = [...drift.added, ...drift.modified, ...drift.removed].sort();
+  const newlyIgnored: string[] = [];
+  const realRemoved: string[] = [];
+  for (const p of drift.removed) {
+    if (await fileExists(root, p)) newlyIgnored.push(p);
+    else realRemoved.push(p);
+  }
+  if (newlyIgnored.length > 0) {
+    notices.push({
+      kind: "newly-ignored",
+      detail: `${newlyIgnored.length} 个路径因忽略规则退出代码账（非删除，不计漂移）：${newlyIgnored.slice(0, 5).join(", ")}${newlyIgnored.length > 5 ? " …" : ""}`,
+    });
+  }
+
+  const changedPaths = [...drift.added, ...drift.modified, ...realRemoved].sort();
   for (const p of changedPaths) {
     const standing = acks.find((a) => a.kind === "standing" && a.path === p);
     if (standing) {
@@ -108,9 +156,33 @@ export async function runCheckCore(root: string): Promise<CheckResult> {
   }
 
   const planningDirs = loadPlanningPaths(state).map((p) => p.replace(/\/$/, ""));
-  const orphanCandidates = (await detectOrphanDocs(root)).filter(
-    (p) => !planningDirs.some((pp) => p === pp || p.startsWith(`${pp}/`)),
-  );
+  const scan = await scanExternalDocs(root);
+  for (const d of scan.toolchain) notices.push({ kind: "toolchain-exempt", path: d.path, detail: d.reason });
+  for (const d of scan.guide) notices.push({ kind: "guide-exempt", path: d.path, detail: d.reason });
+  for (const d of scan.pointer) notices.push({ kind: "pointer-exempt", path: d.path, detail: d.reason });
+  const suspects = await detectSuspectedToolchainDirs(root);
+  const suspectDirs = suspects.map((s) => s.dir);
+  const dirExemptPrefixes = state.dirExempts.map((d) => d.replace(/\/$/, ""));
+  const orphanCandidates = scan.pending
+    .filter((d) => !planningDirs.some((pp) => d.path === pp || d.path.startsWith(`${pp}/`)))
+    .filter((d) => {
+      const hit = dirExemptPrefixes.some((dp) => d.path === dp || d.path.startsWith(`${dp}/`));
+      if (hit) notices.push({ kind: "toolchain-exempt", path: d.path, detail: "项目级目录豁免（doclib ack --dir）" });
+      return !hit;
+    })
+    .filter((d) => {
+      const top = d.path.split("/")[0] ?? "";
+      const hit = suspectDirs.includes(top);
+      if (hit) {
+        notices.push({
+          kind: "toolchain-suspect",
+          path: d.path,
+          detail: `疑似 agent 工具目录（${top}/）内文档——soft 提示不判违规；确认后 doclib ack --dir ${top}/`,
+        });
+      }
+      return !hit;
+    })
+    .map((d) => d.path);
   const orphans: string[] = [];
   for (const p of orphanCandidates) {
     if (docsForPath(coverIndex, p).length > 0) continue;
@@ -125,7 +197,10 @@ export async function runCheckCore(root: string): Promise<CheckResult> {
       continue;
     }
     orphans.push(p);
-    findings.push({ kind: "orphan-doc", path: p, detail: "馆外知识文档 → 收编入馆或 doclib ack" });
+    findings.push({ kind: "orphan-doc", path: p, detail: "馆外知识文档 → doclib place collect/archive 或 doclib ack" });
+  }
+  for (const s of suspects) {
+    notices.push({ kind: "toolchain-suspect", path: s.dir, detail: s.reason });
   }
 
   const unaccountedCount = findings.filter((f) => f.kind === "unaccounted").length;
@@ -153,9 +228,10 @@ export async function runCheckCore(root: string): Promise<CheckResult> {
     docFirst: docsChanged.filter((d) => !triggeredDocs.has(d)),
     exempted,
     findings,
+    notices: aggregateExemptNotices(notices),
     health,
     stats: {
-      codeDrift: { added: drift.added.length, modified: drift.modified.length, removed: drift.removed.length },
+      codeDrift: { added: drift.added.length, modified: drift.modified.length, removed: realRemoved.length },
       docsChanged,
     },
   };

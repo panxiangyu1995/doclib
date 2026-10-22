@@ -41,3 +41,14 @@ export async function askPlanning(): Promise<string> {
     rl.close();
   }
 }
+
+export async function askGraph(): Promise<boolean> {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    const answer = await rl.question("初始化代码知识图谱 .codegraph/（可选加速器，需 Node >= 22.5，大仓库首次索引需数分钟，回车=否）: ");
+    const t = answer.trim().toLowerCase();
+    return t === "y" || t === "yes" || t === "是";
+  } finally {
+    rl.close();
+  }
+}

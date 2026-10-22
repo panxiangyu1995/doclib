@@ -4,6 +4,7 @@ covers:
   - src/
   - assets/
   - skills/
+  - .claude/skills/
 status: stable
 ---
 
@@ -33,6 +34,11 @@ status: stable
 | commands/ack | 路径豁免登记（once/standing/remove） | 30-features/（待写） | src/commands/ack.ts |
 | commands/hook | pre-commit 钩子安装/移除 + CI 模板 | 30-features/（待写） | src/commands/hook.ts |
 | core/ledger | 文档账收集与迁移账本解析/校验 | 待成卷 | src/core/ledger.ts |
-| core/check | 双账本对账引擎（九分类含文档质量） | 待成卷 | src/core/check.ts |
+| core/orphan | 馆外文档四态判定（工具链闭集 28 项 + 任意层级引导文件 + 归档指针）+ 疑似新工具目录识别 | 30-features/check.md | src/core/orphan.ts |
+| core/place | 归位决策与执行（建议归宿/收编/入棺/墓碑/两级索引/归档账还原） | 30-features/place.md | src/core/place.ts |
+| commands/place | 孤儿归位处置命令族（list/collect/archive/ack/restore，干跑默认） | 30-features/place.md | src/commands/place.ts |
+| core/check | 双账本对账引擎（6 类违规 + 馆外文档四态判定 + 豁免与提示 notices） | 30-features/check.md | src/core/check.ts |
 | core/docquality | 馆内断链扫描与两级索引（卷 _index）核对 | 待成卷 | src/core/docquality.ts |
+| core/codegraph | 知识图谱门禁与 CJS 桥（Node>=22.5 检测/降级语义/最小类型面）+ 草稿渲染器（routes/modules/dependencies/unused 四册候选） | 30-features/graph.md | src/core/codegraph/ |
+| commands/graph | graph 命令族（index/status/draft/explore；可选增强，telemetry 物理隔离） | 30-features/graph.md | src/commands/graph.ts |
 | scripts/copy-assets | 构建期资产拷贝（零依赖脚本） | 待成卷 | scripts/copy-assets.js |

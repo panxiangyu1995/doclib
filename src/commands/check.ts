@@ -46,6 +46,32 @@ export async function runCheck(root: string, opts: { json?: boolean; strict?: bo
     }
   }
   if (!any) lines.push("违规: 无");
+  const notices = r.notices;
+  if (notices.length > 0) {
+    const count = (k: (typeof notices)[number]["kind"]): number => notices.filter((n) => n.kind === k).length;
+    const toolchain = count("toolchain-exempt");
+    const guide = count("guide-exempt");
+    const pointer = count("pointer-exempt");
+    const suspect = count("toolchain-suspect");
+    const ignored = count("newly-ignored");
+    const parts: string[] = [];
+    if (toolchain > 0) parts.push(`工具链豁免 ${toolchain}`);
+    if (guide > 0) parts.push(`引导文件豁免 ${guide}`);
+    if (pointer > 0) parts.push(`归档指针豁免 ${pointer}`);
+    if (suspect > 0) parts.push(`疑似新工具目录 ${suspect}`);
+    if (ignored > 0) parts.push(`新增忽略退出代码账 ${ignored}`);
+    lines.push(`豁免与提示: ${parts.join(" ｜ ")}`);
+    const suspectDirs = new Map<string, number>();
+    for (const n of notices.filter((x) => x.kind === "toolchain-suspect")) {
+      const dir = n.path !== undefined && !n.path.includes("/") ? n.path : (n.path ?? "").split("/")[0] ?? "";
+      if (dir === "") continue;
+      suspectDirs.set(dir, (suspectDirs.get(dir) ?? 0) + 1);
+    }
+    for (const [dir, files] of suspectDirs) {
+      const detail = notices.find((x) => x.kind === "toolchain-suspect" && x.path === dir)?.detail ?? "";
+      lines.push(`  - ${dir}/  —  ${files} 个文件｜${detail}`);
+    }
+  }
   lines.push("");
   const passed = r.findings.length === 0;
   lines.push(`strict 门禁: ${passed ? "通过" : `未通过（${r.findings.length} 项违规，--strict 时退出码 1）`}`);

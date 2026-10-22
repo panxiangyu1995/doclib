@@ -24,6 +24,7 @@ status: stable
 | --agents | 逗号分隔：claude,opencode,cursor,generic；未知 id 报 DoclibError；去重 | TTY 问卷；非 TTY → generic |
 | --guide | light \| none；非法值报 DoclibError | TTY 问卷；非 TTY → light |
 | --planning | 逗号分隔多路径（默认 .plan/），尾斜杠归一 | TTY 问卷（askPlanning：回车=.plan/）；非 TTY → .plan/ |
+| --graph | init 时同步初始化知识图谱 .codegraph/（v0.30，需 Node>=22.5） | TTY 第 4 问（askGraph：回车=否）；引擎不可用/建图失败→告警行，**init 仍退出 0**；未启用输出 `doclib graph index` 提示行 |
 
 ## 行为
 

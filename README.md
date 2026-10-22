@@ -83,12 +83,13 @@ doclib plan --rebuild --to ../myproj-rebuild
 | `status` | 版本、基线、漂移、治理健康分、引导预算、载体提醒概览、任务书列表 |
 | `verify` | 覆盖度报告：未覆盖路径 / 失效文档 / INDEX 完整性 |
 | `sync` | 引导文件规则区与 skills 同步再生（幂等，定制区保留） |
-| `check` | 强验证：代码账+文档账双账本对账（漏更/无归属/迁移违规/引导过期/孤儿文档）+ 治理健康分 + revision，`--strict` 门禁 |
-| `ack` | 路径豁免登记（once 绑定基线自动清除 / standing 长期） |
+| `check` | 强验证：代码账+文档账双账本对账（漏更/无归属/迁移违规/引导过期/孤儿文档）+ 治理健康分 + revision，`--strict` 门禁；馆外文档**四态判定**（馆内/非文档资产/工具链豁免/待归位），豁免与提示（工具链豁免计数、疑似新工具目录）单列不阻断 |
+| `ack` | 路径豁免登记（once 绑定基线自动清除 / standing 长期）；`--dir <前缀>` 登记目录豁免（不判孤儿但仍进代码账） |
+| `place` | 孤儿归位处置：`list`（列待归位与建议归宿）/ `collect`（收编入馆）/ `archive`（入棺归档）/ `ack`（登记豁免）/ `restore`（还原归档）；写操作**默认干跑**，`--apply` 才执行；`covers` 命中硬拦截，归档账可还原 |
 | `hook` | pre-commit 钩子安装/移除（`--strict`；`--ci github` 出 CI 模板） |
 | `reconcile` | 进度对账重建：疑似完成 / 进度不符 / 待推进三段报告 |
 
-通用选项：`--json`、`--note`、`--to`、`--force`、`--rebuild`、`--bootstrap`、`--resume`；init 专用：`--agents`（claude/opencode/cursor/generic）、`--guide`（light/none）、`--planning`（规划载体路径，逗号分隔，默认 `.plan/`）。
+通用选项：`--json`、`--note`、`--to`、`--force`、`--rebuild`、`--bootstrap`、`--resume`；init 专用：`--agents`（claude/opencode/cursor/generic）、`--guide`（light/none）、`--planning`（规划载体路径，逗号分隔，默认 `.plan/`）；place 专用：`--apply`（实际执行写操作）、`--reason`（入棺失效原因）；ack 专用：`--dir`（目录前缀豁免）。
 
 ## 文档图书馆结构
 

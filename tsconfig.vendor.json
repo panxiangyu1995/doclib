@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "dist/vendor",
+    "rootDir": "vendor/codegraph/src",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "web-tree-sitter": ["./vendor/codegraph/src/web-tree-sitter.d.ts"]
+    }
+  },
+  "include": [
+    "vendor/codegraph/src/db/**/*",
+    "vendor/codegraph/src/extraction/**/*",
+    "vendor/codegraph/src/resolution/**/*",
+    "vendor/codegraph/src/graph/**/*",
+    "vendor/codegraph/src/context/**/*",
+    "vendor/codegraph/src/search/**/*",
+    "vendor/codegraph/src/sync/**/*",
+    "vendor/codegraph/src/types.ts",
+    "vendor/codegraph/src/utils.ts",
+    "vendor/codegraph/src/errors.ts",
+    "vendor/codegraph/src/directory.ts",
+    "vendor/codegraph/src/file-limits.ts",
+    "vendor/codegraph/src/project-config.ts",
+    "vendor/codegraph/src/worker-teardown.ts",
+    "vendor/codegraph/src/mcp/version.ts",
+    "vendor/codegraph/src/mcp/dynamic-boundaries.ts",
+    "vendor/codegraph/src/index.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

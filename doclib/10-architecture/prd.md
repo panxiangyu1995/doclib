@@ -44,6 +44,9 @@ status: living
 | v0.25 | 2026-10-19 | CLI 地基与 Skills 补全（.plan/2026-10-19/skills-cli-completion.md，用户纠正开发顺序：先补全工具后做基准实验）：F8 落地——plan 新增 BOOTSTRAP（--bootstrap 对话式挖掘）/RESUME（--resume 半成品接手）任务书类型（与 --rebuild 互斥）；F9 落地——载体声明（state.planning，init --planning 多路径，归一化默认 .plan/）+ 自定义载体不进快照/漂移（六处 collectFiles 接 planningIgnores）+ 双锚点提醒（待登记=载体 mtime 晚于基线/待归档=feature-map 解析，status/plan 输出）；F11 落地——doclib reconcile（疑似完成/进度不符/待推进三段报告，implemented 条目 covers 漂移+文档未同步判定）；F7 落地——skills 10/10 建齐（dev/bootstrap/resume/setup/reconcile/audit/accept）；version 命令修复硬编码（→CLI_VERSION）；版本 0.4.0（feature-map #6/#8/#9/#10） |
 | v0.26.1 | 2026-10-19 | CLI 全功能极致验收：44 探针全矩阵（11 命令），3 缺陷发现即修——D1 verify 两级索引核对落地（F4）、D2 骨架补 99-archive（STRUCTURE_VERSION 3）、D3 status 引导行聚合内容级篡改检出；验收留痕 50-testing/acceptance-cli-v0.4.0.md |
 | v0.26 | 2026-10-19 | npm 发布工程就绪（.plan/2026-10-19/npm-release.md，五项拍板由用户授权按可持续视角代定）：发布通道=Actions tag 触发（release.yml：npm ci→test→publish --provenance）；license=MIT（LICENSE 文件）；clean build（dist 先清——消灭 v0.1 孤儿残留 dist/templates）；包元数据（repository/homepage/bugs/keywords/prepublishOnly 门禁/files 移除 AGENTS.md）；F9 交互尾巴（askPlanning 载体问卷）；冷包验收通过（tgz 全新目录 init/plan/snapshot/status 全流程）；发布流程入 70-deploy（tag 流程/用户前置/回滚=dist-tag forward-only） |
+| v0.27 | 2026-10-21 | F14 补强（umami 基准实验规划 .plan/2026-10-21/benchmark-umami.md，feature-map #18 → in-progress）：F3/F14 增补**双跑答卷规范**——验收标准附可复现命令与期望结果 + 统一答卷格式 + 运行时声明（30-features 模板与 doclib-accept skill 同步落地），同题共答结果可逐条机器 diff、一致率即复原度得分；登记簿首批五册（含 events）在 umami 建馆全建 |
+| v0.29 | 2026-10-22 | 孤儿归位与处置闭环（规划 .plan/2026-10-22/orphan-placement-pack.md；用户授权"所有需拍板项按长远考虑、一步到位"）：§7.5 馆外白名单第 1 类扩围（工具链目录闭集 26 项 + **任意层级**引导文件 + 归档指针文件）；F13 升格为**四态判定**（①馆内 ②非文档资产 ③工具链豁免 ④待归位孤儿）+ **三层防线**（L1 扫描面 / L2 判定面 / L3 处置面）+ 处置闭环（新增 `doclib place`：list/collect/archive/ack/restore——写操作默认干跑、`covers` 命中硬拦截、归档账可 restore）+ `doclib ack --dir` 零代码扩展 + 疑似新工具目录软提示 + 漂移语义修正（真删除 vs 被新忽略）；Q41 登记；ADR #12；版本 0.5.0（feature-map #24） |
+| v0.30 | 2026-10-22 | **F15 阶段 2 落地：codegraph 克隆集成**（规划 .plan/2026-10-22/codegraph-integration.md；RIPER-5 RESEARCH→INNOVATE→PLAN→EXECUTE；用户裁决：克隆+二次开发一步到位，否决 npm 依赖直调与"F14 实测后裁决"顺序）：F15 阶段 2 形态定稿——git subtree 克隆 vendor/codegraph（v1.6.2，MIT）+ CJS 岛编译（telemetry 物理隔离不触网）+ `createRequire` 单点桥 + **F16 `doclib graph` 命令族**（index/status/draft/explore）+ 草稿候选管道（.doclib/drafts/ 四册：routes/modules/dependencies/unused，provenance 标注 + TODO(agent) 契约位）+ `init --graph` 交互第 4 问 + BUILD 任务书候选段 + 无 daemon（catch-up sync）+ Node >= 22.5 引擎门 + 优雅降级；运行时依赖条款修订（仅 ignore → +3 纯 JS）；Q40 更新（三指标转事后验证）；ADR #13；feature-map #25 |
 
 ## 1. 背景与问题
 
@@ -390,6 +393,16 @@ doclib/
 1. **技术约束类**：CLAUDE.md / AGENTS.md（agent 目录约定）、根 README / LICENSE / CHANGELOG（工具链与生态惯例）、.github/ 工作流模板——位置由工具链决定，不可迁移
 2. **用户显式类**：开发者明确要求馆外 → 必须 `doclib ack --standing` 登记理由；无登记的馆外知识文档即孤儿
 
+**白名单第 1 类扩围【v0.29】**（实证依据：context7 官方规范 + GitHub 全网路径检索 + 43 仓库全量文件树；研究留痕见 `.plan/2026-10-22/orphan-placement-pack.md`）——原枚举仅 4 个目录前缀，43 仓样本实测：旧实现共判孤儿 36,086（其中**工具链类误报 2,052**，均值 ≈48/仓、AI 工具仓最高 171 in cline/gemini-cli/codex）；扩围后工具链类误报清零，真知识目录判定 23,920 保持不变（差额 3 为嵌套引导文件 docs/CLAUDE.md 等，按「引导文件任意层级豁免」正确排除，非漏报）。扩围后三类豁免：
+
+| 豁免类 | 范围 | 语义 | 是否进代码账 |
+| --- | --- | --- | --- |
+| 工具链目录 | `.claude/ .agents/ .opencode/ .cursor/ .github/ .gemini/ .codex/ .cline/ .clinerules/ .roo/ .continue/ .qwen/ .windsurf/ .kiro/ .factory/ .trae/ .junie/ .kilocode/ .antigravity/ .specstory/ .crush/ .codeium/ .mcp/ .archon/ .conductor/ .greptile/`（目录前缀匹配）+ `.windsurfrules .cursorrules .roorules .clinerules .augment-guidelines`（整文件名精确匹配） | 位置由工具链决定，不可迁移 | **是**（工具链占位的技术资产仍需漂移感知） |
+| 引导文件 | 任意层级 `AGENTS.md` `CLAUDE.md` `CLAUDE.local.md` `GEMINI.md` `CONVENTIONS.md`（AGENTS.md 官方规范支持嵌套，近端优先） | 同上 | 是 |
+| 归档指针文件 | 含 `<!-- doclib:archived-pointer -->` 标记的文件（`doclib place archive` 生成） | 派生文件，指向馆内新位置 | 是 |
+
+**非文档资产另立一面【v0.29】**：`vendor/ third_party/ deps/ extern/ external/ .changeset/` 等第三方与工具产物**不参与文档扫描**（不进代码账、不判孤儿）——与"豁免"是两回事：豁免=不判孤儿但仍跟踪，非文档资产=根本不进文档视野。`docs/` `design/` 等真知识目录**不整体豁免**（逐份判定，Q20 不变）。
+
 孤儿 = **归位宪法违反记录**（F13 执法语义）：每份孤儿必须沿决策树归位，或进白名单、或 ack 登记——不允许"先放了再说"。
 
 **骨架与编号规划**（万级文档的可导航性保证）：
@@ -470,6 +483,16 @@ doclib/
 
 **孤儿文档收编【v0.17，第七分类；v0.20 升格为归位执法；v0.23 豁免清单定稿 Q20】**：`check` 扫描馆外知识型 Markdown（复用项目忽略规则），与 ack 账本比对后报告孤儿——孤儿即**归位宪法违反记录**（§7.5）：每份孤儿三态处置（同 F1 冷启动盘点）：**收编入馆（沿决策树定位唯一归宿）/ ack 豁免（理由留痕）/ 废弃清理**。默认豁免【Q20】：根 `README.md`、`CHANGELOG.md`、`LICENSE`、`CONTRIBUTING.md`、`.github/` 全目录、引导文件（已是文档账成员）、**已声明规划载体的内容**（F9 双轨边界）；docs/ 等历史目录**不整体豁免**（逐份判定）。孤儿清零即达成"馆外无文档"：图书馆是知识唯一事实源，全景可查。
 
+**四态判定与三层防线【v0.29 新增，Q41 授权】**——原实现把"排除"压成一张平表（豁免即全丢），既误报又无处置。升格为：
+
+- **四态判定**：①馆内 ②非文档资产（第三方/生成物/夹具——**不参与文档扫描**）③工具链豁免（工具链目录 + 任意层级引导文件 + 归档指针——**豁免但仍进代码账**，可漂移感知）④待归位孤儿（真·馆外知识文档——**唯一扣治理分、唯一计 strict 门禁**的态）
+- **三层防线**：L1 扫描面（`DEFAULT_IGNORES` + `.doclibignore`）→ L2 判定面（工具链闭集 + `state.dirExempts`）→ L3 处置面（`doclib place`）
+- **处置闭环**：`doclib place list`（待归位清单 + 决策树建议归宿）/ `collect`（收编入馆：移动 + frontmatter 补 covers + 两级索引登记）/ `archive`（入棺：移动 + 墓碑五要素 + 原路径留指针）/ `ack`（馆外合法登记）/ `restore`（归档账逆操作，不依赖 git）
+- **入棺三道护栏**：写操作**默认干跑**（`--apply` 才落盘）+ `covers` 命中**硬拦截**（移动会砸掉增量更新锚点）+ **归档账可 restore**
+- **闭集必然滞后**：内置闭集（27 项目录）+ `doclib ack --dir`（零代码扩展，不判孤儿但仍跟踪）+ `check` **疑似新工具目录软提示**（点目录 + 工具特征启发式，soft 不阻断）
+- **漂移语义修正**：文件因新增忽略规则退出代码账 ≠ 真删除——`check` 按磁盘存在性区分二者，避免用户扩一次忽略规则即触发假「无归属」违规
+- **豁免语义边界**：`ack --dir` = 不判孤儿但仍进代码账；`.doclibignore` = 完全不进代码账（不 hash、不漂移检测）
+
 **治理健康分【v0.17；v0.23 精细分制定稿 Q22】**：基于 check 全部分类的**确定性量化**（纯计算、无 AI、可复现）。**分项加权制**：
 
 | 分项 | 计分 | 权重 |
@@ -507,7 +530,7 @@ doclib/
 
 ### F14 复原基准测试体系（P0）【v0.19 立项；操作指南 doclib/40-guides/benchmark.md】
 
-**动机**：图书馆完备度无法自证——内容再全面也难以证明"特别全"，且图书馆内容本身需要被验证。方案【用户拍板】：给多个现有开源项目做图书馆，通过图书馆从零复原开发这些项目，对比原仓库与复原仓库的差异——差异即图书馆优劣之处，对症下药完善后回归尝试；基线、架构、方法论由此得到快速验证。
+**动机**：图书馆完备度无法自证——内容再全面也难以证明"特别全"，且图书馆内容本身需要被验证。方案【用户拍板】：给多个现有开源项目做图书馆，通过图书馆从零复原开发这些项目，对比原仓库与复原仓库的差异——差异即图书馆优劣之处，对症下药完善后回归尝试；基线、架构、方法论由此得到快速验证。**目的铁律【v0.28】：复原对比的对象是原仓库而非图书馆——"重建满足馆"只是自洽（循环论证）；馆的每一处遗漏都会变成重建与原仓库的实质差距，差距分析才是缺陷显影器。三阶段模型【v0.28】：P1 信息零遗漏（面穷举对账 Δ=0，CLI verify 守卫）→ P2 质量保证（行为双跑一致 100%+门禁全绿）→ P3 升华超越（复原产物修复原仓库 bug、做出提升，升华清单入档案）——三阶段串行，驱动 skills 与 CLI 分阶段升级。**
 
 **基准库准入标准**：
 
@@ -517,6 +540,8 @@ doclib/
 - 大项目允许**切片复原**（按功能部分复原），局部缺陷同样可暴露
 
 **同题共答**：对比单位是**行为**而非字节——同一套验收标准在原仓库与复原仓库双跑，逐条对比结果；字节差异（代码风格/命名/quirk）是设计值，无意义。结构对齐度（模块职责/数据流/依赖）由 agent 评审辅助。
+
+**双跑答卷规范【v0.27】**：验收标准必须可双跑——每条附可复现命令与期望结果（禁止"正常工作"类模糊表述），答卷按统一格式记录（`条目号 | 输入/动作 | 期望 | 实测 | 一致? | 证据`）+ 答卷头部运行时声明（node/依赖版本、环境前置），原仓库卷与复原卷同构，diff 即同题共答结果、一致率即复原度得分（模板见 30-features `_index`，执行见 doclib-accept skill）。
 
 **缺陷四分类**（每个差异发现须分类，决定行动）：
 
@@ -547,7 +572,7 @@ doclib/
 
 - **阶段 0（现在，零依赖）**：纯 agent 扫描——登记簿建账/对账候选由 agent grep 完成（F1/F13 既有语义）
 - **阶段 1（短期，可选增强）**：ast-grep 集成——`doclib` 探测 PATH 可用性；可用则实体扫描走**内置规则集**（Q28：全主流语言一次到位——TS/JS、Python、Go、Rust、Java/Kotlin、C#、Ruby、PHP、C/C++），产出 JSON 候选表；不可用则**优雅降级**回 agent 扫描；外部 bin 调用，**不进 npm 依赖**（守住"运行时仅依赖 ignore"）
-- **阶段 2（中期，实验）**：codegraph 外挂——大 repo 中 agent 用 codegraph 定位符号后**回馆验证/建账**（先馆后码的效率层，不改变查询顺序语义）；三用途：发现馆未登记实体（对账候选）/影响面分析辅助（移除规程步 1·2）/符号导航省 token；深度集成形态（引导推荐安装/内置探测）由 **F14 基准实验三指标实测裁决**（Q40）：建馆耗时/查询耗时/缺口发现率
+- **阶段 2（已落地 v0.30）**：codegraph 克隆集成——git subtree 克隆 vendor/codegraph（v1.6.2 MIT）+ CJS 岛编译 + `createRequire` 单点桥；**F16 `doclib graph` 命令族**（index/status/draft/explore）+ 草稿候选管道（`.doclib/drafts/` 四册，机器出候选 agent 裁决）+ `init --graph` + BUILD 任务书候选段；无 daemon（查询时 catch-up sync）；telemetry 物理隔离；`.codegraph/` 定位为可再生缓存（非产物），图书馆仍是唯一事实源；用户裁决否决 npm 依赖直调（API/telemetry/深度耦合主权）与"F14 实测后裁决"顺序——**Q40 三指标转为事后验证**（下轮基准实验埋点：建馆耗时/查询耗时/缺口发现率）
 
 **三铁律**：
 
@@ -556,6 +581,10 @@ doclib/
 3. **可选增强 + 优雅降级**：工具缺失不阻塞任何核心流程
 
 **服务对象**：F13 实体级对账（候选引擎）+ F2 移除规程（步 1 影响面预查 / 步 2 残留扫描增强）+ 大 repo 符号导航。
+
+### F16 代码知识图谱命令族（`doclib graph`）【v0.30，F15 阶段 2 落地】
+
+`doclib graph index|status|draft|explore`——index 建/同步/重建图；status 只读状态；draft 产出 `.doclib/drafts/` 四册登记簿候选（routes→80-design、modules→20-modules、dependencies→10-architecture、unused→状态机候选，每文件 `provenance: codegraph-draft` 警示头 + `TODO(agent)` 契约位，**禁止直接入馆**）；explore 面向 agent 的符号导航上下文（markdown 直出）。`init --graph` 交互第 4 问一步建图；BUILD 任务书检测 `.codegraph/` 附候选段。引擎：vendored codegraph CJS 岛（`src/core/codegraph/engine.ts` 单点桥 + Node>=22.5 门 + 优雅降级，graph 失败不阻塞 doclib 核心）。行为规格与验收标准：`30-features/graph.md`（AC1–AC10）。
 
 ## 10. 路线图【提案，待 PRD 稳定后重排】
 
@@ -607,6 +636,7 @@ doclib/
 | Q37 | 引导文件条目预算——映射表行数/总长度是否设硬性上限（当前仅三层分流软约束）？ | ✅ 已拍板：managed 区 ≤150 行 |
 | Q38 | 引导文件硬预算阈值与检测形态——"≤2 屏"的量化（行数/字节数上限）与 status/verify 超限报告？ | ✅ 已拍板：与 Q37 合并——≤150 行，status 报告行数超限提示（只显示不阻断） |
 | Q39 | "以馆为准"记忆冲突纪律（F5 第 8 项）是否确认采纳——agent 自动记忆（如 Claude MEMORY.md）与馆的优先级裁决？ | ✅ 已拍板：确认采纳 |
-| Q40 | codegraph 集成深度（F15 阶段 2）——F14 基准实验三指标（建馆耗时/查询耗时/缺口发现率）实测后裁决？ | ⏳ 待实测裁决（F14 首轮基准实验后） |
+| Q40 | codegraph 集成深度（F15 阶段 2）——F14 基准实验三指标（建馆耗时/查询耗时/缺口发现率）实测后裁决？ | ✅ 已拍板（v0.30，2026-10-22）：用户裁决**克隆集成一步到位**（subtree + 二次开发，否决 npm 依赖直调），推翻"F14 实测后裁决"顺序；三指标转为**事后验证**——下轮基准实验埋点实测，若 wasm 路径性能不可接受再裁决内核二进制 |
+| Q41 | 孤儿处置的授权边界——「入棺」自动化是否越权（F13 原为手动三态）？剔除列闭集扩围到何处？处置面是新增命令还是复用既有命令？ | ✅ 已拍板（用户授权"所有需拍板项按长远考虑、一步到位"）：**新增 `doclib place` 第 12 命令**（不塞进 `ack`/`plan`——豁免与处置语义相反，混命令必乱）；剔除列扩为**工具链目录闭集 26 项 + 任意层级引导文件 + 归档指针文件**；入棺自动化**获授权**（F13 升格为四态 + 三层防线），护栏=干跑默认 + covers 硬拦截 + 归档账可 restore；处置面一次到位不分期；豁免扩展走 `ack --dir`（零代码）而非等下个版本 |
 
 > v0.12 时开放问题曾全部清零；v0.17–v0.22 历次立项新增 Q20–Q40；**v0.23 批量拍板 Q20–Q39（Q30/Q32 同步执行实体操作），Q40 留待 F14 实测**。

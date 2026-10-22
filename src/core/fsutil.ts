@@ -30,6 +30,8 @@ export const DEFAULT_IGNORES = [
   ".turbo/",
   ".idea/",
   ".vscode/",
+  ".zed/",
+  ".codegraph/",
   ".DS_Store",
   "*.log",
   "*.tmp",
@@ -37,7 +39,24 @@ export const DEFAULT_IGNORES = [
   ".env.*",
   "Thumbs.db",
   ".plan/",
+  "vendor/",
+  "vendors/",
+  "third_party/",
+  "third-party/",
+  "thirdparty/",
+  "3rdparty/",
+  "deps/",
+  "extern/",
+  "external/",
+  ".changeset/",
 ];
+
+export async function fileExists(root: string, rel: string): Promise<boolean> {
+  return fs
+    .access(path.join(root, rel))
+    .then(() => true)
+    .catch(() => false);
+}
 
 export async function readFileOrNull(p: string): Promise<string | null> {
   try {

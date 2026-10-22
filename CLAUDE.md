@@ -1,4 +1,4 @@
-<!-- doclib-guide cli=0.4.0 structure=3 -->
+<!-- doclib-guide cli=0.5.0 structure=3 -->
 # DocLib 工作流
 
 <!-- doclib:managed-begin -->
@@ -53,7 +53,7 @@
 ## skills 与 CLI 速查
 
 skills 按名称加载：`build`=蒸馏建馆｜`bootstrap`=新项目文档先行｜`resume`=半成品接手｜`dev`=日常开发★主力｜`update`=增量更新｜`rebuild`=从零复原｜`reconcile`=对账重建｜`audit`=质量审计｜`accept`=验收执行
-CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`verify` 覆盖度｜`init` 骨架落位｜`sync` 引导/skills 同步｜`check` 强验证+治理分｜`ack` 路径豁免｜`hook` 提交门禁
+CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`verify` 覆盖度｜`init` 骨架落位｜`sync` 引导/skills 同步｜`check` 强验证+治理分｜`ack` 路径豁免｜`place` 孤儿归位（列出/收编入馆/入棺归档/还原；写操作默认干跑，`--apply` 执行）｜`hook` 提交门禁｜`graph` 知识图谱（index/status/draft/explore，可选增强）
 
 <!-- doclib:managed-end -->
 
@@ -63,12 +63,15 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
 > 本文件与 AGENTS.md 由 doclib sync 同步管理规则区；定制区内容两文件保持一致。
 
 - 定位：把任意项目蒸馏成可复原的文档图书馆；本仓库已启用 DocLib 自身（身先士卒）
-- 命令：`npm run build`（tsc + copy-assets）｜`npm run typecheck`｜`npm test`｜CLI 试运行 `node dist/cli.js <命令>`；版本 0.3.0（structure v2）
-- 结构：`src/cli.ts` 入口；`src/commands/` 十命令（init/plan/diff/snapshot/status/verify/sync/check/ack/hook）；`src/core/` 纯逻辑（fsutil/frontmatter/state/detect/mapping/check/ledger/guides/assets/agents/prompts/version）；`assets/` 模板与引导源（guides=managed 区再生源，改引导规则须改此处再 sync）；`skills/` 手册源；`docs/` PRD+DESIGN
-- 约定：ESM（导入带 .js 后缀）；strict + noUncheckedIndexedAccess；运行时仅依赖 ignore；源码不写注释；错误一律抛 DoclibError；术语见 doclib/10-architecture/prd.md §4
+- 基准铁律：复原对比对象=**原仓库**（非图书馆）——重建↔原仓库实质差距=建馆缺陷显影器（benchmark.md 目的铁律）（三阶段：P1 信息零遗漏→P2 质量保证→P3 升华超越原仓库）
+- 命令：`npm run build`（tsc vendor 岛 + tsc 主工程 + copy-assets）｜`npm run typecheck`｜`npm test`｜CLI 试运行 `node dist/cli.js <命令>`｜`doclib graph`（index/status/draft/explore，知识图谱命令族）；版本 0.5.0（structure v3）
+- 结构：`src/cli.ts` 入口；`src/commands/` 十三命令（init/plan/diff/snapshot/status/verify/sync/check/ack/place/hook/reconcile/graph）；`src/core/` 纯逻辑（fsutil/frontmatter/state/detect/mapping/check/orphan/place/ledger/docquality/surface/guides/assets/agents/prompts/version/codegraph）；`assets/` 模板与引导源（guides=managed 区再生源，改引导规则须改此处再 sync）；`skills/` 手册源（`doclib sync` 分发至 `.claude/skills/` `.opencode/skills/`）；PRD+DESIGN 已入馆 `doclib/10-architecture/`
+- 约定：ESM（导入带 .js 后缀）；strict + noUncheckedIndexedAccess；运行时依赖 ignore + 图谱引擎解析运行时（web-tree-sitter/picomatch/jsonc-parser，皆纯 JS，ADR #13）；源码不写注释；错误一律抛 DoclibError；术语见 doclib/10-architecture/prd.md §4
 - 验证：typecheck + test 全绿后，命令行为改动须临时目录冒烟（init --agents claude,opencode → plan → snapshot → 改文件 → diff → plan → verify）
 - skills 状态：10/10 全部实现（build/update/rebuild + dev/bootstrap/resume/setup/reconcile/audit/accept，feature-map #6）
-- 进度指针：`doclib/10-architecture/prd.md`（v0.23）｜`doclib/10-architecture/design.md`（v2）｜`doclib/00-overview/feature-map.md`｜`doclib/00-overview/progress.md`
+- 进度指针：`doclib/10-architecture/prd.md`（v0.30）｜`doclib/10-architecture/design.md`（v2）｜`doclib/00-overview/feature-map.md`｜`doclib/00-overview/progress.md`
 - 术语：图书馆=doclib/、簿记=.doclib/、任务书=.doclib/tasks/、基线=snapshot、漂移=drift、锚点=covers
 - 治理状态：规划载体 `.plan/<日期>/` 已声明（F9 默认实例）；登记簿落点已拍板——**分散挂靠各卷**（Q25，挂靠表见 PRD §7）；复原基准测试体系已立项（F14，首个基准项目 **colinhacks/zod**【Q31】，操作指南 `40-guides/benchmark.md`；**复原须与建馆不同会话/实例/模型，防先验污染**）；历史遗留已清零（v0.23）：50-reference 已归位 90-reference、PRD/DESIGN 已迁入 `doclib/10-architecture/`；写协调乐观锁 revision 已立项（Q36）
+- 孤儿治理（v0.5.0）：馆外文档四态判定（馆内/非文档资产/工具链豁免/待归位）+ 三层防线（扫描面/判定面/处置面）；处置走 `doclib place`（list/collect/archive/ack/restore，写操作默认干跑 `--apply` 执行，归档账可 restore）；**本仓库 `assets/` `skills/` 是源目录（靠 covers 兜底，勿入棺）**，`.claude/skills/` 分发副本由 `20-modules/_index.md` 覆盖
+- 知识图谱（v0.5.0，F15 阶段 2）：vendored codegraph 在 `vendor/codegraph/`（git subtree，同步 `git subtree pull`；**就地改动必须登记 FORK-NOTES.md**，优先在 adapter 层 `src/core/codegraph/` 扩展、勿改 vendored 源）；`.codegraph/`=可再生缓存（非产物），graph 输出仅候选禁止直接入馆；telemetry 已物理隔离（构建面排除）；Node>=22.5 门（graph 可选增强，失败不阻塞核心）；规格 `30-features/graph.md`
 <!-- doclib:custom-end -->

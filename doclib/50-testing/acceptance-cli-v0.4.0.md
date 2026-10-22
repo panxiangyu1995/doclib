@@ -12,6 +12,8 @@ status: stable
 > 验收方法：11 命令全矩阵 × 真实临时目录 × 正常/边界/错误路径 + 退出码 + JSON 结构断言；单元测试 52/52 并行兜底。执行环境 /tmp/acc（zsh，函数封装 CLI 绝对路径）。
 >
 > 2026-10-20 后记：#21 质量符合性修复包后 CLI 行为演进（status --json 完整载荷、plan stdout revision、check 九分类含文档质量、CI 包名事实源 PACKAGE_NAME）；本记录为 v0.4.0 时点留痕，不随演进改写。
+>
+> 2026-10-22 后记：#24 孤儿归位与处置闭环后 CLI 行为演进——**新增第 12 命令 `doclib place`**（list/collect/archive/ack/restore；写操作默认干跑、`--apply` 执行、`covers` 命中硬拦截、归档账可 restore）；`check` 分类口径由"九分类"改为**6 类违规 + 3 类状态 + notices**（新增「豁免与提示」行：工具链豁免/引导文件豁免/归档指针豁免/疑似新工具目录/新增忽略退出代码账）；`ack` 增 `--dir` 目录豁免；漂移语义修正（真删除 vs 被新忽略）；孤儿四态判定（见 30-features/check.md 与 place.md）；本记录为 v0.4.0 时点留痕，v0.5.0 增量留痕见 [acceptance-place-v0.5.0.md](acceptance-place-v0.5.0.md)。
 
 ## 一、验收矩阵结果（总计 44 探针：43 PASS / 1 环境误报→复验 PASS / 3 真实缺陷→已修复复验 PASS）
 

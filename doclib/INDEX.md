@@ -25,7 +25,9 @@ status: living
 | [20-modules/_index.md](20-modules/_index.md) | 模块索引（18 个模块，covers 齐全） | stable |
 | [30-features/_index.md](30-features/_index.md) | 功能规格索引（含规格欠账清单） | stable |
 | [30-features/init-v2.md](30-features/init-v2.md) | init v2 行为规格 + 验收标准 | stable |
-| [30-features/check.md](30-features/check.md) | 强验证体系规格（check/ack/hook + 七分类） | stable |
+| [30-features/check.md](30-features/check.md) | 强验证体系规格（check/ack/hook + 六类违规 + 四态判定与三层防线） | stable |
+| [30-features/place.md](30-features/place.md) | 孤儿归位与处置规格（place 五子命令 + 干跑契约 + 入棺三护栏） | living |
+| [30-features/graph.md](30-features/graph.md) | 代码知识图谱规格（graph 命令族 + 草稿候选管道 + vendor CJS 岛与降级） | living |
 | [40-guides/rebuild-plan.md](40-guides/rebuild-plan.md) | 复原路线图（更名 roadmap 待迁移） | draft |
 | [40-guides/conventions.md](40-guides/conventions.md) | 编码约定 | draft |
 | [40-guides/benchmark.md](40-guides/benchmark.md) | 复原基准测试指南（F14 方法论操作沉淀） | living |
@@ -37,3 +39,15 @@ status: living
 | [95-lessons/lessons.md](95-lessons/lessons.md) | 经验教训（3 条：frontmatter 解析/落盘断言/模板保护） | living |
 | [99-archive/README.md](99-archive/README.md) | 档案卷入口（墓碑规范，只进不出） | living |
 | [50-testing/acceptance-cli-v0.4.0.md](50-testing/acceptance-cli-v0.4.0.md) | CLI 全功能验收报告（44 探针/3 缺陷修复） | stable |
+| [50-testing/cli-acceptance-suite.md](50-testing/cli-acceptance-suite.md) | CLI 自动化验收测试套件（219 用例落测试文件，219/219） | stable |
+| [50-testing/acceptance-place-v0.5.0.md](50-testing/acceptance-place-v0.5.0.md) | 孤儿归位与处置闭环验收报告（v0.5.0：四态判定/place 五子命令/实施 5 缺陷 + 审查 10 项修复） | stable |
+| [50-testing/benchmark/_index.md](50-testing/benchmark/_index.md) | benchmark 分区索引（复原基准档案） | living |
+| [50-testing/benchmark/010-umami.md](50-testing/benchmark/010-umami.md) | umami 复原档案主册（准入/基线/缺陷分类账 D-01~D-14） | living |
+| [50-testing/benchmark/020-umami-answer-src.md](50-testing/benchmark/020-umami-answer-src.md) | umami 基准答卷·原仓库卷（71 AC 实测留痕） | stable |
+| [50-testing/benchmark/030-umami-answer-rebuild.md](50-testing/benchmark/030-umami-answer-rebuild.md) | umami 基准答卷·复原卷（71/71 ok） | stable |
+| [50-testing/benchmark/040-umami-rebuild-log.md](50-testing/benchmark/040-umami-rebuild-log.md) | REBUILD-LOG 副本（身份审计） | stable |
+| [50-testing/benchmark/050-umami-divergence.md](50-testing/benchmark/050-umami-divergence.md) | 差异清单（D32/E13） | stable |
+| [50-testing/benchmark/060-umami-feedback.md](50-testing/benchmark/060-umami-feedback.md) | 回灌建议（S1×7/S2×24/S3×20） | stable |
+| [50-testing/benchmark/070-umami-regression.md](50-testing/benchmark/070-umami-regression.md) | umami 回归轮切片答卷（22/22；全量 71/71） | stable |
+| [50-testing/benchmark/080-umami-alignment-log.md](50-testing/benchmark/080-umami-alignment-log.md) | 回归对齐日志（含新发现 8 条处置） | stable |
+| [50-testing/benchmark/090-umami-gap-analysis.md](50-testing/benchmark/090-umami-gap-analysis.md) | 实质差距分析（重建↔原仓库·API12/页面39/结构2） | stable |

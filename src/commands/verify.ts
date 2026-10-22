@@ -4,6 +4,7 @@ import { collectFiles } from "../core/fsutil.js";
 import { languageOf } from "../core/detect.js";
 import { buildCoverIndex, groupByTopDir, isDocStale, normalizePath } from "../core/mapping.js";
 import { scanBrokenLinks, checkVolumeIndexes } from "../core/docquality.js";
+import { surfaceScan } from "../core/surface.js";
 import { LIBRARY_DIR, latestSnapshot, loadState } from "../core/state.js";
 import { guideStampReport } from "../core/guides.js";
 import { loadPlanningPaths, planningIgnores } from "../core/planning.js";
@@ -66,6 +67,7 @@ export async function runVerify(root: string, opts: { json?: boolean }): Promise
 
   const pct = codeFiles.length > 0 ? Math.round((covered.size / codeFiles.length) * 100) : 100;
   const groups = groupByTopDir(uncovered);
+  const surface = await surfaceScan(root, libRoot, files);
 
   if (opts.json) {
     const payload = {
@@ -78,6 +80,7 @@ export async function runVerify(root: string, opts: { json?: boolean }): Promise
       unanchoredDocs,
       staleDocs,
       indexIssues,
+      surface,
     };
     return { text: JSON.stringify(payload, null, 2), json: payload };
   }
@@ -102,5 +105,11 @@ export async function runVerify(root: string, opts: { json?: boolean }): Promise
   lines.push(`失效文档（covers 指向的代码已全部不存在）: ${staleDocs.length > 0 ? staleDocs.join(", ") : "无"}`);
   lines.push(`索引完整性: ${indexIssues.length > 0 ? indexIssues.join("；") : "通过"}`);
   lines.push("");
-  return { text: lines.join("\n"), json: { coveragePct: pct } };
+  lines.push(
+    `面穷举对账（P1 信息零遗漏守卫）: 端点 ${surface.endpointSurface} + proto rpc ${surface.rpcSurface} ↔ API 条目 ${surface.registeredApi}（Δ${surface.apiDelta}）｜ 页面 ${surface.pageSurface} ↔ ROUTE 条目 ${surface.registeredRoute}（Δ${surface.routeDelta}）`,
+  );
+  for (const n of surface.notes) lines.push(`  ⚠ ${n}`);
+  if (surface.notes.length === 0) lines.push("  对账平衡（数量守卫通过；逐项语义仍由 agent 复核）");
+  lines.push("");
+  return { text: lines.join("\n"), json: { coveragePct: pct, surface } };
 }
