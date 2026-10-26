@@ -125,7 +125,44 @@ test("check：引导过期检出（managed 区被篡改）", async () => {
   );
   const r = await runCheck(root, {});
   assert.match(r.text, /引导过期 \(1\)/);
-  assert.match(r.text, /- CLAUDE\.md  —  规则区落后模板 → doclib sync/);
+  assert.match(r.text, /- CLAUDE\.md  —  引导规则\/反哺区落后模板或簿记 → doclib sync/);
+});
+
+test("check：反哺过期检出与消除闭环（docs-hash 失配）", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  const { libraryFingerprint } = await import("../core/guides.js");
+  const fp0 = await libraryFingerprint(root);
+  await put(root, ".doclib/guide-project.md", `---\nsnapshot: 1\ndocs-hash: ${fp0}\n---\n\n## 项目反哺\n`);
+  let r = await runCheck(root, {});
+  assert.doesNotMatch(r.text, /反哺过期/);
+  await put(root, "doclib/30-features/a.md", docMd("A", ["src/a.ts"]) + "\n追加变更\n");
+  r = await runCheck(root, {});
+  assert.match(r.text, /反哺过期 \(1\)/);
+  assert.match(r.text, /- \.doclib\/guide-project\.md  —  图书馆已变更，反哺区蒸馏过期/);
+  const fp1 = await libraryFingerprint(root);
+  await put(root, ".doclib/guide-project.md", `---\nsnapshot: 1\ndocs-hash: ${fp1}\n---\n\n## 项目反哺\n`);
+  r = await runCheck(root, {});
+  assert.doesNotMatch(r.text, /反哺过期/);
+});
+
+test("check：project 区直改报引导过期，sync 修复归零", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  const { runInit } = await import("./init.js");
+  await runInit(root, { agents: "claude", noHook: true });
+  await put(root, "src/a.ts", "v1");
+  await put(root, "doclib/30-features/a.md", docMd("A", ["src/a.ts"]));
+  await runSnapshot(root, { note: "base" });
+  await put(root, ".doclib/guide-project.md", "---\nsnapshot: 1\n---\n\n## 反哺正文\n");
+  const { runSync } = await import("./sync.js");
+  await runSync(root, {});
+  const p = path.join(root, "CLAUDE.md");
+  await fs.writeFile(p, (await fs.readFile(p, "utf8")).replace("## 反哺正文", "## 被直改"), "utf8");
+  let r = await runCheck(root, {});
+  assert.match(r.text, /引导过期 \(1\)/);
+  await runSync(root, {});
+  r = await runCheck(root, {});
+  assert.doesNotMatch(r.text, /引导过期/);
 });
 
 test("check：孤儿文档检出/豁免路径（根级豁免/前缀豁免/covers 有主；豁免 ≠ 免无归属）", async () => {
@@ -153,6 +190,12 @@ test("check：自定义规划载体目录不判孤儿", async () => {
   parsed.planning = ["notes/"];
   await fs.writeFile(path.join(root, ".doclib", "state.json"), JSON.stringify(parsed), "utf8");
   await put(root, "notes/stray.md", "散落知识但属规划载体");
+  await put(
+    root,
+    "doclib/00-overview/feature-map.md",
+    "| # | 功能 | 描述 | 对应文档 | 状态 |\n| --- | --- | --- | --- | --- |\n| 1 | N | n | notes/stray.md | planned |\n",
+  );
+  await put(root, "doclib/00-overview/progress.md", "- 2026-10-26 规划 notes/stray.md 登记（锚点一）\n");
   const r = await runCheck(root, {});
   assert.match(r.text, /违规: 无/);
 });
@@ -220,4 +263,11 @@ test("check：ack 豁免联动——standing 免除漏更", async () => {
     assert.match(r.text, /违规: 无/);
     assert.match(r.text, /已豁免: 1/);
   });
+});
+
+test("check：guide-project 非法区域标记 → fail-fast（DoclibError）", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await put(root, ".doclib/guide-project.md", "---\nsnapshot: 1\n---\n\n坏 <!-- doclib:project-end --> 内容\n");
+  await assert.rejects(() => runCheck(root, {}), (e: unknown) => e instanceof DoclibError && /区域保留标记/.test(e.message));
 });

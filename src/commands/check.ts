@@ -12,12 +12,22 @@ function kindLabel(kind: CheckFinding["kind"]): string {
       return "迁移违规";
     case "guide-stale":
       return "引导过期";
+    case "guide-feed-stale":
+      return "反哺过期";
     case "orphan-doc":
       return "孤儿文档";
     case "doc-quality":
       return "文档质量";
     case "genre":
       return "文体违规";
+    case "carrier-unregistered":
+      return "载体未登记";
+    case "ledger-gap":
+      return "进度账缺口";
+    case "anchor-missing":
+      return "沉淀锚点缺失";
+    case "lesson-gap":
+      return "教训账缺口";
   }
 }
 
@@ -40,9 +50,14 @@ export async function runCheck(root: string, opts: { json?: boolean; strict?: bo
     "uncovered",
     "migration",
     "guide-stale",
+    "guide-feed-stale",
     "orphan-doc",
     "doc-quality",
     "genre",
+    "carrier-unregistered",
+    "ledger-gap",
+    "anchor-missing",
+    "lesson-gap",
   ];
   let any = false;
   for (const kind of kinds) {

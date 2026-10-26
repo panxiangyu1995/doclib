@@ -223,8 +223,8 @@ skills 由 agent 按名称加载，各自绑定一个触发场景：
 | npm 包 / 版本 | `@panxiangyu1995/doclib` / 0.5.0 | `package.json` |
 | License / Node | MIT / `>=22.5 <25` | `package.json` |
 | CLI 命令 / Skills | 13 / 10 | `src/commands/` · `skills/` |
-| 图书馆骨架 | 12 卷 + 登记簿族（首批 5 册）+ `99-archive`，共 32 个骨架文件 | `assets/templates/library/` |
-| 测试 | 32 个测试文件 / 252 用例 | `package.json` test 脚本 |
+| 图书馆骨架 | 12 卷 + 登记簿族（首批 5 册）+ `99-archive` + `98-sessions`，共 33 个骨架文件 | `assets/templates/library/` |
+| 测试 | 32 个测试文件 / 283 用例 | `package.json` test 脚本 |
 | 源码规模 | 非测试 4,691 行 / 测试 3,924 行 | `src/` |
 | 本仓库自身治理 | 100/100 (A)，违规 0 | `doclib check` |
 | 复原基准 | umami：建馆 97% 覆盖 → 同题共答 96.4%（53/55）→ 回归 100% | `doclib/50-testing/benchmark/` |

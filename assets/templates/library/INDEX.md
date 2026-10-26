@@ -22,6 +22,8 @@ status: living
 | [10-architecture/decisions.md](10-architecture/decisions.md) | 设计决策 ADR | draft |
 | [20-modules/_index.md](20-modules/_index.md) | 模块索引 | draft |
 | [30-features/_index.md](30-features/_index.md) | 功能规格索引 | draft |
+| [98-sessions/_index.md](98-sessions/_index.md) | 会话档案分区索引（对话原始记录，只增不改） | living |
+| [99-archive/README.md](99-archive/README.md) | 归档区说明（失效文档入棺处） | living |
 | [40-guides/roadmap.md](40-guides/roadmap.md) | 复原/开发路线图 | draft |
 | [40-guides/conventions.md](40-guides/conventions.md) | 编码约定 | draft |
 | [40-guides/workflow.md](40-guides/workflow.md) | 开发工作流（.plan 双锚点 + 实时同步） | living |

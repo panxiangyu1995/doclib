@@ -110,3 +110,4 @@ type: ledger
 功能实现与规格一致，四态判定、三层防线、处置闭环与三道护栏全部达标；冒烟暴露的 5 项实现缺陷（D-01~D-05）与审查轮的 10 项发现（R-01~R-10）已全部修复并补入回归测试（用例数 178 → 219）。本仓库 `check` 全绿，治理 100/100 (A)。
 
 > v0.30 增量（#25 codegraph 集成）：本档案覆盖的 `src/core/fsutil.test.ts`、`src/core/orphan.test.ts` 各扩 1 例（`.codegraph/` 入 L1 扫描面与工具链闭集），全套 240/240 绿——增量验收标准见 [30-features/graph.md](../30-features/graph.md)。
+> v0.6.1 增量（#35 归档闭环）：本档案覆盖的 `src/core/check.test.ts` 增 2 例（check 归档三不变量集成：载体未登记检出/无载体零误报）；孤儿面语义未变，`place` 载体形态识别建议见 [30-features/place.md](../30-features/place.md)。

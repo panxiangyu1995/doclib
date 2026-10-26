@@ -227,3 +227,21 @@ test("check：被新忽略规则移出代码账 ≠ 真删除 → 不产生无�
   assert.ok(r.notices.some((n) => n.kind === "newly-ignored" && n.detail.includes("vendor/lib/README.md")));
   assert.equal(r.stats.codeDrift.removed, 0);
 });
+
+test("check：载体规划文档未登记 → 载体未登记违规", async () => {
+  const root = await tmp();
+  await setupBaseline(root, true);
+  await fs.mkdir(path.join(root, ".plan", "2026-10-26"), { recursive: true });
+  await fs.writeFile(path.join(root, ".plan", "2026-10-26", "x.md"), "# 规划\n", "utf8");
+  const r = await runCheckCore(root);
+  assert.ok(r.findings.some((f) => f.kind === "carrier-unregistered" && f.path === ".plan/2026-10-26/x.md"));
+});
+
+test("check：无载体仓库 → 归档三不变量零误报", async () => {
+  const root = await tmp();
+  await setupBaseline(root, true);
+  const r = await runCheckCore(root);
+  assert.ok(!r.findings.some((f) => f.kind === "carrier-unregistered"));
+  assert.ok(!r.findings.some((f) => f.kind === "ledger-gap"));
+  assert.ok(!r.findings.some((f) => f.kind === "anchor-missing"));
+});

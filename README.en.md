@@ -223,8 +223,8 @@ Skills are loaded by the agent by name, and each one is bound to a single trigge
 | npm package / version | `@panxiangyu1995/doclib` / 0.5.0 | `package.json` |
 | License / Node | MIT / `>=22.5 <25` | `package.json` |
 | CLI commands / Skills | 13 / 10 | `src/commands/` · `skills/` |
-| Library skeleton | 12 volumes + ledger family (first 5 books) + `99-archive`, 32 skeleton files in total | `assets/templates/library/` |
-| Tests | 32 test files / 252 cases | the test script in `package.json` |
+| Library skeleton | 12 volumes + ledger family (first 5 books) + `99-archive` + `98-sessions`, 33 skeleton files in total | `assets/templates/library/` |
+| Tests | 32 test files / 283 cases | the test script in `package.json` |
 | Source size | 4,691 lines of non-test code / 3,924 lines of tests | `src/` |
 | This repo's own governance | 100/100 (A), zero violations | `doclib check` |
 | Rebuild benchmark | umami: 97% coverage at build time → 96.4% on the same-question double run (53/55) → 100% on regression | `doclib/50-testing/benchmark/` |

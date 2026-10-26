@@ -9,6 +9,7 @@ import { STRUCTURE_VERSION } from "../core/version.js";
 import { DoclibError, DEFAULT_PLANNING, LIBRARY_DIR, TASKS_DIR, loadState, saveState } from "../core/state.js";
 import { graphIndexPresent, isNodeCompatible, loadVendorEngine, renderProgress } from "../core/codegraph/engine.js";
 import { readHookState, resolveHooksDir, runHook } from "./hook.js";
+import { suggestCarriers } from "../core/planning.js";
 
 export type CommandResult = { text: string; json?: unknown };
 
@@ -35,6 +36,15 @@ export async function runInit(
     const abs = path.join(libRoot, rel);
     await fs.mkdir(path.dirname(abs), { recursive: true });
     await fs.writeFile(abs, content, "utf8");
+  }
+  const progressAbs = path.join(libRoot, "00-overview", "progress.md");
+  const progressTpl = await fs.readFile(progressAbs, "utf8").catch(() => null);
+  if (progressTpl !== null && !progressTpl.includes("doclib:lesson-epoch")) {
+    await fs.writeFile(
+      progressAbs,
+      `${progressTpl}\n<!-- doclib:lesson-epoch: ${new Date().toISOString().slice(0, 10)} -->\n`,
+      "utf8",
+    );
   }
 
   await fs.mkdir(path.join(root, TASKS_DIR), { recursive: true });
@@ -116,12 +126,19 @@ export async function runInit(
     }
   }
 
+  const carrierSuggestions = await suggestCarriers(root, state);
+  const carrierLine =
+    carrierSuggestions.length > 0
+      ? [`- 载体建议: 检测到未声明的常见规划载体 ${carrierSuggestions.join(", ")}——--planning 声明后进入双轨提醒（待登记/待归档）`]
+      : [];
+
   const lines = [
     `已初始化 DocLib (structure v${STRUCTURE_VERSION}):`,
     `- 图书馆模板: ${LIBRARY_DIR}/ (${templatesRel.length} 个文件)`,
     `- agents: ${targets.map((t) => t.id).join(", ")}`,
     `- skills 落位: ${skillsInstalled.length > 0 ? skillsInstalled.join(", ") : "无"}`,
     `- 规划载体: ${state.planning.join(", ")}`,
+    ...carrierLine,
     `- 引导文件: ${guides.written.length > 0 ? `写入 ${guides.written.join(", ")}` : "未写入"}${guides.skipped.length > 0 ? `（跳过已有无戳文件: ${guides.skipped.join(", ")}，合并请交由 agent 处理）` : ""}`,
     "- 簿记: .doclib/",
     graphLine,

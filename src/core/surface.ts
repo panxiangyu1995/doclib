@@ -26,13 +26,13 @@ export type FlagSurfaceReport = {
 const FLAG_TOKEN = /(?<![-\w])(--[a-z][a-z0-9-]*)/g;
 const FLAG_LITERAL = /['"](--[a-z][a-z0-9-]*)['"]/g;
 const COMMON_FLAGS = new Set(["--help", "--version"]);
-const LIB_EXEMPT_PREFIX = "50-testing/benchmark/";
+const LIB_EXEMPT_PREFIXES = ["50-testing/benchmark/", "98-sessions/"];
 
 export async function reconcileFlagSurface(root: string, libRoot: string): Promise<FlagSurfaceReport> {
   const libFlags = new Map<string, Set<string>>();
   const mdFiles = (await collectFiles(libRoot).catch(() => [] as string[])).filter((f) => f.endsWith(".md"));
   for (const f of mdFiles) {
-    if (f.startsWith(LIB_EXEMPT_PREFIX)) continue;
+    if (LIB_EXEMPT_PREFIXES.some((p) => f.startsWith(p))) continue;
     const raw = await fs.readFile(path.join(libRoot, f), "utf8").catch(() => null);
     if (raw === null) continue;
     for (const m of raw.matchAll(FLAG_TOKEN)) {

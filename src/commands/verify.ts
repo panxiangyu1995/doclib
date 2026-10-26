@@ -101,7 +101,13 @@ export async function runVerify(root: string, opts: { json?: boolean }): Promise
 
   const lines: string[] = [];
   lines.push(`覆盖度报告（${baselineNote}）`);
-  lines.push(`结构版本: ${state.structureVersion} ｜ 引导: ${await guideStampReport(root)}`);
+  let guideLine: string;
+  try {
+    guideLine = await guideStampReport(root);
+  } catch (e) {
+    guideLine = `⚠ ${e instanceof Error ? e.message : String(e)}`;
+  }
+  lines.push(`结构版本: ${state.structureVersion} ｜ 引导: ${guideLine}`);
   lines.push("");
   lines.push(`代码文件: ${codeFiles.length} ｜ 已覆盖: ${covered.size}（${pct}%）｜ 未覆盖: ${uncovered.length}`);
   lines.push(`非代码文件: ${nonCodeFiles.length}（配置/文档/资源，通常无需逐个建文档）`);

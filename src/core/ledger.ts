@@ -47,9 +47,14 @@ export type CheckFindingKind =
   | "uncovered"
   | "migration"
   | "guide-stale"
+  | "guide-feed-stale"
   | "orphan-doc"
   | "doc-quality"
-  | "genre";
+  | "genre"
+  | "carrier-unregistered"
+  | "ledger-gap"
+  | "anchor-missing"
+  | "lesson-gap";
 
 export type CheckFinding = {
   kind: CheckFindingKind;

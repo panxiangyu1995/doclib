@@ -11,7 +11,7 @@
 
 | 改动类型 | 必须同步的卷 |
 | --- | --- |
-| 修 bug / 踩坑 / 得出解决办法 | `95-lessons/`（现象/根因/解决/规避，实时入档） |
+| 修 bug / 踩坑 / 得出解决办法 | `95-lessons/`（现象/根因/解决/规避，可加 `来源:` 行，实时入档）+ progress 条目末 `教训:` 处置位声明去向（check「教训账缺口」拦截） |
 | 新功能 / 行为变更 / 新命令 | `30-features/`（行为规格 + 验收标准）+ feature-map 状态 |
 | 模块增删 / 职责边界变化 | `20-modules/` |
 | 架构 / 数据模型 / 数据流变化 | `10-architecture/` |
@@ -28,7 +28,8 @@
 | 新文档落位 | **归位决策树定位唯一归宿** + 同步登记两级索引（INDEX + 卷 _index）；馆外是例外，例外必须显式 |
 | 功能移除 | **六步规程**：影响面预查→残留扫描→执行移除→馆内联动（retired/removed+墓碑）→`doclib check` 执法→留痕 |
 | 任何进度变化 | feature-map 状态推进 + `00-overview/progress.md` 补记 |
-| 引导文件（本文件）的维护 | 规则区由 `doclib sync` 再生；**项目定制区实时维护**——项目工作流/注意事项/教训产生的新 agent 规则，当场写入 custom 区 |
+| 载体规划文档新增 | feature-map 登记 planned（check「载体未登记」拦截）+ progress.md 补记（check「进度账缺口」拦截） |
+| 引导文件（本文件）的维护 | 三区分工：规则区（managed）由 `doclib sync` 再生；反哺区（project）由 agent 蒸馏写入 `.doclib/guide-project.md` 后经 sync 注入，**禁止直接编辑**；定制区（custom）实时维护——项目工作流/注意事项/教训产生的新 agent 规则，当场写入 custom 区 |
 
 ## 会话纪律（每个开发会话）
 
@@ -56,6 +57,11 @@ skills 按名称加载：`build`=蒸馏建馆｜`bootstrap`=新项目文档先�
 CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`verify` 覆盖度｜`init` 骨架落位｜`sync` 引导/skills 同步｜`check` 强验证+治理分｜`ack` 路径豁免｜`place` 孤儿归位（列出/收编入馆/入棺归档/还原；写操作默认干跑，`--apply` 执行）｜`hook` 提交门禁｜`graph` 知识图谱（index/status/draft/explore，可选增强）
 
 <!-- doclib:managed-end -->
+
+<!-- doclib:project-begin -->
+<!-- 图书馆反哺区：由 doclib sync 从 .doclib/guide-project.md 注入，禁止直接编辑本区（改内容请改簿记后重新 sync）。
+建馆完成后由 doclib-build / doclib-accept 蒸馏填充五段：项目定位 / 架构速览 / 模块地图 / 硬规则 / 命令速查，每条附馆内路径引用。 -->
+<!-- doclib:project-end -->
 
 <!-- doclib:custom-begin -->
 <!-- 本区由本项目 agent/用户维护：项目定制说明与注意事项。doclib sync 更新时保留本区内容 -->

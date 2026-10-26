@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { runSync } from "./sync.js";
 import { runInit } from "./init.js";
 import { DoclibError, loadState } from "../core/state.js";
-import { renderGuide, MANAGED_BEGIN, MANAGED_END, CUSTOM_BEGIN, CUSTOM_END } from "../core/guides.js";
+import { renderGuide, MANAGED_BEGIN, MANAGED_END, CUSTOM_BEGIN, CUSTOM_END, PROJECT_BEGIN, PROJECT_END } from "../core/guides.js";
 import { get, put, tmpRoot } from "./testkit.js";
 
 function regionOf(content: string, begin: string, end: string): string {
@@ -140,4 +140,37 @@ test("sync：修复 check 的引导过期（跨命令闭环）", async () => {
   await runSync(root, {});
   checkText = (await runCheck(root, {})).text;
   assert.doesNotMatch(checkText, /引导过期/);
+});
+
+test("sync：guide-project 注入两份引导 project 区且一致；直改被修复；幂等", async () => {
+  const root = await tmpRoot("doclib-acc-sync-");
+  await runInit(root, { agents: "claude,opencode" });
+  await put(root, ".doclib/guide-project.md", "---\nsnapshot: 1\ndocs-hash: ff00\n---\n\n## 项目定位\n- 冒烟项目\n");
+  const r1 = await runSync(root, {});
+  assert.match(r1.text, /引导: 写入 CLAUDE\.md, AGENTS\.md/);
+  const region = (c: string): string => c.slice(c.indexOf(PROJECT_BEGIN), c.indexOf(PROJECT_END));
+  const a = await get(root, "CLAUDE.md");
+  const b = await get(root, "AGENTS.md");
+  assert.ok(region(a).includes("冒烟项目"));
+  assert.equal(region(a), region(b));
+  const r2 = await runSync(root, {});
+  assert.match(r2.text, /无变化 CLAUDE\.md, AGENTS\.md/);
+  await put(root, "CLAUDE.md", (await get(root, "CLAUDE.md")).replace("冒烟项目", "直改内容"));
+  const r3 = await runSync(root, {});
+  assert.match(r3.text, /引导: 写入 CLAUDE\.md/);
+  assert.match(await get(root, "CLAUDE.md"), /冒烟项目/);
+  assert.ok(!(await get(root, "CLAUDE.md")).includes("直改内容"));
+});
+
+test("sync：guide-project 变更 → 引导文件随之更新", async () => {
+  const root = await tmpRoot("doclib-acc-sync-");
+  await runInit(root, { agents: "claude" });
+  await put(root, ".doclib/guide-project.md", "---\nsnapshot: 1\n---\n\n## v1 反哺\n");
+  await runSync(root, {});
+  assert.match(await get(root, "CLAUDE.md"), /v1 反哺/);
+  await put(root, ".doclib/guide-project.md", "---\nsnapshot: 2\n---\n\n## v2 反哺\n");
+  const r = await runSync(root, {});
+  assert.match(r.text, /引导: 写入 CLAUDE\.md/);
+  assert.match(await get(root, "CLAUDE.md"), /v2 反哺/);
+  assert.ok(!(await get(root, "CLAUDE.md")).includes("v1 反哺"));
 });

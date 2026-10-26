@@ -35,6 +35,7 @@ status: stable
 | node_modules/ / dist/ / *.tsbuildinfo | 构建产物 | 常规 |
 | .opencode/ | agent 安装产物 | 由 doclib sync 管理，不入 git |
 | test/ | 临时测试区【2026-10-21】 | 基准实验工作区（umami 克隆与临时测试文件，.plan/2026-10-21/benchmark-umami.md 清单 5a）：不入 git、不入快照/漂移/孤儿扫描 |
+| doclib/98-sessions/ | 对话原始记录档案区【2026-10-26】 | 入 git、不入快照/漂移（doclib/ 既有边界）、文体门禁全豁免（ADR #19 F9 白名案例外）；不进 LIBRARY_VOLUMES（place collect 闭集不变） |
 | vendor/ vendors/ third_party/ third-party/ thirdparty/ 3rdparty/ deps/ extern/ external/ .changeset/ | 第三方与工具产物【2026-10-22】 | CLI 内置 L1 扫描面（非文档资产）：不进代码账、不判孤儿——他人写的代码与机器生成的产物不该被文档体系看见；本仓库 vendor/codegraph subtree 亦在此列（构建源，非知识） |
 | .codegraph/ | 知识图谱索引【v0.30】 | vendored 引擎产物（SQLite/锁/wal）：L1 扫描面 + 工具链闭集双保险——可再生缓存，非文档资产，不入快照/漂移/孤儿三账 |
 | .vscode/ .idea/ .zed/ | 编辑器本机配置【2026-10-22】 | 同属 L1 扫描面：编辑器项目配置与提示词文件不进文档视野（与 .opencode/ 的 agent 安装产物同类） |

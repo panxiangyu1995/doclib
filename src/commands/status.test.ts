@@ -15,7 +15,7 @@ type StatusJson = {
   baseline: { id: string; at: string; note: string; snapshotCount: number } | null;
   drift: { added: number; modified: number; removed: number } | null;
   health: { score: number; grade: string } | null;
-  planning: { paths: string[]; reminder: string };
+  planning: { paths: string[]; reminder: string; carrierSuggestions: string[] };
   guides: { stamp: string; budget: string };
   hook: string;
   detection: { primary: string };
@@ -194,4 +194,25 @@ test("status：foreign 钩子 → 文本未安装、json 如实 foreign", async 
   assert.match(r.text, /提交门禁: 未安装/);
   const j = JSON.parse((await runStatus(root, { json: true })).text) as StatusJson;
   assert.equal(j.hook, "foreign");
+});
+
+test("status：guide-project 含非法区域标记 → 降级提示行（不炸 status）", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, { agents: "claude", noHook: true });
+  await put(root, ".doclib/guide-project.md", "---\nsnapshot: 1\n---\n\n正文 <!-- doclib:custom-begin --> 尾\n");
+  const r = await runStatus(root, {});
+  assert.match(r.text, /反哺: ⚠ .*区域保留标记/);
+  const j = JSON.parse((await runStatus(root, { json: true })).text) as { guides: { feed: string } };
+  assert.match(j.guides.feed, /区域保留标记/);
+});
+
+test("status：常见规划载体未声明 → 载体建议行与 json 字段", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, { agents: "claude" });
+  await fs.mkdir(path.join(root, "openspec", "changes", "add-x"), { recursive: true });
+  await fs.writeFile(path.join(root, "openspec", "changes", "add-x", "proposal.md"), "p", "utf8");
+  const r = await runStatus(root, {});
+  assert.match(r.text, /载体建议: openspec\/ 为常见规划载体（未声明）/);
+  const j = JSON.parse((await runStatus(root, { json: true })).text) as StatusJson;
+  assert.deepEqual(j.planning.carrierSuggestions, ["openspec/"]);
 });

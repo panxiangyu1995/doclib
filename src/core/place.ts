@@ -4,6 +4,7 @@ import { coversOf, parseFrontmatter, renderFrontmatter } from "./frontmatter.js"
 import { buildCoverIndex, docsForPath, normalizePath } from "./mapping.js";
 import { DoclibError, LIBRARY_DIR, nextArchiveId, pad3, type ArchiveEntry, type State } from "./state.js";
 import { POINTER_MARKER } from "./orphan.js";
+import { detectCarrierShape } from "./planning.js";
 
 export const LIBRARY_VOLUMES: readonly string[] = [
   "00-overview",
@@ -85,6 +86,7 @@ export type PlacementSuggestion = {
   dir: string;
   reason: string;
   confidence: "high" | "medium" | "low";
+  carrier?: boolean;
 };
 
 export type PlaceResult = {
@@ -264,6 +266,18 @@ function volumeHeaderTemplate(volume: string): string {
 
 export async function suggestPlacement(root: string, rel: string): Promise<PlacementSuggestion[]> {
   const p = normalizePath(rel);
+  const carrier = detectCarrierShape(p);
+  if (carrier !== null) {
+    return [
+      {
+        volume: "",
+        dir: "",
+        reason: `规划载体形态（${carrier}）→ 建议声明为规划载体（init --planning）而非收编入馆`,
+        confidence: "high",
+        carrier: true,
+      },
+    ];
+  }
   const fileName = path.posix.basename(p);
   const parent = p.includes("/") ? p.split("/")[0]! : "";
   let heading = "";

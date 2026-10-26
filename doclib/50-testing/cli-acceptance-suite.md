@@ -24,6 +24,9 @@ status: stable
 >
 > 2026-10-22 增量（#24 孤儿归位与处置闭环）：新增 `src/core/place.test.ts`（11）、`src/commands/place.test.ts`（8），扩写 `orphan.test.ts`（+6）、`commands/check.test.ts`（+1）、`commands/ack.test.ts`（+3）、`core/fsutil.test.ts`（+2）、`core/check.test.ts`（+4）——**全套 219/219 绿**；归位与处置的验收留痕见 [acceptance-place-v0.5.0.md](acceptance-place-v0.5.0.md)。
 >
+> 2026-10-26 增量（#36 教训账缺口不变量）：`commands/init.test.ts` 增 1（init 后 progress.md 自动落 lesson-epoch 标记且幂等）；`core/archival.test.ts` 增 7（处置位缺失/引用缺失/引用命中/无理由/epoch 豁免/@dir 命中与缺失/非法标记 fail-fast）；同轮发现并修复 archival.test.js 漏登记 test script（15 例首次进门禁）——**全套 307/307 绿（33 测试文件）**。
+
+> 2026-10-26 增量（#35 归档闭环强验证与载体检测）：新增 `src/core/archival.test.ts`（8：三不变量正反例覆盖）、`core/planning.test.ts` 增 suggestCarriers/detectCarrierShape（2）、`core/check.test.ts` 增集成（2：载体未登记检出/无载体零误报）、`commands/{place,status,init}.test.ts` 各增 1（载体形态建议/载体建议行与 json/init 建议行）；`commands/check.test.ts`「自定义规划载体目录不判孤儿」fixture 按新契约修正（登记 feature-map 行 + progress 补记，用例意图不变）——**全套 291/291 绿（33 测试文件）**。
 > 2026-10-22 增量（#25 codegraph 克隆集成）：新增 `src/core/codegraph/engine.test.ts`（9）、`src/core/codegraph/draft.test.ts`（6）、`src/commands/graph.test.ts`（4），扩写 `commands/cli.e2e.test.ts`（+1 全流程）、`core/fsutil.test.ts`（+1）、`core/orphan.test.ts`（+1）——**全套 240/240 绿**（31 测试文件）；graph 测试带 Node<22.5 自动 skip 守卫；验收标准 AC1–AC10 见 [30-features/graph.md](../30-features/graph.md)；真实仓库五仓实测见 [acceptance-graph-v0.5.0.md](acceptance-graph-v0.5.0.md)。
 
 ## 为什么
@@ -32,7 +35,7 @@ status: stable
 
 ## 是什么
 
-14 个命令测试文件 + core 单测（32 文件/249 用例【v0.32】，全量 `npm test` 一键复测）：testkit 共享基建（临时目录/种子/spawn）+ 逐命令套件 + e2e 真实二进制闭环 + 压力探针。文件布局与用例数见下表，验收结论见第三节。
+14 个命令测试文件 + core 单测（33 文件/291 用例【v0.6.1】，全量 `npm test` 一键复测）：testkit 共享基建（临时目录/种子/spawn）+ 逐命令套件 + e2e 真实二进制闭环 + 压力探针。文件布局与用例数见下表，验收结论见第三节。
 
 ## 怎么运转（复测与扩展纪律）
 

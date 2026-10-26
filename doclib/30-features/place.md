@@ -4,6 +4,7 @@ covers:
   - src/commands/place.ts
   - src/core/place.ts
   - src/core/orphan.ts
+  - src/core/planning.ts
   - src/core/state.ts
   - src/core/frontmatter.ts
   - src/core/place.test.ts
@@ -40,6 +41,10 @@ status: living
 ### 建议归宿（确定性启发式，无 AI）
 
 按 12 卷基线的路径/标题关键词匹配，输出 1–3 条建议（`high` 目录名精确命中 → `medium` 关键词命中 → `low` 无命中默认 `30-features` 并标注需人工裁决）。卷内文件名按 Q33 三位序号规范生成（取该卷下一可用序号 + kebab-case slug）。
+
+### 载体形态识别【v0.6.1】
+
+`list` 建议前先做载体形态判定（`core/planning.ts` `detectCarrierShape`，目录前缀级粗判）：`openspec/`→OpenSpec、`.specify/` 或 `specs/NNN-slug/`→spec-kit、`.kiro/specs/`→Kiro。命中即短路关键词启发式，首建议改为**声明为规划载体**（`init --planning` 声明后进入双轨提醒），并**不输出**「收编/入棺」行（spec 过程材料按 F9 双轨不进馆），保留「豁免」行兜底。已声明载体目录内的文件仍会出现在 list 中（scan 面不排除声明前缀——既有怪癖，check 孤儿面已豁免），声明指引对两者语义均成立。
 
 ### 干跑契约
 
@@ -83,6 +88,7 @@ L2 判定面的**原生豁免**（无需 ack 登记）：根级门面文件 `REA
 ## 验收标准
 
 - Given 孤儿文件 When place list Then 列出建议归宿与依据，且默认卷为 30-features 时标注需人工裁决
+- Given openspec/changes/x/proposal.md When place list Then 首建议为声明规划载体（OpenSpec）、无收编/入棺行、保留豁免行；json suggestions[0].carrier=true
 - Given place archive（无 --apply）When 执行 Then 源文件仍在原处、馆内无新文件、输出动作清单
 - Given 文件被 covers 命中 When place archive --apply Then 拒绝执行并列出命中文档
 - Given place archive --apply When 执行 Then 文件移入 99-archive/、墓碑五要素齐备、原路径留指针、归档账新增 arc-00N

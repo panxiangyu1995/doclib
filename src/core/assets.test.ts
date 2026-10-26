@@ -37,6 +37,7 @@ const EXPECTED_TEMPLATES = [
   "70-deploy/_index.md",
   "80-design/_index.md",
   "95-lessons/_index.md",
+  "98-sessions/_index.md",
   "99-archive/README.md",
 ];
 
@@ -45,8 +46,12 @@ test("12 卷基线模板清单完整", async () => {
   assert.deepEqual(files.sort(), [...EXPECTED_TEMPLATES].sort());
 });
 
-test("引导模板与 skills 资产存在", async () => {
+test("引导模板与 skills 资产存在（full 档已退役，v0.6.0）", async () => {
   await fs.access(path.join(assetsRoot(), "guides", "light.md"));
-  await fs.access(path.join(assetsRoot(), "guides", "full.md"));
   await fs.access(path.join(assetsRoot(), "skills", "doclib-build", "SKILL.md"));
+  const exists = await fs
+    .access(path.join(assetsRoot(), "guides", "full.md"))
+    .then(() => true)
+    .catch(() => false);
+  assert.equal(exists, false);
 });

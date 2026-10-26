@@ -3,10 +3,11 @@ import { collectFiles, fileExists, hashAll } from "./fsutil.js";
 import { computeDrift, DoclibError, latestSnapshot, LIBRARY_DIR, loadState } from "./state.js";
 import { buildCoverIndex, docsForPath } from "./mapping.js";
 import { hashDocs, validateMigrations, type CheckFinding } from "./ledger.js";
-import { managedRegionFresh } from "./guides.js";
+import { fingerprintOf, managedRegionFresh, readGuideProject, GUIDE_PROJECT_PATH } from "./guides.js";
 import { detectSuspectedToolchainDirs, scanExternalDocs } from "./orphan.js";
 import { scanBrokenLinks, checkGenreCompliance } from "./docquality.js";
 import { loadPlanningPaths, planningIgnores } from "./planning.js";
+import { archivalFindings } from "./archival.js";
 
 export type { CheckFinding, CheckFindingKind } from "./ledger.js";
 
@@ -152,7 +153,20 @@ export async function runCheckCore(root: string): Promise<CheckResult> {
   findings.push(...(await validateMigrations(root)));
   const staleGuides = await managedRegionFresh(root);
   for (const g of staleGuides) {
-    findings.push({ kind: "guide-stale", path: g, detail: "规则区落后模板 → doclib sync" });
+    findings.push({ kind: "guide-stale", path: g, detail: "引导规则/反哺区落后模板或簿记 → doclib sync" });
+  }
+  const feed = await readGuideProject(root);
+  let feedStaleCount = 0;
+  if (feed !== null && feed.docsHash !== null) {
+    const fp = fingerprintOf(docsNow);
+    if (feed.docsHash !== fp) {
+      feedStaleCount = 1;
+      findings.push({
+        kind: "guide-feed-stale",
+        path: GUIDE_PROJECT_PATH,
+        detail: "图书馆已变更，反哺区蒸馏过期 → 重新蒸馏更新 .doclib/guide-project.md（frontmatter docs-hash）后 doclib sync",
+      });
+    }
   }
 
   const planningDirs = loadPlanningPaths(state).map((p) => p.replace(/\/$/, ""));
@@ -215,13 +229,14 @@ export async function runCheckCore(root: string): Promise<CheckResult> {
   for (const v of genre.violations) {
     findings.push({ kind: "genre", path: `${LIBRARY_DIR}/${v.doc}`, detail: `${v.kind}：${v.detail}` });
   }
+  findings.push(...(await archivalFindings(root, state)));
   const health = healthScore({
     driftTotal: changedPaths.length,
     unaccounted: unaccountedCount,
     uncovered: uncoveredCount,
     migration: migrationCount,
     orphan: orphans.length,
-    guideStale: staleGuides.length,
+    guideStale: staleGuides.length + feedStaleCount,
     brokenLinks: brokenLinks.length,
   });
 

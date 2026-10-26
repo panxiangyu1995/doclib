@@ -177,6 +177,19 @@ test("checkGenreCompliance：_index/README/INDEX/99-archive 全豁免；95-lesso
   assert.deepEqual(r.violations.map((x) => `${x.doc}:${x.kind}`), ["95-lessons/l.md:pollution"]);
 });
 
+test("checkGenreCompliance：98-sessions 对话档案区全豁免（含污染检查）", async () => {
+  const root = await tmpLib();
+  await fs.mkdir(path.join(root, "doclib", "98-sessions"), { recursive: true });
+  await fs.writeFile(
+    path.join(root, "doclib", "98-sessions", "t.md"),
+    "---\ntitle: T\ntype: transcript\n---\n\n# 会话记录\n\n回灌补记实测补原仓库答卷，正文只有一行，不合任何文体。",
+    "utf8",
+  );
+  const r = await checkGenreCompliance(path.join(root, "doclib"));
+  assert.deepEqual(r.violations.filter((x) => x.doc === "98-sessions/t.md"), []);
+  assert.deepEqual(r.warnings.filter((x) => x.doc === "98-sessions/t.md"), []);
+});
+
 test("checkGenreCompliance：卡片化按行数+字符数双阈值——长段落叙述不误报", async () => {
   const root = await tmpLib();
   const para = "这一段是三百字级的连贯叙述，讲清楚设计动机、结构与运转机制的完整脉络，包含足够的上下文让新手与 agent 都能顺着读下去，行数虽少但信息密度充分，不应被判为卡片化。".repeat(4);

@@ -24,6 +24,7 @@ export const DEFAULT_GENRE: Record<string, GenreMode> = {
   "80-design": "narrative",
   "90-reference": "ledger",
   "95-lessons": "structure-exempt",
+  "98-sessions": "exempt",
   "99-archive": "exempt",
 };
 
@@ -69,7 +70,7 @@ export async function checkGenreCompliance(libraryRoot: string): Promise<GenreRe
     const base = f.slice(f.lastIndexOf("/") + 1);
     const topDir = f.includes("/") ? (f.split("/")[0] ?? "") : "";
     if (base === "INDEX.md" || base === "README.md" || base === "_index.md") continue;
-    if (topDir === "99-archive" || f.startsWith(POLLUTION_EXEMPT_PREFIX)) continue;
+    if (topDir === "98-sessions" || topDir === "99-archive" || f.startsWith(POLLUTION_EXEMPT_PREFIX)) continue;
     const raw = await fs.readFile(path.join(libraryRoot, f), "utf8").catch(() => null);
     if (raw === null) continue;
     const { data, body } = parseFrontmatter(raw);

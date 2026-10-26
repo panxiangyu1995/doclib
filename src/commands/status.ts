@@ -3,8 +3,8 @@ import path from "node:path";
 import { collectFiles, hashAll } from "../core/fsutil.js";
 import { detectProject } from "../core/detect.js";
 import { LIBRARY_DIR, STATE_DIR, TASKS_DIR, latestSnapshot, loadState, computeDrift } from "../core/state.js";
-import { guideBudgetReport, guideStampReport } from "../core/guides.js";
-import { loadPlanningPaths, planningReminderReport, planningIgnores } from "../core/planning.js";
+import { guideBudgetReport, guideStampReport, libraryFingerprint, readGuideProject } from "../core/guides.js";
+import { loadPlanningPaths, planningReminderReport, planningIgnores, suggestCarriers } from "../core/planning.js";
 import { runCheckCore } from "../core/check.js";
 import { readHookState } from "./hook.js";
 import type { CommandResult } from "./init.js";
@@ -22,10 +22,32 @@ export async function runStatus(root: string, opts: { json?: boolean } = {}): Pr
   lines.push(
     `结构版本: ${state.structureVersion}${state.agents.length > 0 ? ` · agents: ${state.agents.join(", ")}` : ""}`,
   );
-  const stamp = await guideStampReport(root);
-  const budget = await guideBudgetReport(root);
+  let stamp: string;
+  let budget: string;
+  try {
+    stamp = await guideStampReport(root);
+    budget = await guideBudgetReport(root);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    stamp = `⚠ ${msg}`;
+    budget = `⚠ guide-project.md 异常 → 修正后重跑`;
+  }
+  let feedLine: string;
+  try {
+    const feed = await readGuideProject(root);
+    if (feed === null) {
+      feedLine = "未蒸馏（建馆完成后由 doclib-build/accept 蒸馏填充 .doclib/guide-project.md）";
+    } else {
+      const fp = await libraryFingerprint(root);
+      const stale = feed.docsHash !== null && feed.docsHash !== fp;
+      feedLine = `snapshot ${feed.snapshot ?? "?"} · fingerprint ${(feed.docsHash ?? "?").slice(0, 12)}${stale ? " ⚠ 反哺过期 → 重新蒸馏" : ""}`;
+    }
+  } catch (e) {
+    feedLine = `⚠ ${e instanceof Error ? e.message : String(e)}`;
+  }
   lines.push(`引导: ${stamp}`);
   lines.push(`引导预算: ${budget}`);
+  lines.push(`反哺: ${feedLine}`);
   lines.push(
     latest
       ? `基线: ${latest.id} @ ${latest.at}${latest.note ? `（${latest.note}）` : ""} · 快照链 ${state.snapshots.length} 条 · revision ${state.revision}`
@@ -58,6 +80,10 @@ export async function runStatus(root: string, opts: { json?: boolean } = {}): Pr
   if (reminder.length > 0) {
     lines.push(reminder);
   }
+  const carrierSuggestions = await suggestCarriers(root, state);
+  if (carrierSuggestions.length > 0) {
+    lines.push(`载体建议: ${carrierSuggestions.join(", ")} 为常见规划载体（未声明）→ init --planning 声明后进入双轨提醒`);
+  }
 
   const files0 = await collectFiles(root, planningIgnores(loadPlanningPaths(state)));
   const det = await detectProject(root, files0);
@@ -85,8 +111,8 @@ export async function runStatus(root: string, opts: { json?: boolean } = {}): Pr
         : null,
       drift,
       health,
-      planning: { paths: loadPlanningPaths(state), reminder },
-      guides: { stamp, budget },
+      planning: { paths: loadPlanningPaths(state), reminder, carrierSuggestions },
+      guides: { stamp, budget, feed: feedLine },
       hook: hookState,
       detection: det,
       tasks,

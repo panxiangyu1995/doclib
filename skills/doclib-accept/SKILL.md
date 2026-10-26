@@ -33,7 +33,8 @@ description: 验收执行器。当功能完成、REBUILD 复原收尾、或需�
 3. **失败处置**：实现 bug → 转修复（doclib-dev）；规格歧义 → 回写规格（表述缺陷）；规格缺失 → 补规格再验收
 4. **留痕文件**：验收结果写入 `doclib/50-testing/`（或 40-guides 指定位置）；REBUILD 场景写 REBUILD-LOG.md
 5. **全绿判定**：目标条目全部验收通过 → feature-map 推 implemented；REBUILD 场景 = 90% 复原达成
-6. **收尾**：`doclib check` → `doclib snapshot --note "accept: <范围>"`
+6. **蒸馏反哺区**：验收涉及馆内容变更时，重新蒸馏 `.doclib/guide-project.md`（frontmatter 更新 `snapshot` 与 `docs-hash`——`doclib status` 反哺行报 ⚠ 反哺过期即需更新），五段各 ≤10 行、每条附馆内路径；`doclib sync` 注入引导文件
+7. **收尾**：`doclib check` → `doclib snapshot --note "accept: <范围>"`
 
 ## 纪律
 

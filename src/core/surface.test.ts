@@ -30,6 +30,19 @@ test("reconcileFlagSurface：源有馆无/馆有源无双向检出", async () =>
   assert.deepEqual(r.inSrcNotLib.map((x) => x.flag), ["--gamma"]);
 });
 
+test("reconcileFlagSurface：98-sessions 对话档案区全豁免（原文不改写不进对账）", async () => {
+  const root = await tmpLib();
+  await fs.mkdir(path.join(root, LIBRARY_DIR, "98-sessions"), { recursive: true });
+  await fs.writeFile(
+    path.join(root, LIBRARY_DIR, "98-sessions", "t.md"),
+    "# 会话记录\n\n用户聊到 `--ghost-flag` 与 --raw-token 等外部工具旗标，对话原文不参与对账。\n",
+    "utf8",
+  );
+  const r = await reconcileFlagSurface(root, path.join(root, LIBRARY_DIR));
+  assert.deepEqual(r.inLibNotSrc, []);
+  assert.equal(r.libFlags, 0);
+});
+
 test("reconcileFlagSurface：长名一致归零；短名与无引号字面量不误报", async () => {
   const root = await tmpLib();
   await fs.writeFile(

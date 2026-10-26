@@ -18,21 +18,23 @@ status: living
 | [10-architecture/data-model.md](10-architecture/data-model.md) | state.json v2 与 frontmatter 字段语义 | stable |
 | [10-architecture/data-flow.md](10-architecture/data-flow.md) | init 落位流、保活三层流、复原流 | stable |
 | [10-architecture/dependencies.md](10-architecture/dependencies.md) | 依赖选型决策（ignore 等） | stable |
-| [10-architecture/decisions.md](10-architecture/decisions.md) | ADR 十七则（assets 化/戳策略/双层图书馆/基准测试/归位宪法/开放册制/移除规程与工具集成/codegraph 集成/门面多语言变体豁免/文体学/旗标面对账/对应文档存在性判定等） | stable |
+| [10-architecture/decisions.md](10-architecture/decisions.md) | ADR 二十一则（assets 化/戳策略/双层图书馆/基准测试/归位宪法/开放册制/移除规程与工具集成/codegraph 集成/门面多语言变体豁免/文体学/旗标面对账/对应文档存在性判定/引导图书馆反哺/98-sessions 档案区/归档闭环三不变量/教训账缺口等） | stable |
 | [10-architecture/prd.md](10-architecture/prd.md) | DocLib PRD（v0.23，需求唯一事实源；v0.23 迁入馆） | living |
 | [10-architecture/design.md](10-architecture/design.md) | 架构设计 v2（对齐 PRD；v0.23 迁入馆） | living |
 | [10-architecture/migrations.md](10-architecture/migrations.md) | 数据库迁移账本（取号/状态/纪律，暂空置） | living |
 | [20-modules/_index.md](20-modules/_index.md) | 模块索引（18 个模块，covers 齐全） | stable |
 | [30-features/_index.md](30-features/_index.md) | 功能规格索引（含规格欠账清单） | stable |
-| [30-features/init-v2.md](30-features/init-v2.md) | init v2 行为规格 + 验收标准 | stable |
-| [30-features/check.md](30-features/check.md) | 强验证体系规格（check/ack/hook + 六类违规 + 四态判定与三层防线） | stable |
+| [30-features/init-v2.md](30-features/init-v2.md) | init v2 行为规格 + 验收标准（门禁自动装 v0.5.1 + 常见载体检测建议 v0.6.1） | stable |
+| [30-features/check.md](30-features/check.md) | 强验证体系规格（check/ack/hook + 十一类违规含归档闭环四不变量 + 四态判定与三层防线） | stable |
 | [30-features/hook.md](30-features/hook.md) | 提交门禁规格（install/remove/ci + fail-closed 自检 + worktree + init 自动装/sync 幂等补装） | stable |
-| [30-features/place.md](30-features/place.md) | 孤儿归位与处置规格（place 五子命令 + 干跑契约 + 入棺三护栏） | living |
+| [30-features/place.md](30-features/place.md) | 孤儿归位与处置规格（place 五子命令 + 干跑契约 + 入棺三护栏 + 载体形态识别建议） | living |
 | [30-features/graph.md](30-features/graph.md) | 代码知识图谱规格（graph 命令族 + 草稿候选管道 + vendor CJS 岛与降级） | living |
 | [30-features/reconcile.md](30-features/reconcile.md) | 进度对账规格（reconcile 三段报告 + 对应文档混合引用判定 + 库内/载体证据分流） | stable |
+| [30-features/guides.md](30-features/guides.md) | 引导文件体系规格（三区契约 + 图书馆反哺注入 + 双闸检测 + 双预算） | stable |
 | [40-guides/rebuild-plan.md](40-guides/rebuild-plan.md) | 复原路线图（更名 roadmap 待迁移） | draft |
 | [40-guides/conventions.md](40-guides/conventions.md) | 编码约定 | draft |
 | [40-guides/benchmark.md](40-guides/benchmark.md) | 复原基准测试指南（F14 方法论操作沉淀） | living |
+| [40-guides/transcripts.md](40-guides/transcripts.md) | 对话导出工作流（98-sessions 档案区 + 双向关联 + 收尾三动作） | living |
 | [50-testing/testing.md](50-testing/testing.md) | 测试策略（node:test + 冒烟闭环） | stable |
 | [60-config/config.md](60-config/config.md) | 工程设置全集（含构建链/files 字段） | stable |
 | [70-deploy/deploy.md](70-deploy/deploy.md) | 部署（npm 包配置已就绪，发布待阶段 5） | stable |
@@ -44,6 +46,7 @@ status: living
 | [50-testing/cli-acceptance-suite.md](50-testing/cli-acceptance-suite.md) | CLI 自动化验收测试套件（219 用例落测试文件，219/219） | stable |
 | [50-testing/acceptance-place-v0.5.0.md](50-testing/acceptance-place-v0.5.0.md) | 孤儿归位与处置闭环验收报告（v0.5.0：四态判定/place 五子命令/实施 5 缺陷 + 审查 10 项修复） | stable |
 | [50-testing/acceptance-graph-v0.5.0.md](50-testing/acceptance-graph-v0.5.0.md) | doclib graph 真实仓库验收报告（五仓实测：四语言建图/路由绑定/agent 工作流/Q40 首轮数据） | living |
+| [50-testing/acceptance-lesson-gap-v0.6.2.md](50-testing/acceptance-lesson-gap-v0.6.2.md) | 教训账缺口不变量真实仓库验收（五仓：存量零破坏/退化形态/噪声隔离） | stable |
 | [50-testing/benchmark/_index.md](50-testing/benchmark/_index.md) | benchmark 分区索引（复原基准档案） | living |
 | [50-testing/benchmark/010-umami.md](50-testing/benchmark/010-umami.md) | umami 复原档案主册（准入/基线/缺陷分类账 D-01~D-14） | living |
 | [50-testing/benchmark/020-umami-answer-src.md](50-testing/benchmark/020-umami-answer-src.md) | umami 基准答卷·原仓库卷（71 AC 实测留痕） | stable |
@@ -54,3 +57,5 @@ status: living
 | [50-testing/benchmark/070-umami-regression.md](50-testing/benchmark/070-umami-regression.md) | umami 回归轮切片答卷（22/22；全量 71/71） | stable |
 | [50-testing/benchmark/080-umami-alignment-log.md](50-testing/benchmark/080-umami-alignment-log.md) | 回归对齐日志（含新发现 8 条处置） | stable |
 | [50-testing/benchmark/090-umami-gap-analysis.md](50-testing/benchmark/090-umami-gap-analysis.md) | 实质差距分析（重建↔原仓库·API12/页面39/结构2） | stable |
+| [98-sessions/_index.md](98-sessions/_index.md) | 会话档案分区索引（对话原始记录规范：命名/frontmatter 五要素/双向关联） | living |
+| [98-sessions/transcript-archive-20261026-01.md](98-sessions/transcript-archive-20261026-01.md) | 会话记录：对话档案区立项与 M1（session-id 待回填） | archived-session |

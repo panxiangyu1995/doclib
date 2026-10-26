@@ -80,3 +80,24 @@ export async function planningReminderReport(root: string, state: State, latest:
   }
   return parts.join("\n");
 }
+
+export const COMMON_CARRIER_DIRS: readonly string[] = [".specify/", "openspec/", "specs/", ".kiro/specs/"];
+
+export async function suggestCarriers(root: string, state: State): Promise<string[]> {
+  const declared = loadPlanningPaths(state).map((p) => (p.endsWith("/") ? p : `${p}/`));
+  const out: string[] = [];
+  for (const dir of COMMON_CARRIER_DIRS) {
+    const normalized = dir.endsWith("/") ? dir : `${dir}/`;
+    if (declared.some((d) => d === normalized || normalized.startsWith(d))) continue;
+    const docs = await carrierDocs(root, [normalized]);
+    if (docs.length > 0) out.push(normalized);
+  }
+  return out;
+}
+
+export function detectCarrierShape(rel: string): string | null {
+  if (rel.startsWith("openspec/")) return "OpenSpec";
+  if (rel.startsWith(".specify/") || /^specs\/\d+-[^/]+\//.test(rel)) return "spec-kit";
+  if (rel.startsWith(".kiro/specs/")) return "Kiro";
+  return null;
+}

@@ -131,3 +131,17 @@ test("place：未知子命令 → DoclibError", async () => {
     (e: unknown) => e instanceof Error && /未知 place 子命令/.test(e.message),
   );
 });
+
+test("place list：spec 载体形态 → 声明建议（无收编/入棺行）", async () => {
+  const root = await tmpRoot("doclib-acc-place-");
+  await seed(root);
+  await put(root, "openspec/changes/add-billing/proposal.md", "# 提案\n");
+  const r = await runPlace(root, { action: "list" });
+  assert.match(r.text, /规划载体形态（OpenSpec）/);
+  assert.match(r.text, /声明为规划载体/);
+  assert.doesNotMatch(r.text, /收编: doclib place collect openspec/);
+  assert.doesNotMatch(r.text, /入棺: doclib place archive openspec/);
+  assert.match(r.text, /豁免: doclib ack openspec/);
+  const j = r.json as { pending: Array<{ path: string; suggestions: Array<{ carrier?: boolean }> }> };
+  assert.equal(j.pending.find((p) => p.path === "openspec/changes/add-billing/proposal.md")?.suggestions[0]?.carrier, true);
+});

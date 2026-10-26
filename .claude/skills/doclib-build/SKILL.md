@@ -25,7 +25,8 @@ description: 将任意代码项目蒸馏为"可复原的文档图书馆"。当�
 3. **填充图书馆**：按骨架逐卷撰写。顺序：00-overview → 10-architecture → 20-modules → 30-features → 40-guides → 90-reference → 最后更新 INDEX.md
    - **馆外存量四态盘点**（建馆期一次性判定，防孤儿回流）：①馆内 ②非文档资产（vendor/第三方/生成物/夹具——不收编）③工具链豁免（agent 工具目录与引导文件——位置由工具链决定，不收编）④待归位（真·馆外知识文档——收编入馆或入棺归档）。`doclib place list` 给出待归位清单与建议归宿，逐份判定，禁止整目录豁免
 4. **自检**：执行下方"覆盖度清单"，全过才算完成
-5. **收尾**：运行 `doclib verify`，然后 `doclib snapshot --note "initial build"` 固化基线
+5. **蒸馏反哺区**：读馆撰写 `.doclib/guide-project.md`（frontmatter：`snapshot` 当前基线版本 + `docs-hash` 当前馆内指纹，可用 `doclib status` 反哺行读取）——五段各 ≤10 行、每条附馆内路径：项目定位（00-overview/project）/ 架构速览（10-architecture/overview + 关键 ADR）/ 模块地图（20-modules/_index）/ 硬规则（40-guides/conventions + 95-lessons 高频教训）/ 命令速查（60-config/settings）；然后 `doclib sync` 注入引导文件。真相在馆，反哺区仅再生禁止直改
+6. **收尾**：运行 `doclib verify`，然后 `doclib snapshot --note "initial build"` 固化基线
 
 ## 反克隆铁律
 

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { carrierDocs, pendingArchive, planningIgnores, planningReminderReport } from "./planning.js";
+import { carrierDocs, detectCarrierShape, pendingArchive, planningIgnores, planningReminderReport, suggestCarriers } from "./planning.js";
 import { emptyState, saveState, type Snapshot } from "./state.js";
 
 async function tmp(): Promise<string> {
@@ -58,4 +58,29 @@ test("planningReminderReport：mtime 晚于基线触发待登记；空则空串"
   const old: Snapshot = { ...latest, at: new Date(Date.now() + 60000).toISOString() };
   const noPending = await planningReminderReport(root, state, old);
   assert.ok(!noPending.includes("待登记"));
+});
+
+test("suggestCarriers：存在含 md 的未声明载体 → 建议；已声明/空目录 → 不建议", async () => {
+  const root = await tmp();
+  await fs.mkdir(path.join(root, "openspec", "changes", "add-x"), { recursive: true });
+  await fs.writeFile(path.join(root, "openspec", "changes", "add-x", "proposal.md"), "p", "utf8");
+  await fs.mkdir(path.join(root, ".specify"), { recursive: true });
+  const state = emptyState();
+  const first = await suggestCarriers(root, state);
+  assert.deepEqual(first, ["openspec/"]);
+  await fs.writeFile(path.join(root, ".specify", "spec.md"), "s", "utf8");
+  const second = await suggestCarriers(root, state);
+  assert.deepEqual(second, [".specify/", "openspec/"]);
+  const declared = { ...emptyState(), planning: [".plan/", "openspec/"] };
+  const third = await suggestCarriers(root, declared);
+  assert.deepEqual(third, [".specify/"]);
+});
+
+test("detectCarrierShape：四工具形态与未命中", () => {
+  assert.equal(detectCarrierShape("openspec/changes/add-x/proposal.md"), "OpenSpec");
+  assert.equal(detectCarrierShape(".specify/memory/constitution.md"), "spec-kit");
+  assert.equal(detectCarrierShape("specs/001-login/spec.md"), "spec-kit");
+  assert.equal(detectCarrierShape(".kiro/specs/auth/tasks.md"), "Kiro");
+  assert.equal(detectCarrierShape("doclib/30-features/check.md"), null);
+  assert.equal(detectCarrierShape("src/core/place.ts"), null);
 });

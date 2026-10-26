@@ -5,6 +5,7 @@ covers:
   - src/commands/reconcile.test.ts
   - src/core/reconcile.ts
   - src/core/reconcile.test.ts
+  - src/core/featuremap.ts
 status: stable
 ---
 
@@ -27,6 +28,8 @@ F11 三层兜底的最后一层需要回答一个问题：**进度账与代码�
 | 一、疑似完成 | 漂移路径对应的 feature-map 条目状态为 implemented/retired，或存在未登记的漂移 | 逐项确认后补录进度账 |
 | 二、进度不符 | implemented 条目的**对应文档不存在**，或**其 covers 命中的代码路径全部漂移且该文档未同步** | 定位「进度与代码不符」的历史条目 |
 | 三、待推进 | 状态为 `planned` / `in-progress` 的条目清单 | 下一步做什么 |
+
+> 实现注记【v0.6.1】：feature-map 解析（`featureRows`/`docRefs`/`docExists`）自 v0.6.1 迁至 `core/featuremap.ts`（归档闭环三不变量复用同一解析面，见 [check.md](check.md)），本模块再导出保持兼容——解析语义单点化，两命令永不漂移。
 
 ### 「对应文档」列的解析【v0.34 修正】
 

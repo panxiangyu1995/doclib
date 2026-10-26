@@ -34,7 +34,7 @@ description: DocLib 日常开发会话工作流（★主力）。当进入任何
 
 | 改动类型 | 必须同步的卷 |
 | --- | --- |
-| 修 bug / 踩坑 / 得出解决办法 | `95-lessons/`（现象/根因/解决/规避） |
+| 修 bug / 踩坑 / 得出解决办法 | `95-lessons/`（现象/根因/解决/规避，可加 `来源:` 行）+ progress 条目末 `教训:` 处置位声明去向（check「教训账缺口」拦截） |
 | 新功能 / 行为变更 / 新命令 | `30-features/`（规格+验收标准）+ feature-map 状态 |
 | 模块增删 / 职责边界变化 | `20-modules/` |
 | 架构 / 数据模型 / 数据流变化 | `10-architecture/` |
@@ -68,8 +68,8 @@ description: DocLib 日常开发会话工作流（★主力）。当进入任何
 
 ## .plan/载体双锚点
 
-- **锚点一（登记）**：规划文档完成 → feature-map 新增/更新 planned 条目
-- **锚点二（归档）**：开发完成 → 过程材料留载体不动；长期价值沉淀入馆（ADR/规格/参考卷）；更新 covers；feature-map → implemented；progress.md 补记
+- **锚点一（登记）**：规划文档完成 → feature-map 新增/更新 planned 条目 + progress.md 补记（check「载体未登记」「进度账缺口」strict 拦截，hook 阻断提交）
+- **锚点二（归档）**：开发完成 → 过程材料留载体不动；长期价值沉淀入馆（ADR/规格/参考卷/95-lessons）；更新 covers；feature-map → implemented（对应文档列不得为空——check「沉淀锚点缺失」拦截）；progress.md 补记（末字段 `教训:` 处置位——check「教训账缺口」拦截）
 
 ## 入馆写协调
 

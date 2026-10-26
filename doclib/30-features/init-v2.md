@@ -35,13 +35,13 @@ status: stable
 
 ## 怎么运转
 
-1. 模板：拷贝 assets/templates/library 全部模板文件到 doclib/（v3 骨架 24 文件；保留目录结构）
+1. 模板：拷贝 assets/templates/library 全部模板文件到 doclib/（v3 骨架 33 文件；保留目录结构）；**拷贝后向 progress.md 幂等补写 `<!-- doclib:lesson-epoch: 当日 -->` 标记**（v0.6.2，教训账缺口不变量的 epoch 锚——新馆默认在岗；已含标记不重复写）
 2. 簿记：建 .doclib/tasks/
 3. skills：对 skillsDir 非空的目标（claude→.claude/skills、opencode→.opencode/skills）copyDir 覆盖式同步
 4. 引导（--guide light 时）：writeGuides——**有戳更新、无戳跳过（用户内容保护）、缺失写入**
 5. 状态：loadState（兼容归一化）→ agents=目标 id 列表、structureVersion=STRUCTURE_VERSION（当前 3）→ saveState（既有快照链保留）
 6. 门禁（--no-hook 未指定时）：resolveHooksDir 判 git → 非 git 提示行；readHookState=foreign → 警告跳过（用户钩子不动）；否则 runHook --strict 安装（幂等覆盖 doclib 自身钩子，无条件恢复可执行位）——复用 hook 命令全部健壮化能力（相对路径/fail-closed/worktree）；**门禁环节任何失败（含底层 fs 错误）降级为「跳过（原因）」行，init 不失败**（与 graph 初始化同构的全接语义）
-7. 输出：模板数、agents、skills 落位、引导写入/跳过清单、门禁状态行、下一步指引
+7. 输出：模板数、agents、skills 落位、引导写入/跳过清单、门禁状态行、**载体建议行**（v0.6.1：检测 `.specify/`、`openspec/`、`specs/`、`.kiro/specs/` 存在且未声明且含 ≥1 .md → 提示 `--planning` 声明后进入双轨提醒；声明权在用户，纯软提示——兑现 PRD F1「常见规划载体检测后建议声明」）、下一步指引
 
 > v0.4.0 后续（2026-10-20）：version.ts 增导出 `PACKAGE_NAME`（读 package.json name，回退 @panxiangyu1995/doclib）——CI 模板包名单一事实源（hook 消费）；init 仍只消费 STRUCTURE_VERSION 与引导渲染的 CLI_VERSION。
 
@@ -57,7 +57,7 @@ status: stable
 
 ## 验收标准
 
-- Given 空目录 When `init --agents claude,opencode` Then doclib/ 含 24 模板、.claude/skills 与 .opencode/skills 各含 10 skill 目录、CLAUDE.md/AGENTS.md 首行为 `<!-- doclib-guide cli=… structure=3 -->`、state.agents=[claude,opencode]
+- Given 空目录 When `init --agents claude,opencode` Then doclib/ 含 33 模板、.claude/skills 与 .opencode/skills 各含 10 skill 目录、CLAUDE.md/AGENTS.md 首行为 `<!-- doclib-guide cli=… structure=3 -->`、state.agents=[claude,opencode]
 - Given 已有手写 CLAUDE.md（无戳）When `init --force` Then CLAUDE.md 内容原样保留且输出"跳过"
 - Given 非 TTY When `init`（无参数）Then agents=generic、guide=light 自动落位
 - Given --agents foo When init Then 报错并列出可选 id
@@ -65,3 +65,4 @@ status: stable
 - Given `init --no-hook` When init Then 不装钩子，输出「提交门禁: 未安装（--no-hook 跳过）」
 - Given 既有非 doclib 钩子 When init Then init 成功、警告跳过、原钩子逐字节保留
 - Given 非 git 目录 When init Then init 成功并提示 git init 后可手动 `doclib hook --strict`
+- Given 仓库存在含 .md 的 openspec/ 且未声明 When init Then 输出「载体建议」行；Given 已声明该载体或目录为空 Then 不输出（零噪音）

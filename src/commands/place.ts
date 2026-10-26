@@ -40,11 +40,18 @@ async function runList(root: string, opts: PlaceOptions): Promise<CommandResult>
   const lines: string[] = [`待归位文档 (${entries.length})`, ""];
   for (const e of entries) {
     lines.push(e.path);
+    const isCarrier = e.suggestions.some((s) => s.carrier === true);
     for (const s of e.suggestions.slice(0, 3)) {
+      if (s.carrier === true) {
+        lines.push(`  建议: ${s.reason}`);
+        continue;
+      }
       lines.push(`  建议: ${s.volume}/${s.dir}（${s.confidence} · ${s.reason}）`);
     }
-    lines.push(`  收编: doclib place collect ${e.path} --to <卷> --apply`);
-    lines.push(`  入棺: doclib place archive ${e.path} --reason "<失效原因>" --apply`);
+    if (!isCarrier) {
+      lines.push(`  收编: doclib place collect ${e.path} --to <卷> --apply`);
+      lines.push(`  入棺: doclib place archive ${e.path} --reason "<失效原因>" --apply`);
+    }
     lines.push(`  豁免: doclib ack ${e.path} --standing --note "<理由>"`);
     lines.push("");
   }

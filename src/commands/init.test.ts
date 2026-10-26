@@ -212,3 +212,20 @@ test("init：损坏 .git 指针文件 → 门禁降级提示，init 不失败", 
   assert.match(r.text, /已初始化 DocLib/);
   assert.match(r.text, /提交门禁: 跳过/);
 });
+
+test("init：检测到未声明常见载体 → 载体建议行", async () => {
+  const root = await tmpRoot("doclib-acc-init-");
+  await fs.mkdir(path.join(root, "openspec"), { recursive: true });
+  await fs.writeFile(path.join(root, "openspec", "spec.md"), "s", "utf8");
+  const r = await runInit(root, { agents: "claude" });
+  assert.match(r.text, /载体建议: .*openspec\//);
+  assert.match(r.text, /--planning 声明后进入双轨提醒/);
+});
+
+test("init：progress.md 自动落 lesson-epoch 标记（幂等不重复）", async () => {
+  const root = await tmpRoot("doclib-acc-init-");
+  await runInit(root, { agents: "claude" });
+  const p1 = await fs.readFile(path.join(root, "doclib", "00-overview", "progress.md"), "utf8");
+  assert.match(p1, /<!-- doclib:lesson-epoch: \d{4}-\d{2}-\d{2} -->/);
+  assert.equal(p1.match(/doclib:lesson-epoch/g)?.length, 1);
+});
