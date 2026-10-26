@@ -55,7 +55,34 @@ export function snapshotRow(version: number, files: string[], at = "2026-10-19T0
 }
 
 export function docMd(title: string, covers: string[], body = "行为与验收标准\n"): string {
-  return ["---", `title: ${title}`, "covers:", ...covers.map((c) => `  - ${c}`), "status: stable", "---", body].join("\n");
+  const fill = (tag: string) =>
+    Array.from({ length: 4 }, (_, i) => `${tag}叙述行 ${i}：行为、边界与错误处理说明。`).join("\n");
+  return [
+    "---",
+    `title: ${title}`,
+    "covers:",
+    ...covers.map((c) => `  - ${c}`),
+    "status: stable",
+    "---",
+    "",
+    `# ${title}`,
+    "",
+    `导读：${title} 的行为、契约与验收标准。`,
+    "",
+    "## 为什么",
+    "",
+    fill("为什么"),
+    "",
+    "## 是什么",
+    "",
+    fill("是什么"),
+    "",
+    "## 怎么运转",
+    "",
+    body,
+    fill("怎么运转"),
+    "",
+  ].join("\n");
 }
 
 export const CLI_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "dist", "cli.js");

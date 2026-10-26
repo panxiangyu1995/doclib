@@ -7,6 +7,27 @@ import { pendingArchive } from "./planning.js";
 
 export type FeatureRow = { n: number; name: string; status: string; docs: string };
 
+export function docRefs(cell: string): string[] {
+  return cell
+    .split(/[（(]/)[0]!
+    .split("+")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0 && s !== "—" && !s.startsWith("skills/"));
+}
+
+async function existsAt(p: string): Promise<boolean> {
+  return fs
+    .access(p)
+    .then(() => true)
+    .catch(() => false);
+}
+
+export async function docExists(root: string, ref: string): Promise<"library" | "repo" | "none"> {
+  if (await existsAt(path.join(root, LIBRARY_DIR, ref.replace(/^doclib\//, "")))) return "library";
+  if (await existsAt(path.join(root, ref))) return "repo";
+  return "none";
+}
+
 export async function featureRows(root: string): Promise<FeatureRow[]> {
   const raw = await fs.readFile(path.join(root, "doclib", "00-overview", "feature-map.md"), "utf8").catch(() => "");
   const rows: FeatureRow[] = [];
@@ -49,17 +70,16 @@ export async function runReconcileCore(root: string): Promise<ReconcileReport> {
     for (const p of Object.keys(latest.docs ?? {})) if (docsNow[p] === undefined) docsChangedSet.add(p);
 
     for (const r of rows.filter((x) => x.status === "implemented")) {
-      const docRef = r.docs.split(/[（(]/)[0]!.trim();
-      if (docRef.length === 0 || docRef === "—" || docRef.startsWith("skills/")) continue;
-      const docPath = path.join(root, "doclib", docRef.replace(/^doclib\//, ""));
-      const exists = await fs
-        .access(docPath)
-        .then(() => true)
-        .catch(() => false);
-      if (!exists) {
-        staleProgress.push({ n: r.n, name: r.name, doc: `${docRef}（对应文档不存在）` });
+      const refs = docRefs(r.docs);
+      if (refs.length === 0) continue;
+      const kinds = await Promise.all(refs.map((ref) => docExists(root, ref)));
+      const libIdx = kinds.findIndex((k) => k === "library");
+      if (!kinds.some((k) => k !== "none")) {
+        staleProgress.push({ n: r.n, name: r.name, doc: `${refs.join(" + ")}（对应文档不存在）` });
         continue;
       }
+      if (libIdx === -1) continue;
+      const docRef = refs[libIdx]!;
       const coveredRows = an.rows.filter((row) => row.docs.includes(docRef));
       if (coveredRows.length > 0 && coveredRows.every((row) => driftPaths.has(row.path)) && !docsChangedSet.has(`${LIBRARY_DIR}/${docRef}`)) {
         staleProgress.push({ n: r.n, name: r.name, doc: `${docRef}（覆盖路径有漂移且文档未同步——进度与代码不符）` });

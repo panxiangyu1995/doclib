@@ -71,5 +71,5 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
 - 基准铁律：复原对比对象=**原仓库**（非图书馆）——重建↔原仓库实质差距=建馆缺陷显影器（benchmark.md 目的铁律）（三阶段：P1 信息零遗漏→P2 质量保证→P3 升华超越原仓库）
 - 治理状态：规划载体 `.plan/<日期>/` 已声明（F9 默认实例）；登记簿落点已拍板——**分散挂靠各卷**（Q25，挂靠表见 PRD §7）；复原基准测试体系已立项（F14，首个基准项目 **colinhacks/zod**【Q31】，操作指南 `40-guides/benchmark.md`；**复原须与建馆不同会话/实例/模型，防先验污染**）；历史遗留已清零（v0.23）：50-reference 已归位 90-reference、PRD/DESIGN 已迁入 `doclib/10-architecture/`；写协调乐观锁 revision 已立项（Q36）
 - 孤儿治理（v0.5.0）：馆外文档四态判定（馆内/非文档资产/工具链豁免/待归位）+ 三层防线（扫描面/判定面/处置面）；处置走 `doclib place`（list/collect/archive/ack/restore，写操作默认干跑 `--apply` 执行，归档账可 restore）；**本仓库 `assets/` `skills/` 是源目录（靠 covers 兜底，勿入棺）**，`.claude/skills/` 分发副本由 `20-modules/_index.md` 覆盖
-- 知识图谱（v0.5.0，F15 阶段 2）：vendored codegraph 在 `vendor/codegraph/`（git subtree，同步 `git subtree pull`；**就地改动必须登记 FORK-NOTES.md**，优先在 adapter 层 `src/core/codegraph/` 扩展、勿改 vendored 源）；`.codegraph/`=可再生缓存（非产物），graph 输出仅候选禁止直接入馆；telemetry 已物理隔离（构建面排除）；Node>=22.5 门（graph 可选增强，失败不阻塞核心）；规格 `30-features/graph.md`
+- 知识图谱（v0.5.0，F15 阶段 2）：vendored codegraph 在 `vendor/codegraph/`（git subtree，同步 `git subtree pull`；**就地改动必须登记 FORK-NOTES.md**，优先在 adapter 层 `src/core/codegraph/` 扩展、勿改 vendored 源）；`.codegraph/`=可再生缓存（非产物），graph 输出仅候选禁止直接入馆；telemetry 已物理隔离（构建面排除）；Node∈[22.5,25) 门（graph 可选增强，失败不阻塞核心）；规格 `30-features/graph.md`
 <!-- doclib:custom-end -->

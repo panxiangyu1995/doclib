@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { CLI_VERSION } from "../core/version.js";
 import { isNodeCompatible } from "../core/codegraph/engine.js";
-import { cli, get, has, put, tmpRoot } from "./testkit.js";
+import { cli, docMd, get, has, put, tmpRoot } from "./testkit.js";
 
 test("e2e：help 四种形态（无参/help/--help/-h）与未知命令降级", async () => {
   const root = await tmpRoot("doclib-e2e-");
@@ -120,7 +120,7 @@ test("e2e：全生命周期闭环 init→plan→建馆→verify→snapshot→dif
   await put(
     root,
     "doclib/30-features/core.md",
-    "---\ntitle: 核心\ncovers:\n  - src/\nstatus: stable\n---\n核心行为与验收标准\n",
+    docMd("核心", ["src/"]),
   );
   await put(root, "doclib/README.md", "图书馆导览\n");
 
@@ -158,7 +158,7 @@ test("e2e：全生命周期闭环 init→plan→建馆→verify→snapshot→dif
   assert.match(r.stdout, /漏更 \(1\)/);
   assert.match(r.stdout, /strict 门禁: 未通过/);
 
-  await put(root, "doclib/30-features/core.md", "---\ntitle: 核心\ncovers:\n  - src/\nstatus: stable\n---\n核心行为与验收标准 v2\n");
+  await put(root, "doclib/30-features/core.md", docMd("核心", ["src/"], "核心行为与验收标准 v2\n"));
   r = await cli(["check", "--strict"], root);
   assert.equal(r.code, 0);
   assert.match(r.stdout, /strict 门禁: 通过/);
@@ -241,7 +241,7 @@ test("e2e：init --graph → graph status/draft → plan 候选段 → .codegrap
 test("e2e：check --json 经 CLI 可解析", async () => {
   const root = await tmpRoot("doclib-e2e-");
   await put(root, "src/a.ts", "v1");
-  await put(root, "doclib/30-features/a.md", "---\ntitle: A\ncovers:\n  - src/a.ts\nstatus: stable\n---\nA\n");
+  await put(root, "doclib/30-features/a.md", docMd("A", ["src/a.ts"]));
   await cli(["snapshot"], root);
   await put(root, "src/a.ts", "v2");
   const r = await cli(["check", "--json"], root);

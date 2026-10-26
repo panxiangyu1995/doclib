@@ -3,8 +3,8 @@ import path from "node:path";
 import { collectFiles } from "../core/fsutil.js";
 import { languageOf } from "../core/detect.js";
 import { buildCoverIndex, groupByTopDir, isDocStale, normalizePath } from "../core/mapping.js";
-import { scanBrokenLinks, checkVolumeIndexes } from "../core/docquality.js";
-import { surfaceScan } from "../core/surface.js";
+import { scanBrokenLinks, checkVolumeIndexes, checkGenreCompliance } from "../core/docquality.js";
+import { surfaceScan, reconcileFlagSurface } from "../core/surface.js";
 import { LIBRARY_DIR, latestSnapshot, loadState } from "../core/state.js";
 import { guideStampReport } from "../core/guides.js";
 import { loadPlanningPaths, planningIgnores } from "../core/planning.js";
@@ -65,9 +65,12 @@ export async function runVerify(root: string, opts: { json?: boolean }): Promise
   for (const m of vol.missingIndex) indexIssues.push(`卷缺 _index（soft 提示）: ${m}/`);
   for (const u of vol.unlisted) indexIssues.push(`卷级索引未收录: ${u.dir}/ → ${u.docs.join(", ")}`);
 
+  const genre = await checkGenreCompliance(libRoot);
+
   const pct = codeFiles.length > 0 ? Math.round((covered.size / codeFiles.length) * 100) : 100;
   const groups = groupByTopDir(uncovered);
   const surface = await surfaceScan(root, libRoot, files);
+  const flagSurface = await reconcileFlagSurface(root, libRoot);
 
   if (opts.json) {
     const payload = {
@@ -80,7 +83,18 @@ export async function runVerify(root: string, opts: { json?: boolean }): Promise
       unanchoredDocs,
       staleDocs,
       indexIssues,
+      genre: {
+        violations: genre.violations.length,
+        warnings: genre.warnings.length,
+        detail: genre,
+      },
       surface,
+      flagSurface: {
+        libFlags: flagSurface.libFlags,
+        srcFlags: flagSurface.srcFlags,
+        inLibNotSrc: flagSurface.inLibNotSrc,
+        inSrcNotLib: flagSurface.inSrcNotLib,
+      },
     };
     return { text: JSON.stringify(payload, null, 2), json: payload };
   }
@@ -105,11 +119,23 @@ export async function runVerify(root: string, opts: { json?: boolean }): Promise
   lines.push(`失效文档（covers 指向的代码已全部不存在）: ${staleDocs.length > 0 ? staleDocs.join(", ") : "无"}`);
   lines.push(`索引完整性: ${indexIssues.length > 0 ? indexIssues.join("；") : "通过"}`);
   lines.push("");
+  lines.push(`文体合规（PRD §7.6）: 违规 ${genre.violations.length} ｜ 倾倒警告 ${genre.warnings.length}`);
+  for (const v of genre.violations) lines.push(`  - [${v.kind}] ${v.doc}  —  ${v.detail}`);
+  for (const w of genre.warnings) lines.push(`  - [warn] ${w.doc}  —  ${w.detail}`);
+  lines.push("");
   lines.push(
     `面穷举对账（P1 信息零遗漏守卫）: 端点 ${surface.endpointSurface} + proto rpc ${surface.rpcSurface} ↔ API 条目 ${surface.registeredApi}（Δ${surface.apiDelta}）｜ 页面 ${surface.pageSurface} ↔ ROUTE 条目 ${surface.registeredRoute}（Δ${surface.routeDelta}）`,
   );
   for (const n of surface.notes) lines.push(`  ⚠ ${n}`);
   if (surface.notes.length === 0) lines.push("  对账平衡（数量守卫通过；逐项语义仍由 agent 复核）");
+  lines.push(
+    `旗标面对账（F15 阶段 0）: 馆 ${flagSurface.libFlags} ↔ 源 ${flagSurface.srcFlags}（源有馆无 ${flagSurface.inSrcNotLib.length} ｜ 馆有源无 ${flagSurface.inLibNotSrc.length}）`,
+  );
+  for (const x of flagSurface.inSrcNotLib.slice(0, 10)) lines.push(`  - 源有馆无: ${x.flag}（${x.files.slice(0, 2).join(", ")}${x.files.length > 2 ? " …" : ""}）`);
+  for (const x of flagSurface.inLibNotSrc.slice(0, 10)) lines.push(`  - 馆有源无: ${x.flag}（${x.docs.slice(0, 2).join(", ")}${x.docs.length > 2 ? " …" : ""}）`);
+  for (const n of flagSurface.notes) lines.push(`  ⚠ ${n}`);
+  if (flagSurface.inSrcNotLib.length === 0 && flagSurface.inLibNotSrc.length === 0)
+    lines.push("  旗标对账平衡（Δ0；候选语义仍由 agent 裁决）");
   lines.push("");
   return { text: lines.join("\n"), json: { coveragePct: pct, surface } };
 }

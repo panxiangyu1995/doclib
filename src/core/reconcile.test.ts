@@ -45,6 +45,54 @@ test("reconcile：漂移行/进度不符/待推进三段产出", async () => {
   assert.ok(r.staleProgress.some((x) => x.n === 1 && x.doc.includes("进度与代码不符")));
 });
 
+test("reconcile：对应文档含多路径且首 token 为规划载体——按存在性判定，不误报", async () => {
+  const root = await tmp();
+  await fs.mkdir(path.join(root, "src"), { recursive: true });
+  await fs.mkdir(path.join(root, ".plan", "2026-10-26"), { recursive: true });
+  await fs.mkdir(path.join(root, "doclib", "00-overview"), { recursive: true });
+  await fs.mkdir(path.join(root, "doclib", "30-features"), { recursive: true });
+  await fs.writeFile(path.join(root, "src", "a.ts"), "v1", "utf8");
+  await fs.writeFile(path.join(root, ".plan", "2026-10-26", "pack.md"), "规划", "utf8");
+  await fs.writeFile(
+    path.join(root, "doclib", "30-features", "a.md"),
+    "---\ntitle: A\ncovers:\n  - src/a.ts\nstatus: stable\n---\nA\n",
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(root, "doclib", "00-overview", "feature-map.md"),
+    "| # | 功能 | 描述 | 对应文档 | 状态 |\n| --- | --- | --- | --- | --- |\n| 1 | A | a | .plan/2026-10-26/pack.md + 30-features/a.md | implemented |\n| 2 | B | b | .plan/2026-10-26/absent.md + 30-features/gone.md | implemented |\n",
+    "utf8",
+  );
+  await runSnapshot(root, { note: "seed" });
+  const clean = await runReconcileCore(root);
+  assert.deepEqual(
+    clean.staleProgress.filter((x) => x.n === 1).map((x) => x.doc),
+    [],
+  );
+  assert.ok(clean.staleProgress.some((x) => x.n === 2 && x.doc.includes("对应文档不存在")));
+  await fs.writeFile(path.join(root, "src", "a.ts"), "v2", "utf8");
+  const drifted = await runReconcileCore(root);
+  assert.ok(drifted.staleProgress.some((x) => x.n === 1 && x.doc.includes("进度与代码不符")));
+});
+
+test("reconcile：对应文档仅为规划载体（无库内锚点）时不报进度不符", async () => {
+  const root = await tmp();
+  await fs.mkdir(path.join(root, "src"), { recursive: true });
+  await fs.mkdir(path.join(root, ".plan", "2026-10-26"), { recursive: true });
+  await fs.mkdir(path.join(root, "doclib", "00-overview"), { recursive: true });
+  await fs.writeFile(path.join(root, "src", "a.ts"), "v1", "utf8");
+  await fs.writeFile(path.join(root, ".plan", "2026-10-26", "pack.md"), "规划", "utf8");
+  await fs.writeFile(
+    path.join(root, "doclib", "00-overview", "feature-map.md"),
+    "| # | 功能 | 描述 | 对应文档 | 状态 |\n| --- | --- | --- | --- | --- |\n| 1 | A | a | .plan/2026-10-26/pack.md | implemented |\n",
+    "utf8",
+  );
+  await runSnapshot(root, { note: "seed" });
+  await fs.writeFile(path.join(root, "src", "a.ts"), "v2", "utf8");
+  const r = await runReconcileCore(root);
+  assert.deepEqual(r.staleProgress, []);
+});
+
 test("reconcile：无基线时报 baseline null", async () => {
   const root = await tmp();
   await fs.mkdir(path.join(root, "doclib", "00-overview"), { recursive: true });

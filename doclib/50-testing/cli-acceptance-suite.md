@@ -24,7 +24,19 @@ status: stable
 >
 > 2026-10-22 增量（#24 孤儿归位与处置闭环）：新增 `src/core/place.test.ts`（11）、`src/commands/place.test.ts`（8），扩写 `orphan.test.ts`（+6）、`commands/check.test.ts`（+1）、`commands/ack.test.ts`（+3）、`core/fsutil.test.ts`（+2）、`core/check.test.ts`（+4）——**全套 219/219 绿**；归位与处置的验收留痕见 [acceptance-place-v0.5.0.md](acceptance-place-v0.5.0.md)。
 >
-> 2026-10-22 增量（#25 codegraph 克隆集成）：新增 `src/core/codegraph/engine.test.ts`（9）、`src/core/codegraph/draft.test.ts`（6）、`src/commands/graph.test.ts`（4），扩写 `commands/cli.e2e.test.ts`（+1 全流程）、`core/fsutil.test.ts`（+1）、`core/orphan.test.ts`（+1）——**全套 240/240 绿**（31 测试文件）；graph 测试带 Node<22.5 自动 skip 守卫；验收标准 AC1–AC10 见 [30-features/graph.md](../30-features/graph.md)。
+> 2026-10-22 增量（#25 codegraph 克隆集成）：新增 `src/core/codegraph/engine.test.ts`（9）、`src/core/codegraph/draft.test.ts`（6）、`src/commands/graph.test.ts`（4），扩写 `commands/cli.e2e.test.ts`（+1 全流程）、`core/fsutil.test.ts`（+1）、`core/orphan.test.ts`（+1）——**全套 240/240 绿**（31 测试文件）；graph 测试带 Node<22.5 自动 skip 守卫；验收标准 AC1–AC10 见 [30-features/graph.md](../30-features/graph.md)；真实仓库五仓实测见 [acceptance-graph-v0.5.0.md](acceptance-graph-v0.5.0.md)。
+
+## 为什么
+
+手工探针验收是一次性的（点时留痕、不可复测）——CLI 有 13 个命令 × 正常/边界/错误/压力四维的契约面，只有落成自动化测试文件才能让每次行为变更都过同一把尺子；8 条易回归行为契约（BUILD 覆盖式/UPDATE 编号/strict 退出码等）就此锁定。
+
+## 是什么
+
+14 个命令测试文件 + core 单测（32 文件/249 用例【v0.32】，全量 `npm test` 一键复测）：testkit 共享基建（临时目录/种子/spawn）+ 逐命令套件 + e2e 真实二进制闭环 + 压力探针。文件布局与用例数见下表，验收结论见第三节。
+
+## 怎么运转（复测与扩展纪律）
+
+复测 = `npm test`（先 build 后全量 32 文件）；单卷复测 = `npm run build && node --test dist/commands/<file>.test.js`。扩展纪律：新增命令必须同步新增套件并登记下表；行为契约一旦锁定，改行为必须先改测试并留痕（95-lessons 或 acceptance 增量段）。
 
 ## 一、文件布局与复测方式
 

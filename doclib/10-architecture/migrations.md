@@ -2,6 +2,7 @@
 title: 数据库迁移账本
 covers: []
 status: living
+type: ledger
 ---
 
 # 数据库迁移账本（migrations）

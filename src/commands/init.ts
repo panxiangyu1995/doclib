@@ -7,13 +7,9 @@ import { isInteractive, askAgents, askGuide, askPlanning, askGraph } from "../co
 import { writeGuides } from "../core/guides.js";
 import { STRUCTURE_VERSION } from "../core/version.js";
 import { DoclibError, DEFAULT_PLANNING, LIBRARY_DIR, TASKS_DIR, loadState, saveState } from "../core/state.js";
-import { graphIndexPresent, isNodeCompatible, loadVendorEngine, type VendorProgress } from "../core/codegraph/engine.js";
+import { graphIndexPresent, isNodeCompatible, loadVendorEngine, renderProgress } from "../core/codegraph/engine.js";
 
 export type CommandResult = { text: string; json?: unknown };
-
-function renderProgress(p: VendorProgress): void {
-  process.stderr.write(`[graph] ${p.phase}: ${p.current}/${p.total}\n`);
-}
 
 export async function runInit(
   root: string,

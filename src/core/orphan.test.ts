@@ -8,6 +8,7 @@ import {
   detectOrphanDocs,
   detectSuspectedToolchainDirs,
   isGuideFile,
+  isRootFacadeFile,
   isToolchainPath,
   scanExternalDocs,
 } from "./orphan.js";
@@ -99,6 +100,34 @@ test("orphan：classifyExternalDoc 优先级——指针 > 引导 > 工具链 > 
   assert.equal(classifyExternalDoc("packages/a/AGENTS.md"), "guide");
   assert.equal(classifyExternalDoc(".claude/a.md"), "toolchain");
   assert.equal(classifyExternalDoc("docs/a.md"), "pending");
+});
+
+test("orphan：门面文件判定——根级多语言变体豁免，非 locale 后缀与嵌套不豁免", () => {
+  assert.equal(isRootFacadeFile("README.md"), true);
+  assert.equal(isRootFacadeFile("README.en.md"), true);
+  assert.equal(isRootFacadeFile("README.zh-CN.md"), true);
+  assert.equal(isRootFacadeFile("README.pt_BR.md"), true);
+  assert.equal(isRootFacadeFile("README.sr-Latn.md"), true);
+  assert.equal(isRootFacadeFile("CHANGELOG.en.md"), true);
+  assert.equal(isRootFacadeFile("CONTRIBUTING.zh-CN.md"), true);
+  assert.equal(isRootFacadeFile("README.wip.md"), false);
+  assert.equal(isRootFacadeFile("README.2024.md"), false);
+  assert.equal(isRootFacadeFile("README.abc.md"), false);
+  assert.equal(isRootFacadeFile("notes.en.md"), false);
+  assert.equal(isRootFacadeFile("docs/README.en.md"), false);
+});
+
+test("orphan：根级多语言门面文件不判孤儿，非 locale 后缀与嵌套仍判孤儿", async () => {
+  const root = await tmp();
+  await fs.mkdir(path.join(root, "docs"), { recursive: true });
+  await fs.writeFile(path.join(root, "README.en.md"), "门面", "utf8");
+  await fs.writeFile(path.join(root, "README.zh-CN.md"), "门面", "utf8");
+  await fs.writeFile(path.join(root, "CHANGELOG.en.md"), "日志", "utf8");
+  await fs.writeFile(path.join(root, "CONTRIBUTING.zh-CN.md"), "协作", "utf8");
+  await fs.writeFile(path.join(root, "README.wip.md"), "草稿", "utf8");
+  await fs.writeFile(path.join(root, "docs", "README.en.md"), "嵌套", "utf8");
+  const orphans = await detectOrphanDocs(root);
+  assert.deepEqual([...orphans].sort(), ["README.wip.md", "docs/README.en.md"].sort());
 });
 
 test("orphan：疑似新工具目录识别——点目录 + 工具特征且不在闭集", async () => {

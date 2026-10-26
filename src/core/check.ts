@@ -5,7 +5,7 @@ import { buildCoverIndex, docsForPath } from "./mapping.js";
 import { hashDocs, validateMigrations, type CheckFinding } from "./ledger.js";
 import { managedRegionFresh } from "./guides.js";
 import { detectSuspectedToolchainDirs, scanExternalDocs } from "./orphan.js";
-import { scanBrokenLinks } from "./docquality.js";
+import { scanBrokenLinks, checkGenreCompliance } from "./docquality.js";
 import { loadPlanningPaths, planningIgnores } from "./planning.js";
 
 export type { CheckFinding, CheckFindingKind } from "./ledger.js";
@@ -210,6 +210,10 @@ export async function runCheckCore(root: string): Promise<CheckResult> {
   for (const b of brokenLinks) {
     const sep = b.indexOf(" → ");
     findings.push({ kind: "doc-quality", path: b.slice(0, sep), detail: b.slice(sep + 3) });
+  }
+  const genre = await checkGenreCompliance(path.join(root, LIBRARY_DIR));
+  for (const v of genre.violations) {
+    findings.push({ kind: "genre", path: `${LIBRARY_DIR}/${v.doc}`, detail: `${v.kind}：${v.detail}` });
   }
   const health = healthScore({
     driftTotal: changedPaths.length,

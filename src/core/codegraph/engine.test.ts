@@ -15,6 +15,9 @@ test("isNodeCompatible 边界: 22.5.0 可用", () => {
 
 test("isNodeCompatible 边界: 24.15.0 可用", () => {
   assert.equal(isNodeCompatible("24.15.0"), true);
+  assert.equal(isNodeCompatible("24.99.9"), true);
+  assert.equal(isNodeCompatible("25.0.0"), false);
+  assert.equal(isNodeCompatible("26.1.0"), false);
 });
 
 test("isNodeCompatible 边界: 21.9.9 不可用", () => {

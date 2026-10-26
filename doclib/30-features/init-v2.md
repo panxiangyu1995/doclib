@@ -12,9 +12,15 @@ status: stable
 
 # init v2 · 骨架落位 + agents/skills/引导安装
 
-## 目的
+> init 是 DocLib 的入口：一条命令把「图书馆 + 引导 + skills + 簿记」在任意 repo 落位到位，治理起点即干净。
+
+## 为什么
 
 在任意 repo 中一键建立 DocLib 环境：12 卷图书馆骨架、簿记目录、skills 按 agent 适配落位、轻量引导文件落位、状态登记。
+
+## 是什么
+
+`doclib init` 一条命令完成：12 卷图书馆骨架落位、skills 按 agent 适配分发、引导文件写入（区域契约）、簿记初始化、规划载体声明（--planning）、可选知识图谱初始化（--graph）。
 
 ## 输入
 
@@ -24,9 +30,9 @@ status: stable
 | --agents | 逗号分隔：claude,opencode,cursor,generic；未知 id 报 DoclibError；去重 | TTY 问卷；非 TTY → generic |
 | --guide | light \| none；非法值报 DoclibError | TTY 问卷；非 TTY → light |
 | --planning | 逗号分隔多路径（默认 .plan/），尾斜杠归一 | TTY 问卷（askPlanning：回车=.plan/）；非 TTY → .plan/ |
-| --graph | init 时同步初始化知识图谱 .codegraph/（v0.30，需 Node>=22.5） | TTY 第 4 问（askGraph：回车=否）；引擎不可用/建图失败→告警行，**init 仍退出 0**；未启用输出 `doclib graph index` 提示行 |
+| --graph | init 时同步初始化知识图谱 .codegraph/（v0.30，需 Node ∈ [22.5, 25)） | TTY 第 4 问（askGraph：回车=否）；引擎不可用/建图失败→告警行，**init 仍退出 0**；未启用输出 `doclib graph index` 提示行 |
 
-## 行为
+## 怎么运转
 
 1. 模板：拷贝 assets/templates/library 全部模板文件到 doclib/（v3 骨架 24 文件；保留目录结构）
 2. 簿记：建 .doclib/tasks/

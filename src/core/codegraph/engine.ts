@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { DoclibError } from "../state.js";
 
 const MIN_NODE = [22, 5, 0] as const;
+const MAX_NODE = [25, 0, 0] as const;
 const VENDOR_ENTRY = "../../vendor/index.js";
 
 export type VendorNode = {
@@ -86,24 +87,34 @@ export interface VendorEngine {
 
 let cachedEngine: VendorEngine | null = null;
 
-export function isNodeCompatible(version: string): boolean {
+function compareVersion(version: string, bound: readonly [number, number, number] | readonly number[]): number {
   const m = /^v?(\d+)\.(\d+)(?:\.(\d+))?/.exec(version.trim());
-  if (!m) return false;
-  const major = Number(m[1]);
-  const minor = Number(m[2] ?? 0);
-  const patch = Number(m[3] ?? 0);
-  const [minMajor, minMinor, minPatch] = MIN_NODE;
-  if (major !== minMajor) return major > minMajor;
-  if (minor !== minMinor) return minor > minMinor;
-  return patch >= minPatch;
+  if (!m) return NaN;
+  const parts = [Number(m[1]), Number(m[2] ?? 0), Number(m[3] ?? 0)];
+  for (let i = 0; i < 3; i++) {
+    const p = parts[i]!;
+    const b = bound[i]!;
+    if (p !== b) return p > b ? 1 : -1;
+  }
+  return 0;
+}
+
+export function isNodeCompatible(version: string): boolean {
+  const lower = compareVersion(version, MIN_NODE);
+  if (Number.isNaN(lower)) return false;
+  return lower >= 0 && compareVersion(version, MAX_NODE) < 0;
 }
 
 export function assertEngineAvailable(): void {
   if (!isNodeCompatible(process.versions.node)) {
     throw new DoclibError(
-      `代码知识图谱需要 Node >= ${MIN_NODE.join(".")}（当前 ${process.versions.node}）——graph 功能降级，doclib 核心流程不受影响`,
+      `代码知识图谱需要 Node >= ${MIN_NODE.join(".")} 且 < ${MAX_NODE.join(".")}（当前 ${process.versions.node}）——graph 功能降级，doclib 核心流程不受影响`,
     );
   }
+}
+
+export function renderProgress(p: VendorProgress): void {
+  process.stderr.write(`[graph] ${p.phase}: ${p.current}/${p.total}\n`);
 }
 
 export function loadVendorEngine(): VendorEngine {

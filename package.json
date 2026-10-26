@@ -28,7 +28,7 @@
     "cli"
   ],
   "engines": {
-    "node": ">=22.5.0"
+    "node": ">=22.5.0 <25"
   },
   "scripts": {
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.vendor.json && tsc -p tsconfig.json && node scripts/copy-assets.js",

@@ -18,20 +18,26 @@ status: living
 
 # doclib graph · 代码知识图谱（F15 阶段 2 落地）
 
-## 目的
+> 知识图谱是建馆与对账的语义加速器：图引擎出候选、agent 补行为契约，图书馆始终是唯一事实源。
+
+## 为什么
 
 大 repo 场景下 agent 无法也不应读取全部代码（token 限制）。本功能将 colbymchenry/codegraph（v1.6.2，74.6k★，MIT）以 **git subtree 克隆 + 二次开发**方式集成（`vendor/codegraph/`，非 npm 依赖直调——API 主权/telemetry 主权/深度耦合自由），作为图书馆的**语义知识图谱加速器**：实体候选发现（对账）、影响面分析、符号导航省 token。服务三阶段战略 P1（面穷举兜底）→ P2（深挖导航）→ P3（升华挖掘）。
 
 **定位铁律**：图书馆是唯一事实源与唯一产品；`.codegraph/` 是**可再生内部缓存**（与 `.doclib/` 簿记同级，删了可重建）。图输出**永远只是候选**，agent 裁决（三铁律之一，机器只出候选不代写）。
 
-## 行为
+## 是什么
+
+`doclib graph <index|status|draft|explore>` 四子命令族：建图（可再生缓存 .codegraph/）、图状态、草稿候选管道（routes/modules/dependencies/unused 四册落 .doclib/drafts/）、语义查询（省 token 的符号/影响面导航）。
+
+## 怎么运转
 
 ### 命令族
 
 | 命令 | 语义 | 前置 | 输出 | 错误/降级 |
 | --- | --- | --- | --- | --- |
 | `doclib init --graph`（交互第 4 问，回车=否） | init 时同步建图 | Node >= 22.5 | `- 知识图谱: .codegraph/（N 文件/M 符号/K 边）` | 引擎不可用/索引失败→告警行，**init 仍退出 0**；未启用→提示 `doclib graph index` 可随时启用 |
-| `doclib graph index [--force]` | 建图/增量同步/重建 | Node 门禁 | 摘要（文件/符号/边/路由/语言/框架/耗时/索引状态）；`--json` | 已有索引无 `--force`→open+catch-up sync；`--force`→`CodeGraph.recreate` 全量重建；失败→DoclibError |
+| `doclib graph index [--force]` | 建图/增量同步/重建 | Node ∈ [22.5, 25) 门禁 | 摘要（文件/符号/边/路由/语言/框架/耗时/索引状态）；`--json` | 已有索引无 `--force`→open+catch-up sync；`--force`→`CodeGraph.recreate` 全量重建；失败→DoclibError |
 | `doclib graph status [--json]` | 只读状态 | 索引存在 | state（complete/partial/failed）/计数/语言覆盖/路由数/框架/lastIndexedAt/stale | 未初始化→提示建图；不可读→提示 `--force` 重建 |
 | `doclib graph draft [--force]` | 图→登记簿候选草稿 | 索引存在 | 写 `.doclib/drafts/` 四册 + 计数摘要 | 草稿已存在且无 `--force`→拒绝（防覆盖 agent 裁决进度） |
 | `doclib graph explore <query>` | 符号导航/上下文查询 | 索引存在 | `buildContext(query, {format:'markdown'})` 直出 stdout（agent 消费面） | 缺 query→用法错误；open 前自动 catch-up sync |
@@ -55,7 +61,7 @@ status: living
 - **编译面裁剪**：telemetry/mcp（主模块）/installer/bin/upgrade/ui-server/ui 不进构建——**telemetry 物理隔离不触网**；`mcp/version.ts` 与 `mcp/dynamic-boundaries.ts` 为无遥测叶子模块纳入编译面
 - **fork 就地编辑仅一处**（FORK-NOTES F-1~F-3 登记处）：`index.ts` 移除 `MCPServer` re-export；v1.6.2 无 `import.meta`（F-2 无需）；Q28 语言子集 13 文法全部 in-tree（F-3 无需补拷）
 - **无 daemon**：不做 watcher/后台进程，所有查询走 open+catch-up sync（复用上游连接时对账）
-- **优雅降级**（三铁律三）：Node < 22.5 或引擎缺失→graph 全家抛 DoclibError（文案明示"doclib 核心流程不受影响"）；init 不阻塞；skills/任务书候选段按存在性自适应
+- **优雅降级**（三铁律三）：Node 不在 [22.5, 25) 窗口或引擎缺失→graph 全家抛 DoclibError（文案明示"doclib 核心流程不受影响"）；init 不阻塞；skills/任务书候选段按存在性自适应
 - **运行时依赖**：ignore + web-tree-sitter + picomatch + jsonc-parser（皆纯 JS 零原生；+3 需 ADR #13 修订"仅依赖 ignore"条款）；wasm 文法随 dist 分发（Q28 口径 13 个）
 
 ### 排除与治理适配

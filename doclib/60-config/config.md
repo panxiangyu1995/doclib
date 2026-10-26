@@ -15,7 +15,7 @@ status: stable
 | 模块体系 | ESM（imports 带 .js 后缀） | Node 原生、agentic 生态亲和 |
 | TypeScript | strict + noUncheckedIndexedAccess + NodeNext | 严格空安全；Node ESM 解析 |
 | 运行时依赖 | ignore + web-tree-sitter/picomatch/jsonc-parser（vendored 图谱引擎解析运行时，皆纯 JS 零原生）【v0.30 修订】 | 依赖最小化 + 可选增强；零原生底线不变（ADR #13） |
-| node 版本 | >=22.5.0【v0.30 起】 | node:sqlite（vendored 图谱引擎硬依赖）；2026-10 时点 Node 20 已 EOL、22 为 LTS；graph 可选增强优雅降级 |
+| node 版本 | >=22.5.0 <25【v0.30 起】 | node:sqlite（vendored 图谱引擎硬依赖）且与上游验证窗口对齐（<25）；2026-10 时点 Node 20 已 EOL、22 为 LTS；graph 可选增强优雅降级 |
 | 构建清理 | build 前置 node -e rmSync dist | 跨平台零依赖；防 tsc 孤儿产物残留入发布包 |
 | 注释 | 源码不写注释 | 知识一律入图书馆，代码内注释会腐烂 |
 | 错误 | 一律抛 DoclibError，cli 统一捕获 | 统一错误面 |

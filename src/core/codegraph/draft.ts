@@ -53,12 +53,11 @@ export async function collectDraftData(cg: VendorCodeGraph): Promise<DraftData> 
     };
   });
 
+  const pairs = cg.getFileDependencyPairs(0.5);
   const files = new Set<string>();
-  for (const kind of ["imports", "calls", "references"]) {
-    for (const pair of cg.getFileDependencyPairs(0.5)) {
-      files.add(pair.source);
-      files.add(pair.target);
-    }
+  for (const pair of pairs) {
+    files.add(pair.source);
+    files.add(pair.target);
   }
   const assignments = [...files].map((f) => ({ filePath: f, module: moduleOf(f) }));
   const modules =
@@ -71,7 +70,6 @@ export async function collectDraftData(cg: VendorCodeGraph): Promise<DraftData> 
         })
       : { links: [], pairs: [] };
 
-  const pairs = cg.getFileDependencyPairs(0.5);
   const top = cg.getTopDependedOn(20);
   const topNodes = top.length > 0 ? cg.getNodesByIds(top.map((t) => t.nodeId)) : new Map<string, VendorNode>();
   const dependencies: DependencyData = {

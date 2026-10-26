@@ -5,8 +5,8 @@ import {
   assertEngineAvailable,
   graphIndexPresent,
   loadVendorEngine,
+  renderProgress,
   type VendorCodeGraph,
-  type VendorIndexResult,
 } from "../core/codegraph/engine.js";
 import { collectDraftData, renderDependenciesDraft, renderModulesDraft, renderRoutesDraft, renderUnusedDraft } from "../core/codegraph/draft.js";
 import type { CommandResult } from "./init.js";
@@ -25,10 +25,6 @@ export type GraphStatsPayload = {
   lastIndexedAt: string | null;
   stale: boolean;
 };
-
-function renderProgress(p: { phase: string; current: number; total: number }): void {
-  process.stderr.write(`[graph] ${p.phase}: ${p.current}/${p.total}\n`);
-}
 
 async function collectStats(cg: VendorCodeGraph): Promise<GraphStatsPayload> {
   const stats = cg.getStats();
@@ -63,37 +59,23 @@ export async function runGraph(
   action: string,
   opts: { json?: boolean; force?: boolean; query?: string } = {},
 ): Promise<CommandResult> {
-  assertEngineAvailable();
   if (!["index", "status", "draft", "explore"].includes(action)) {
     throw new DoclibError("用法: doclib graph <index|status|draft|explore> [query]");
   }
+  assertEngineAvailable();
   const engine = loadVendorEngine();
   if (action === "index") {
     const present = await graphIndexPresent(root);
-    if (present && !opts.force) {
-      let cg: VendorCodeGraph | null = null;
-      try {
+    let cg: VendorCodeGraph | null = null;
+    try {
+      if (present && !opts.force) {
         cg = await engine.CodeGraph.open(root, { sync: true });
-      } catch (e) {
-        throw new DoclibError(`知识图谱增量同步失败（${e instanceof Error ? e.message : String(e)}）——可加 --force 重建索引`);
-      }
-      try {
         const payload = await collectStats(cg);
         const lines = [`知识图谱: 已同步（复用现有索引）`, ...statsLines(payload)];
         return { text: `${lines.join("\n")}\n`, json: payload };
-      } finally {
-        cg.close();
       }
-    }
-    let cg: VendorCodeGraph | null = null;
-    let result: VendorIndexResult | null = null;
-    try {
       cg = present ? await engine.CodeGraph.recreate(root) : await engine.CodeGraph.init(root, {});
-      result = await cg.indexAll({ onProgress: renderProgress });
-    } catch (e) {
-      throw new DoclibError(`知识图谱索引失败（${e instanceof Error ? e.message : String(e)}）——可加 --force 重试`);
-    }
-    try {
+      const result = await cg.indexAll({ onProgress: renderProgress });
       const payload = await collectStats(cg);
       const warnings = result.errors.filter((e) => e.severity === "warning");
       const lines = [
@@ -103,8 +85,10 @@ export async function runGraph(
       ];
       if (warnings.length > 0) lines.push(`警告: ${warnings.length} 条（首条: ${warnings[0]?.message}）`);
       return { text: `${lines.join("\n")}\n`, json: { ...payload, durationMs: result.durationMs, warnings: warnings.length } };
+    } catch (e) {
+      throw new DoclibError(`知识图谱索引失败（${e instanceof Error ? e.message : String(e)}）——可加 --force 重试`);
     } finally {
-      cg.close();
+      cg?.close();
     }
   }
   if (action === "status") {
@@ -129,16 +113,14 @@ export async function runGraph(
     let cg: VendorCodeGraph | null = null;
     try {
       cg = await engine.CodeGraph.open(root, { readOnly: true });
-    } catch (e) {
-      throw new DoclibError(`知识图谱索引不可读（${e instanceof Error ? e.message : String(e)}）——可加 --force 于 index 重建`);
-    }
-    try {
       const payload = await collectStats(cg);
       if (opts.json) return { text: `${JSON.stringify(payload, null, 2)}\n`, json: payload };
       const lines = [`知识图谱: 已初始化`, ...statsLines(payload)];
       return { text: `${lines.join("\n")}\n`, json: payload };
+    } catch (e) {
+      throw new DoclibError(`知识图谱状态读取失败（${e instanceof Error ? e.message : String(e)}）——可加 --force 于 index 重建`);
     } finally {
-      cg.close();
+      cg?.close();
     }
   }
   if (action === "draft") {
@@ -158,10 +140,6 @@ export async function runGraph(
     let cg: VendorCodeGraph | null = null;
     try {
       cg = await engine.CodeGraph.open(root, { sync: true });
-    } catch (e) {
-      throw new DoclibError(`知识图谱不可用（${e instanceof Error ? e.message : String(e)}）——可加 --force 于 index 重建`);
-    }
-    try {
       const data = await collectDraftData(cg);
       const generatedAt = new Date().toISOString();
       const rendered: Record<(typeof DRAFT_FILES)[number], string> = {
@@ -189,30 +167,21 @@ export async function runGraph(
         `unused.md: ${payload.unusedCandidates} 条疑似死代码候选（仅线索非结论）`,
       ];
       return { text: `${lines.join("\n")}\n`, json: payload };
-    } finally {
-      cg.close();
-    }
-  }
-  if (action === "explore") {
-    if (!(await graphIndexPresent(root))) {
-      throw new DoclibError("知识图谱未初始化——先运行 doclib graph index");
-    }
-    if (!opts.query || opts.query.trim() === "") {
-      throw new DoclibError("用法: doclib graph explore <query>（符号名/文件名/流程问题）");
-    }
-    let cg: VendorCodeGraph | null = null;
-    try {
-      cg = await engine.CodeGraph.open(root, { sync: true });
     } catch (e) {
-      throw new DoclibError(`知识图谱不可用（${e instanceof Error ? e.message : String(e)}）`);
-    }
-    try {
-      const context = await cg.buildContext(opts.query.trim(), { format: "markdown" });
-      const text = typeof context === "string" ? context : JSON.stringify(context, null, 2);
-      return { text: `${text}\n`, json: context };
+      throw new DoclibError(`草稿生成失败（${e instanceof Error ? e.message : String(e)}）——可加 --force 于 index 重建后重试`);
     } finally {
-      cg.close();
+      cg?.close();
     }
   }
-  throw new DoclibError(`用法: doclib graph <index|status|draft|explore> [query]`);
+  let cg: VendorCodeGraph | null = null;
+  try {
+    cg = await engine.CodeGraph.open(root, { sync: true });
+    const context = await cg.buildContext(opts.query!.trim(), { format: "markdown" });
+    const text = typeof context === "string" ? context : JSON.stringify(context, null, 2);
+    return { text: `${text}\n`, json: context };
+  } catch (e) {
+    throw new DoclibError(`知识图谱查询失败（${e instanceof Error ? e.message : String(e)}）`);
+  } finally {
+    cg?.close();
+  }
 }

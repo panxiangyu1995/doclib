@@ -42,7 +42,14 @@ export async function parseMigrationLedger(libraryRoot: string): Promise<Migrati
   return rows;
 }
 
-export type CheckFindingKind = "unaccounted" | "uncovered" | "migration" | "guide-stale" | "orphan-doc" | "doc-quality";
+export type CheckFindingKind =
+  | "unaccounted"
+  | "uncovered"
+  | "migration"
+  | "guide-stale"
+  | "orphan-doc"
+  | "doc-quality"
+  | "genre";
 
 export type CheckFinding = {
   kind: CheckFindingKind;

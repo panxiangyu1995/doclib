@@ -60,10 +60,7 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
 <!-- doclib:custom-begin -->
 ## 本项目定制（DocLib 仓库）
 
-> 本文件与 AGENTS.md 由 doclib sync 同步管理规则区；定制区内容两文件保持一致。
-
 - 定位：把任意项目蒸馏成可复原的文档图书馆；本仓库已启用 DocLib 自身（身先士卒）
-- 基准铁律：复原对比对象=**原仓库**（非图书馆）——重建↔原仓库实质差距=建馆缺陷显影器（benchmark.md 目的铁律）（三阶段：P1 信息零遗漏→P2 质量保证→P3 升华超越原仓库）
 - 命令：`npm run build`（tsc vendor 岛 + tsc 主工程 + copy-assets）｜`npm run typecheck`｜`npm test`｜CLI 试运行 `node dist/cli.js <命令>`｜`doclib graph`（index/status/draft/explore，知识图谱命令族）；版本 0.5.0（structure v3）
 - 结构：`src/cli.ts` 入口；`src/commands/` 十三命令（init/plan/diff/snapshot/status/verify/sync/check/ack/place/hook/reconcile/graph）；`src/core/` 纯逻辑（fsutil/frontmatter/state/detect/mapping/check/orphan/place/ledger/docquality/surface/guides/assets/agents/prompts/version/codegraph）；`assets/` 模板与引导源（guides=managed 区再生源，改引导规则须改此处再 sync）；`skills/` 手册源（`doclib sync` 分发至 `.claude/skills/` `.opencode/skills/`）；PRD+DESIGN 已入馆 `doclib/10-architecture/`
 - 约定：ESM（导入带 .js 后缀）；strict + noUncheckedIndexedAccess；运行时依赖 ignore + 图谱引擎解析运行时（web-tree-sitter/picomatch/jsonc-parser，皆纯 JS，ADR #13）；源码不写注释；错误一律抛 DoclibError；术语见 doclib/10-architecture/prd.md §4
@@ -71,7 +68,8 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
 - skills 状态：10/10 全部实现（build/update/rebuild + dev/bootstrap/resume/setup/reconcile/audit/accept，feature-map #6）
 - 进度指针：`doclib/10-architecture/prd.md`（v0.30）｜`doclib/10-architecture/design.md`（v2）｜`doclib/00-overview/feature-map.md`｜`doclib/00-overview/progress.md`
 - 术语：图书馆=doclib/、簿记=.doclib/、任务书=.doclib/tasks/、基线=snapshot、漂移=drift、锚点=covers
+- 基准铁律：复原对比对象=**原仓库**（非图书馆）——重建↔原仓库实质差距=建馆缺陷显影器（benchmark.md 目的铁律）（三阶段：P1 信息零遗漏→P2 质量保证→P3 升华超越原仓库）
 - 治理状态：规划载体 `.plan/<日期>/` 已声明（F9 默认实例）；登记簿落点已拍板——**分散挂靠各卷**（Q25，挂靠表见 PRD §7）；复原基准测试体系已立项（F14，首个基准项目 **colinhacks/zod**【Q31】，操作指南 `40-guides/benchmark.md`；**复原须与建馆不同会话/实例/模型，防先验污染**）；历史遗留已清零（v0.23）：50-reference 已归位 90-reference、PRD/DESIGN 已迁入 `doclib/10-architecture/`；写协调乐观锁 revision 已立项（Q36）
 - 孤儿治理（v0.5.0）：馆外文档四态判定（馆内/非文档资产/工具链豁免/待归位）+ 三层防线（扫描面/判定面/处置面）；处置走 `doclib place`（list/collect/archive/ack/restore，写操作默认干跑 `--apply` 执行，归档账可 restore）；**本仓库 `assets/` `skills/` 是源目录（靠 covers 兜底，勿入棺）**，`.claude/skills/` 分发副本由 `20-modules/_index.md` 覆盖
-- 知识图谱（v0.5.0，F15 阶段 2）：vendored codegraph 在 `vendor/codegraph/`（git subtree，同步 `git subtree pull`；**就地改动必须登记 FORK-NOTES.md**，优先在 adapter 层 `src/core/codegraph/` 扩展、勿改 vendored 源）；`.codegraph/`=可再生缓存（非产物），graph 输出仅候选禁止直接入馆；telemetry 已物理隔离（构建面排除）；Node>=22.5 门（graph 可选增强，失败不阻塞核心）；规格 `30-features/graph.md`
+- 知识图谱（v0.5.0，F15 阶段 2）：vendored codegraph 在 `vendor/codegraph/`（git subtree，同步 `git subtree pull`；**就地改动必须登记 FORK-NOTES.md**，优先在 adapter 层 `src/core/codegraph/` 扩展、勿改 vendored 源）；`.codegraph/`=可再生缓存（非产物），graph 输出仅候选禁止直接入馆；telemetry 已物理隔离（构建面排除）；Node∈[22.5,25) 门（graph 可选增强，失败不阻塞核心）；规格 `30-features/graph.md`
 <!-- doclib:custom-end -->

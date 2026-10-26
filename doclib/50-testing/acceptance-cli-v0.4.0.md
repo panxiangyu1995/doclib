@@ -5,6 +5,7 @@ covers:
   - src/commands/
   - src/core/
 status: stable
+type: ledger
 ---
 
 # CLI 全功能验收报告（v0.4.0，极致严格轮）

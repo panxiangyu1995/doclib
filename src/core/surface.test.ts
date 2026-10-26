@@ -3,58 +3,47 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { surfaceScan } from "./surface.js";
+import { reconcileFlagSurface } from "./surface.js";
+import { LIBRARY_DIR } from "./state.js";
 
-async function tmpRoot(): Promise<string> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "doclib-surface-"));
-  await fs.mkdir(path.join(root, "doclib", "90-reference"), { recursive: true });
+async function tmpLib(): Promise<string> {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "doclib-flag-"));
+  await fs.mkdir(path.join(root, LIBRARY_DIR, "90-reference"), { recursive: true });
+  await fs.mkdir(path.join(root, "src", "cli"), { recursive: true });
   return root;
 }
 
-test("surfaceScan：route/page/proto 枚举 + 登记簿 ID 计数（含区间展开）", async () => {
-  const root = await tmpRoot();
-  await fs.mkdir(path.join(root, "src", "app", "api", "users"), { recursive: true });
-  await fs.mkdir(path.join(root, "src", "app", "login"), { recursive: true });
-  await fs.mkdir(path.join(root, "src", "proto"), { recursive: true });
-  await fs.writeFile(path.join(root, "src", "app", "api", "users", "route.ts"), "export GET");
-  await fs.writeFile(path.join(root, "src", "app", "login", "page.tsx"), "export page");
+test("reconcileFlagSurface：源有馆无/馆有源无双向检出", async () => {
+  const root = await tmpLib();
   await fs.writeFile(
-    path.join(root, "src", "proto", "x.proto"),
-    "service S {\n  rpc A(AReq) returns (AResp);\n  rpc B(BReq) returns (BResp);\n}",
+    path.join(root, LIBRARY_DIR, "90-reference", "tools.md"),
+    "---\ntitle: tools\ncovers:\n  - src/cli\n---\n\n| TOOL-001 | t | `--alpha --beta --ghost` |\n",
     "utf8",
   );
   await fs.writeFile(
-    path.join(root, "doclib", "90-reference", "api.md"),
-    "| API-001 | a |\n| API-002 | b |\nids: API-003~API-006\n| ROUTE-001 | p |",
+    path.join(root, "src", "cli", "main.py"),
+    "parser.add_argument('--alpha')\nparser.add_argument('--beta')\nparser.add_argument('--gamma')\n",
     "utf8",
   );
-  const report = await surfaceScan(root, path.join(root, "doclib"), [
-    "src/app/api/users/route.ts",
-    "src/app/login/page.tsx",
-    "src/proto/x.proto",
-  ]);
-  assert.equal(report.endpointSurface, 1);
-  assert.equal(report.pageSurface, 1);
-  assert.equal(report.rpcSurface, 2);
-  assert.equal(report.registeredApi, 6);
-  assert.equal(report.registeredRoute, 1);
-  assert.equal(report.apiDelta, 3);
-  assert.ok(report.notes.some((n) => n.includes("多于面枚举")));
+  const r = await reconcileFlagSurface(root, path.join(root, LIBRARY_DIR));
+  assert.deepEqual(r.inLibNotSrc.map((x) => x.flag), ["--ghost"]);
+  assert.deepEqual(r.inSrcNotLib.map((x) => x.flag), ["--gamma"]);
 });
 
-test("surfaceScan：登记簿少于面枚举时报漏登记", async () => {
-  const root = await tmpRoot();
-  await fs.mkdir(path.join(root, "src", "app", "api"), { recursive: true });
-  for (const n of ["a", "b", "c"]) {
-    await fs.writeFile(path.join(root, "src", "app", "api", `${n}.route.ts`), "x");
-  }
-  await fs.writeFile(path.join(root, "doclib", "90-reference", "api.md"), "| API-001 | only one |", "utf8");
-  const report = await surfaceScan(root, path.join(root, "doclib"), [
-    "src/app/api/a.route.ts",
-    "src/app/api/b.route.ts",
-    "src/app/api/c.route.ts",
-  ]);
-  assert.equal(report.endpointSurface, 3);
-  assert.equal(report.registeredApi, 1);
-  assert.ok(report.notes.some((n) => n.includes("少于面枚举")));
+test("reconcileFlagSurface：长名一致归零；短名与无引号字面量不误报", async () => {
+  const root = await tmpLib();
+  await fs.writeFile(
+    path.join(root, LIBRARY_DIR, "90-reference", "tools.md"),
+    "---\ntitle: tools\ncovers:\n  - src/cli\n---\n\n`-d/--delimiter` 与 `--tabular` 均登记；---表格分隔线不是旗标---\n\n| a | b |\n| --- | --- |\n",
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(root, "src", "cli", "main.py"),
+    "add_argument('-d', '--delimiter')\nadd_argument('--tabular')  # regex /--notflag/ 与裸 --naked 均不误报\n",
+    "utf8",
+  );
+  const r = await reconcileFlagSurface(root, path.join(root, LIBRARY_DIR));
+  assert.deepEqual(r.inLibNotSrc, []);
+  assert.deepEqual(r.inSrcNotLib, []);
+  assert.equal(r.libFlags > 0, true);
 });

@@ -52,6 +52,9 @@ export const GUIDE_FILE_NAMES: readonly string[] = [
 
 export const EXEMPT_ROOT_FILES: readonly string[] = ["README.md", "CHANGELOG.md", "CONTRIBUTING.md"];
 
+const FACADE_LOCALE_TAG = /^[a-z]{2}(?:[-_][A-Za-z0-9]{2,8}){0,2}$/;
+const FACADE_LOCALE_FILE = /^(.+)\.([^.]+)\.md$/;
+
 export const POINTER_MARKER = "<!-- doclib:archived-pointer -->";
 
 const TOOL_SUBDIRS: readonly string[] = [
@@ -115,7 +118,14 @@ export function isPointerFile(rel: string, content: string): boolean {
 
 export function isRootFacadeFile(rel: string): boolean {
   const p = normalizePath(rel);
-  return !p.includes("/") && EXEMPT_ROOT_FILES.includes(p);
+  if (p.includes("/")) return false;
+  if (EXEMPT_ROOT_FILES.includes(p)) return true;
+  const m = FACADE_LOCALE_FILE.exec(p);
+  if (m === null) return false;
+  const stem = m[1];
+  const locale = m[2];
+  if (stem === undefined || locale === undefined) return false;
+  return EXEMPT_ROOT_FILES.includes(`${stem}.md`) && FACADE_LOCALE_TAG.test(locale);
 }
 
 export function classifyExternalDoc(rel: string, content?: string): ExternalDocKind {
@@ -132,7 +142,7 @@ function reasonFor(rel: string, kind: ExternalDocKind): string {
   if (kind === "toolchain") {
     const rule = toolchainRuleFor(rel);
     if (rule !== null) return `工具链目录/文件（${rule}，位置由工具链决定）`;
-    return "项目门面文件（README/CHANGELOG/CONTRIBUTING，生态惯例）";
+    return "项目门面文件（README/CHANGELOG/CONTRIBUTING 及其多语言变体，生态惯例）";
   }
   return "馆外知识文档（未收编且未豁免）";
 }

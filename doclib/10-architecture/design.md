@@ -6,10 +6,22 @@ covers:
 status: living
 ---
 
-# DocLib 架构设计（v2，对齐 PRD v0.13）
+# DocLib 架构设计（v2，对齐 PRD v0.30）
 
 > 本文档回答"DocLib 如何构成与如何运转"。需求以 [prd.md](prd.md) 为唯一事实源，本文不得与 PRD 冲突。
 > v0.1 代码为参考原型；标注【已实现】的部分已存在，其余按路线图落地。
+
+## 为什么
+
+需求靠文档承载、agent 靠引导驱动——CLI 与 skills 的每一层设计都服务于"图书馆活、可用、利于开发"的北极星；架构决策的动机与被否备选同步记录于 [decisions.md](decisions.md)。
+
+## 是什么
+
+五层构成：任意 repo 的 doclib/ 图书馆与 .doclib/ 簿记、tsc 编译的 CLI（src/commands 十三命令 + src/core 纯逻辑）、assets 模板与引导源、skills 方法论手册、vendored 图谱引擎（可选增强）。系统总览与模块职责见 §1、§2。
+
+## 怎么运转
+
+CLI 管"状态与执法"（快照链/漂移/强验证/归位处置），skills 管"语义与方法论"（怎么建、怎么保、怎么复原），两者以任务书衔接；图谱引擎只出候选、agent 撰写裁决。数据流与关键时序见 §3–§5。
 
 ## 1. 系统总览
 

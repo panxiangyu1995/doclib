@@ -29,6 +29,14 @@ const EXPECTED_TEMPLATES = [
   "80-design/README.md",
   "90-reference/_index.md",
   "95-lessons/lessons.md",
+  "00-overview/_index.md",
+  "10-architecture/_index.md",
+  "40-guides/_index.md",
+  "50-testing/_index.md",
+  "60-config/_index.md",
+  "70-deploy/_index.md",
+  "80-design/_index.md",
+  "95-lessons/_index.md",
   "99-archive/README.md",
 ];
 

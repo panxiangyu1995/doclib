@@ -24,4 +24,4 @@ status: stable
 | doclib hook（提交门禁） | 待写 | src/commands/hook.ts | implemented（规格欠账） |
 | BOOTSTRAP/RESUME 任务书 | 待写 | — | planned |
 | .plan 检测与双锚点提醒 | 待写 | — | planned |
-| 进度对账与 reconcile | 待写 | — | planned |
+| 进度对账与 reconcile | [reconcile.md](reconcile.md) | src/commands/reconcile.ts、src/core/reconcile.ts | implemented（v0.34 补规格欠账 + 判定修正） |

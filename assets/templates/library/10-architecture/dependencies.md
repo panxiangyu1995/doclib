@@ -2,6 +2,7 @@
 title: 依赖选型决策记录
 covers: []
 status: draft
+type: ledger
 ---
 
 # 依赖选型决策记录

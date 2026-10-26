@@ -18,6 +18,7 @@ covers:
   - src/core/frontmatter.ts
   - package.json
 status: stable
+type: ledger
 ---
 
 # 孤儿归位与处置闭环验收报告（v0.5.0）

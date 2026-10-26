@@ -10,11 +10,23 @@ status: stable
 
 # 部署
 
+> DocLib 以 npm 包形态到达用户：tag 触发的 Actions 自动发版链 + provenance 供应链凭证——发布即验证（test 门禁内嵌流程），回滚走 dist-tag 指针（forward-only）。
+
+## 为什么
+
+选 npm 分发 + GitHub Actions tag 触发：npx 零安装即用是 agent 场景的第一体验；tag 触发保证"发布内容 = 已验证内容"（CI 内跑完整测试后才 publish）；provenance（OIDC）满足供应链审计。
+
+## 是什么
+
+交付物 = npm 包 `@panxiangyu1995/doclib`（bin: doclib，运行时依赖仅 ignore，assets 构建期内嵌）；发版通道 = tag 触发的 GitHub Actions；应急通道 = 本机 publish。形态细节见下节。
+
 ## 发布形态
 
 - npm 包 **@panxiangyu1995/doclib**（bin=`doclib`，命令名不变）——任意 repo `npx @panxiangyu1995/doclib init` 一键进入
 - **新包首发走 npm staging 审批**（上传成功后 0.0.0-stage，maintainer 网页/CLI 转正为正式版本）；已存在的包后续版本 direct 发布无需审批
 - 运行时依赖仅 `ignore`；assets（templates/guides/skills）经 copy-assets 进入 `dist/assets`，发布包内相对 import.meta.url 解析
+
+## 怎么运转
 
 ## 构建与门禁
 

@@ -13,13 +13,19 @@ status: living
 
 # doclib place · 孤儿归位与处置规格
 
-## 目的
+> 孤儿治理的执行面：check 负责发现与分类，place 负责执行与留痕——判定与执行分离、干跑与可逆护栏兜底。
+
+## 为什么
 
 把「馆外文档是孤儿文档，需要入棺」从**人工自觉**变为**机器判定 + 工具执行 + 留痕可逆**的闭环。`check` 负责发现与分类，`place` 负责执行与留痕——检测与处置分离，判定与执行分离。
 
 归位宪法（PRD §7.5）在此落地：馆内是默认，馆外是例外，例外必须显式；孤儿三态处置由 CLI 承担确定性部分，agent 只做语义裁决。
 
-## 行为
+## 是什么
+
+`doclib place <list|collect|archive|ack|restore>` 五子命令族：列出待归位孤儿（含建议归宿）、收编入馆、入棺归档（墓碑+指针）、馆外豁免登记、归档还原；写操作默认干跑 `--apply` 执行。
+
+## 怎么运转
 
 `doclib place <子命令> [参数]`——五个子命令，写操作**默认干跑**，`--apply` 才落盘。
 
@@ -50,6 +56,8 @@ status: living
 入棺文件写入 `doclib/99-archive/<三位序号>-<slug>.md`：frontmatter 载 `status: archived` 与 `archived-from` / `archived-at` / `archive-reason` / `superseded-by`；正文首段为**墓碑五要素**——何时失效 / 为何失效 / 取代者指针 / 原路径 / 归档方式；其后**完整保留原正文**（不丢史）。
 
 原路径留**指针文件**（含 `<!-- doclib:archived-pointer -->` 标记 + 指向馆内新位置的相对链接）——防读者扑空与断链；该标记同时是 L2 判定面的内容级豁免依据。
+
+L2 判定面的**原生豁免**（无需 ack 登记）：根级门面文件 `README.md` / `CHANGELOG.md` / `CONTRIBUTING.md` 及其多语言变体（`README.<locale>.md` 等）——位置由生态惯例决定、不可迁移，故不判孤儿、也不需 `place` 处置；非 locale 后缀（`README.wip.md`）与嵌套门面文件不在此列。
 
 ### 两级索引登记
 
