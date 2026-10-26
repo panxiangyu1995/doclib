@@ -8,12 +8,13 @@ import { writeGuides } from "../core/guides.js";
 import { STRUCTURE_VERSION } from "../core/version.js";
 import { DoclibError, DEFAULT_PLANNING, LIBRARY_DIR, TASKS_DIR, loadState, saveState } from "../core/state.js";
 import { graphIndexPresent, isNodeCompatible, loadVendorEngine, renderProgress } from "../core/codegraph/engine.js";
+import { readHookState, resolveHooksDir, runHook } from "./hook.js";
 
 export type CommandResult = { text: string; json?: unknown };
 
 export async function runInit(
   root: string,
-  opts: { force?: boolean; agents?: string; guide?: "light" | "none"; planning?: string; graph?: boolean },
+  opts: { force?: boolean; agents?: string; guide?: "light" | "none"; planning?: string; graph?: boolean; noHook?: boolean },
 ): Promise<CommandResult> {
   if (opts.guide !== undefined && opts.guide !== "light" && opts.guide !== "none") {
     throw new DoclibError("--guide 仅支持 light | none");
@@ -96,6 +97,25 @@ export async function runInit(
     }
   }
 
+  let hookLine: string;
+  if (opts.noHook === true) {
+    hookLine = "- 提交门禁: 未安装（--no-hook 跳过）";
+  } else {
+    try {
+      const hooksDir = await resolveHooksDir(root);
+      if (hooksDir === null) {
+        hookLine = "- 提交门禁: 未安装（非 git 仓库；git init 后可运行 doclib hook --strict）";
+      } else if ((await readHookState(root)) === "foreign") {
+        hookLine = "- 提交门禁: 跳过（已存在非 doclib 管理的 pre-commit 钩子；需要时手动运行 doclib hook）";
+      } else {
+        await runHook(root, { strict: true });
+        hookLine = "- 提交门禁: 已安装(--strict)——提交时运行 doclib check --strict 执法";
+      }
+    } catch (e) {
+      hookLine = `- 提交门禁: 跳过（${e instanceof Error ? e.message : String(e)}）`;
+    }
+  }
+
   const lines = [
     `已初始化 DocLib (structure v${STRUCTURE_VERSION}):`,
     `- 图书馆模板: ${LIBRARY_DIR}/ (${templatesRel.length} 个文件)`,
@@ -105,6 +125,7 @@ export async function runInit(
     `- 引导文件: ${guides.written.length > 0 ? `写入 ${guides.written.join(", ")}` : "未写入"}${guides.skipped.length > 0 ? `（跳过已有无戳文件: ${guides.skipped.join(", ")}，合并请交由 agent 处理）` : ""}`,
     "- 簿记: .doclib/",
     graphLine,
+    hookLine,
     "",
     "下一步:",
     "1. doclib plan                 # 生成 BUILD 构建任务书（含项目清单）",
@@ -115,6 +136,6 @@ export async function runInit(
   ];
   return {
     text: lines.join("\n"),
-    json: { templates: templatesRel.length, agents: targets.map((t) => t.id), guides, graph: graphLine },
+    json: { templates: templatesRel.length, agents: targets.map((t) => t.id), guides, graph: graphLine, hook: hookLine },
   };
 }

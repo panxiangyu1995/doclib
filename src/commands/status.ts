@@ -6,6 +6,7 @@ import { LIBRARY_DIR, STATE_DIR, TASKS_DIR, latestSnapshot, loadState, computeDr
 import { guideBudgetReport, guideStampReport } from "../core/guides.js";
 import { loadPlanningPaths, planningReminderReport, planningIgnores } from "../core/planning.js";
 import { runCheckCore } from "../core/check.js";
+import { readHookState } from "./hook.js";
 import type { CommandResult } from "./init.js";
 
 export async function runStatus(root: string, opts: { json?: boolean } = {}): Promise<CommandResult> {
@@ -62,6 +63,11 @@ export async function runStatus(root: string, opts: { json?: boolean } = {}): Pr
   const det = await detectProject(root, files0);
   lines.push(`检测: 主语言 ${det.primary}${det.frameworks.length > 0 ? ` · 框架 ${det.frameworks.join(", ")}` : ""}`);
 
+  const hookState = await readHookState(root);
+  lines.push(
+    `提交门禁: ${hookState === "doclib-strict" ? "已安装(--strict)" : hookState === "doclib" ? "已安装" : "未安装"}`,
+  );
+
   const tasks = await fs.readdir(path.join(root, TASKS_DIR)).catch(() => [] as string[]);
   lines.push(`任务书: ${tasks.length > 0 ? tasks.join(", ") : "无"}`);
   lines.push("");
@@ -81,6 +87,7 @@ export async function runStatus(root: string, opts: { json?: boolean } = {}): Pr
       health,
       planning: { paths: loadPlanningPaths(state), reminder },
       guides: { stamp, budget },
+      hook: hookState,
       detection: det,
       tasks,
     };

@@ -1,4 +1,4 @@
-<!-- doclib-guide cli=0.5.0 structure=3 -->
+<!-- doclib-guide cli=0.5.1 structure=3 -->
 # DocLib 工作流
 
 <!-- doclib:managed-begin -->
@@ -61,7 +61,7 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
 ## 本项目定制（DocLib 仓库）
 
 - 定位：把任意项目蒸馏成可复原的文档图书馆；本仓库已启用 DocLib 自身（身先士卒）
-- 命令：`npm run build`（tsc vendor 岛 + tsc 主工程 + copy-assets）｜`npm run typecheck`｜`npm test`｜CLI 试运行 `node dist/cli.js <命令>`｜`doclib graph`（index/status/draft/explore，知识图谱命令族）；版本 0.5.0（structure v3）
+- 命令：`npm run build`（tsc vendor 岛 + tsc 主工程 + copy-assets）｜`npm run typecheck`｜`npm test`｜CLI 试运行 `node dist/cli.js <命令>`｜`doclib graph`（index/status/draft/explore，知识图谱命令族）；版本 0.5.1（structure v3）
 - 结构：`src/cli.ts` 入口；`src/commands/` 十三命令（init/plan/diff/snapshot/status/verify/sync/check/ack/place/hook/reconcile/graph）；`src/core/` 纯逻辑（fsutil/frontmatter/state/detect/mapping/check/orphan/place/ledger/docquality/surface/guides/assets/agents/prompts/version/codegraph）；`assets/` 模板与引导源（guides=managed 区再生源，改引导规则须改此处再 sync）；`skills/` 手册源（`doclib sync` 分发至 `.claude/skills/` `.opencode/skills/`）；PRD+DESIGN 已入馆 `doclib/10-architecture/`
 - 约定：ESM（导入带 .js 后缀）；strict + noUncheckedIndexedAccess；运行时依赖 ignore + 图谱引擎解析运行时（web-tree-sitter/picomatch/jsonc-parser，皆纯 JS，ADR #13）；源码不写注释；错误一律抛 DoclibError；术语见 doclib/10-architecture/prd.md §4
 - 验证：typecheck + test 全绿后，命令行为改动须临时目录冒烟（init --agents claude,opencode → plan → snapshot → 改文件 → diff → plan → verify）

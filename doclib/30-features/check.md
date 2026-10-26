@@ -97,7 +97,7 @@ status: stable
 
 - `doclib ack <路径> [--note] [--standing] [--remove]`；`doclib ack --dir <目录前缀> [--note] [--remove]`（目录豁免：不判孤儿但仍进代码账）
 - `doclib place list|collect|archive|ack|restore`（孤儿归位；写操作默认干跑，`--apply` 执行——规格见 [place.md](place.md)）
-- `doclib hook install [--strict] / remove / --ci github`（钩子带 `# doclib-hook` 标记；非标记既有钩子拒改）
+- `doclib hook install [--strict] / remove / --ci github`（钩子带 `# doclib-hook` 标记；非标记既有钩子拒改；fail-closed 自检 + 相对/绝对路径策略 + worktree gitdir 解析，规格见 30-features/hook.md）
 
 ## 验收标准
 

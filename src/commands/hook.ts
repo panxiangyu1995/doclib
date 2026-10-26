@@ -7,17 +7,51 @@ import type { CommandResult } from "./init.js";
 
 const MARKER = "# doclib-hook";
 
+export type HookState = "none" | "doclib" | "doclib-strict" | "foreign";
+
 function cliAbsPath(): string {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "cli.js");
 }
 
-function hookScript(strict: boolean): string {
+export function relativeCliPath(root: string, cliAbs: string): string {
+  const rel = path.relative(root, cliAbs);
+  return (rel.startsWith("..") ? cliAbs : rel).replace(/\\/g, "/");
+}
+
+export async function resolveHooksDir(root: string): Promise<string | null> {
+  const dotGit = path.join(root, ".git");
+  const st = await fs.stat(dotGit).catch(() => null);
+  if (st === null) return null;
+  if (st.isDirectory()) return path.join(dotGit, "hooks");
+  const raw = await fs.readFile(dotGit, "utf8");
+  const line = raw.split("\n").find((l) => l.startsWith("gitdir:"));
+  if (!line) throw new DoclibError(".git 指针文件缺少 gitdir 行，无法定位钩子目录");
+  const target = line.slice("gitdir:".length).trim();
+  const gitdir = path.isAbsolute(target) ? target : path.resolve(root, target);
+  return path.join(gitdir, "hooks");
+}
+
+export async function readHookState(root: string): Promise<HookState> {
+  const hooksDir = await resolveHooksDir(root);
+  if (hooksDir === null) return "none";
+  const raw = await fs.readFile(path.join(hooksDir, "pre-commit"), "utf8").catch(() => null);
+  if (raw === null) return "none";
+  if (!raw.includes(MARKER)) return "foreign";
+  return raw.includes("--strict") ? "doclib-strict" : "doclib";
+}
+
+function hookScript(root: string, strict: boolean): string {
   const flags = strict ? " --strict" : "";
+  const cli = relativeCliPath(root, cliAbsPath());
   return [
     "#!/bin/sh",
     MARKER,
     "# 由 doclib hook install 生成；移除请运行 doclib hook remove",
-    `node "${cliAbsPath()}" check${flags} || exit 1`,
+    'ROOT=$(git rev-parse --show-toplevel 2>/dev/null) && cd "$ROOT" || exit 1',
+    'command -v node >/dev/null 2>&1 || { echo "doclib hook: 未找到 node，请先安装 Node.js；移除门禁请运行 doclib hook remove" >&2; exit 1; }',
+    `CLI="${cli}"`,
+    '[ -f "${CLI}" ] || { echo "doclib hook: CLI 不存在（${CLI}）——若尚未构建请先构建项目，或运行 doclib hook remove 移除门禁" >&2; exit 1; }',
+    `node "\${CLI}" check${flags} || exit 1`,
     "",
   ].join("\n");
 }
@@ -46,7 +80,9 @@ export async function runHook(
   opts: { strict?: boolean; remove?: boolean; ci?: string },
 ): Promise<CommandResult> {
   if (opts.remove === true) {
-    const p = path.join(root, ".git", "hooks", "pre-commit");
+    const hooksDir = await resolveHooksDir(root);
+    if (hooksDir === null) return { text: "未找到 pre-commit 钩子。\n", json: {} };
+    const p = path.join(hooksDir, "pre-commit");
     const raw = await fs.readFile(p, "utf8").catch(() => null);
     if (raw === null) return { text: "未找到 pre-commit 钩子。\n", json: {} };
     if (!raw.includes(MARKER)) throw new DoclibError("pre-commit 钩子非 doclib 管理（无标记），请手动处理");
@@ -61,21 +97,19 @@ export async function runHook(
     await fs.writeFile(wfPath, CI_WORKFLOW, "utf8");
     return { text: `已生成 CI 模板: .github/workflows/doclib-check.yml（push/PR 时运行 doclib check --strict）\n`, json: { path: ".github/workflows/doclib-check.yml" } };
   }
-  try {
-    await fs.access(path.join(root, ".git"));
-  } catch {
-    throw new DoclibError("当前目录不是 git 仓库，无法安装钩子");
-  }
-  const hooksDir = path.join(root, ".git", "hooks");
+  const hooksDir = await resolveHooksDir(root);
+  if (hooksDir === null) throw new DoclibError("当前目录不是 git 仓库，无法安装钩子");
   await fs.mkdir(hooksDir, { recursive: true });
   const p = path.join(hooksDir, "pre-commit");
-  const existing = await fs.readFile(p, "utf8").catch(() => null);
-  if (existing !== null && !existing.includes(MARKER)) {
+  const state = await readHookState(root);
+  if (state === "foreign") {
     throw new DoclibError("已存在非 doclib 管理的 pre-commit 钩子；请手动合并后重试");
   }
-  await fs.writeFile(p, hookScript(opts.strict === true), { mode: 0o755 });
+  await fs.writeFile(p, hookScript(root, opts.strict === true), { mode: 0o755 });
+  await fs.chmod(p, 0o755);
+  const shown = path.relative(root, hooksDir).replace(/\\/g, "/") + "/pre-commit";
   return {
     text: `已安装 pre-commit 钩子（提交时运行 doclib check${opts.strict ? " --strict" : ""}）。\n`,
-    json: { path: ".git/hooks/pre-commit", strict: opts.strict === true },
+    json: { path: shown, strict: opts.strict === true },
   };
 }

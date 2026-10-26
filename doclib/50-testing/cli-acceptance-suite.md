@@ -43,11 +43,11 @@ status: stable
 | 文件 | 用例数 | 职责 |
 | --- | --- | --- |
 | `src/commands/testkit.ts` | — | 共享测试基建：临时目录/文件种子/state 种子/snapshotRow/docMd/CLI spawn 助手（CI=1 非交互） |
-| `init.test.ts` | 11 | init 全场景（骨架/agents/guide/planning/force/跳过/cursor） |
+| `init.test.ts` | 16 | init 全场景（骨架/agents/guide/planning/force/跳过/cursor/门禁自动装/--no-hook/foreign/非 git/损坏指针降级） |
 | `plan.test.ts` | 13 | 五类任务书 + 互斥 + 编号 + 漂移段 + 载体提醒 |
 | `snapshot.test.ts` | 13 | 基线账本 + 快照链上限 + pad3 边界 + 忽略规则 + 损坏防护 |
 | `diff.test.ts` | 10 | 三类漂移 + covers 精确/目录级优先 + 截断 + gitignore 语义 |
-| `status.test.ts` | 10 | 概览文本/json 全载荷 + 双锚点提醒 + 引导戳/预算 |
+| `status.test.ts` | 13 | 概览文本/json 全载荷 + 双锚点提醒 + 引导戳/预算 + 提交门禁四态 |
 | `verify.test.ts` | 12 | 覆盖度 + 失效/无锚点 + INDEX 双向 + 卷级索引 + 分组截断 |
 | `check.test.ts` | 14 | 违规分类逐一构造 + strict 退出码 + 豁免联动 + 治理分组件 |
 | `ack.test.ts` | 7 | once/standing/remove/note 缺值边界 |

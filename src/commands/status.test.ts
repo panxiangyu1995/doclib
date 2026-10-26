@@ -5,6 +5,7 @@ import path from "node:path";
 import { runStatus } from "./status.js";
 import { runInit } from "./init.js";
 import { runSnapshot } from "./snapshot.js";
+import { runHook } from "./hook.js";
 import { CLI_VERSION, STRUCTURE_VERSION } from "../core/version.js";
 import { docMd, put, tmpRoot } from "./testkit.js";
 
@@ -16,6 +17,7 @@ type StatusJson = {
   health: { score: number; grade: string } | null;
   planning: { paths: string[]; reminder: string };
   guides: { stamp: string; budget: string };
+  hook: string;
   detection: { primary: string };
   tasks: string[];
 };
@@ -163,4 +165,33 @@ test("status：--json stdout 与 json 同源可解析；无基线时 drift/healt
   assert.equal(j.health, null);
   assert.equal(j.library.version, 0);
   assert.deepEqual(j, (await runStatus(root, { json: true })).json);
+});
+
+test("status：提交门禁未安装（非 git 目录 → none）", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, {});
+  const r = await runStatus(root, {});
+  assert.match(r.text, /提交门禁: 未安装/);
+});
+
+test("status：提交门禁已安装(--strict) 文本与 json 一致", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, {});
+  await fs.mkdir(path.join(root, ".git", "hooks"), { recursive: true });
+  await runHook(root, { strict: true });
+  const r = await runStatus(root, {});
+  assert.match(r.text, /提交门禁: 已安装\(--strict\)/);
+  const j = JSON.parse((await runStatus(root, { json: true })).text) as StatusJson;
+  assert.equal(j.hook, "doclib-strict");
+});
+
+test("status：foreign 钩子 → 文本未安装、json 如实 foreign", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, {});
+  await fs.mkdir(path.join(root, ".git", "hooks"), { recursive: true });
+  await put(root, ".git/hooks/pre-commit", "#!/bin/sh\necho husky\n");
+  const r = await runStatus(root, {});
+  assert.match(r.text, /提交门禁: 未安装/);
+  const j = JSON.parse((await runStatus(root, { json: true })).text) as StatusJson;
+  assert.equal(j.hook, "foreign");
 });

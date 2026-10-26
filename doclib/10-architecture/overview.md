@@ -43,6 +43,6 @@ cli.ts（参数解析/分发/HELP）
 
 - **引导文件区域契约**：AGENTS.md/CLAUDE.md 分 managed 规则区（由 `assets/guides/` full/light 两档模板经 `doclib sync` 再生，改规则须改模板源）与 custom 定制区（项目 agent/用户维护，sync 保留）
 - **实时同步映射表**（引导规则区核心）：含登记簿实时入账（实体五要素）、内容过时三态更新（默认不物理删除）、**新文档落位归位决策树 + 两级索引同步**（归位宪法 §7.5/PRD）、先馆后码查询约定——模板演进同步 full/light 两档
-- **强验证链**：`check`（双账本对账：6 类违规 + 馆外文档四态判定（工具链豁免可见）+ 文档质量检测（链接/引用存在性 + 依赖版本对账）+ 治理健康分）← `ack`（once/standing + `--dir` 目录豁免）← `place`（孤儿归位：collect/archive/restore，干跑默认 + 归档账可逆）← `hook`（pre-commit --strict 门禁 / CI 模板）；入馆写协调 soft 约定（写前 check 对账）
+- **强验证链**：`check`（双账本对账：6 类违规 + 馆外文档四态判定（工具链豁免可见）+ 文档质量检测（链接/引用存在性 + 依赖版本对账）+ 治理健康分）← `ack`（once/standing + `--dir` 目录豁免）← `place`（孤儿归位：collect/archive/restore，干跑默认 + 归档账可逆）← `hook`（pre-commit --strict 门禁 / CI 模板；fail-closed 自检 + 相对路径策略 + worktree 支持 + status 门禁四态；init 自动装 + sync 幂等补装）；入馆写协调 soft 约定（写前 check 对账）
 - **扫描器分阶段（F15）**：阶段 0 纯 agent 扫描 → 阶段 1 ast-grep 可选增强（PATH 探测，不进 npm 依赖）→ **阶段 2 已落地（v0.30）**：codegraph 克隆集成（subtree vendor/codegraph + CJS 岛 + `doclib graph` 命令族 + 草稿候选管道；`.codegraph/` 为可再生缓存，图书馆仍是唯一事实源；telemetry 物理隔离；Node∈[22.5,25) 优雅降级）；三铁律：馆为事实源工具出候选 / 确定性语义性分层 / 可选增强优雅降级
 - 门面文档 README.md 为项目入口叙事（定位与「不是什么」→ 30 秒上手决策表 → 6 类治理失效场景 + 传统做法对照 → 三条铁律与双层结构（含叙述层文体标准：教科书五段 / 登记簿条目五要素）→ 快速开始 4 路径 → 日常循环 → 12 卷结构 → 13 命令表 + 10 skills → 现状实证数字表 → 贡献入口），与 PRD/引导同步维护——README 的数字型事实集中成表并标注来源路径（防漂移，单点出处），命令语义以 `src/cli.ts` HELP 为唯一事实源；贡献细则独立成文 `CONTRIBUTING.md`（同为根级门面文件，Q20 豁免）；英文版 `README.en.md` 与中文版逐条对齐（结构/事实/数字一致），其门面豁免由**模式识别**原生生效（`core/orphan.ts` `isRootFacadeFile`：基名 + locale 标签形状，Q42/ADR #14），无需 `ack` 登记

@@ -1,4 +1,4 @@
-<!-- doclib-guide cli=0.5.0 structure=3 -->
+<!-- doclib-guide cli=0.5.1 structure=3 -->
 # DocLib 工作流
 
 <!-- doclib:managed-begin -->

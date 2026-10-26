@@ -26,6 +26,7 @@ status: living
 | [30-features/_index.md](30-features/_index.md) | 功能规格索引（含规格欠账清单） | stable |
 | [30-features/init-v2.md](30-features/init-v2.md) | init v2 行为规格 + 验收标准 | stable |
 | [30-features/check.md](30-features/check.md) | 强验证体系规格（check/ack/hook + 六类违规 + 四态判定与三层防线） | stable |
+| [30-features/hook.md](30-features/hook.md) | 提交门禁规格（install/remove/ci + fail-closed 自检 + worktree + init 自动装/sync 幂等补装） | stable |
 | [30-features/place.md](30-features/place.md) | 孤儿归位与处置规格（place 五子命令 + 干跑契约 + 入棺三护栏） | living |
 | [30-features/graph.md](30-features/graph.md) | 代码知识图谱规格（graph 命令族 + 草稿候选管道 + vendor CJS 岛与降级） | living |
 | [30-features/reconcile.md](30-features/reconcile.md) | 进度对账规格（reconcile 三段报告 + 对应文档混合引用判定 + 库内/载体证据分流） | stable |

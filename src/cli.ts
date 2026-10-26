@@ -27,6 +27,7 @@ type Flags = {
   apply: boolean;
   dir: boolean;
   graph: boolean;
+  noHook: boolean;
   note?: string;
   to?: string;
   agents?: string;
@@ -49,6 +50,7 @@ function parseArgs(argv: string[]): { cmd: string; args: string[]; flags: Flags 
     apply: false,
     dir: false,
     graph: false,
+    noHook: false,
   };
   const positional: string[] = [];
   for (let i = 0; i < argv.length; i++) {
@@ -64,6 +66,7 @@ function parseArgs(argv: string[]): { cmd: string; args: string[]; flags: Flags 
     else if (a === "--apply") flags.apply = true;
     else if (a === "--dir") flags.dir = true;
     else if (a === "--graph") flags.graph = true;
+    else if (a === "--no-hook") flags.noHook = true;
     else if (a === "--note") flags.note = argv[++i];
     else if (a === "--to") flags.to = argv[++i];
     else if (a === "--agents") flags.agents = argv[++i];
@@ -98,6 +101,7 @@ const HELP = `doclib — 把任意项目蒸馏成可复原的文档图书馆
 选项:
   --json       以 JSON 输出 (diff/verify/status/place list/graph status)
   --graph      init 时同步初始化代码知识图谱（需 Node >= 22.5，可用 doclib graph index 补建）
+  --no-hook    init 时不自动安装 pre-commit 门禁（默认自动安装 --strict 档）
   --note       snapshot 的备注文本；place ack 的豁免理由
   --to         rebuild 目标目录 (默认 ../<项目名>-rebuild)；place collect 的目标卷
   --force      init 时补齐/刷新模板文件（用户内容不覆盖）

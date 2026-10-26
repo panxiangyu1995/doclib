@@ -20,7 +20,7 @@ status: stable
 
 ## 是什么
 
-`doclib init` 一条命令完成：12 卷图书馆骨架落位、skills 按 agent 适配分发、引导文件写入（区域契约）、簿记初始化、规划载体声明（--planning）、可选知识图谱初始化（--graph）。
+`doclib init` 一条命令完成：12 卷图书馆骨架落位、skills 按 agent 适配分发、引导文件写入（区域契约）、簿记初始化、规划载体声明（--planning）、可选知识图谱初始化（--graph）、**提交门禁自动安装**（v0.5.1，git 仓库默认装 `--strict` 档 pre-commit 钩子，根除"忘记安装"风险）。
 
 ## 输入
 
@@ -31,6 +31,7 @@ status: stable
 | --guide | light \| none；非法值报 DoclibError | TTY 问卷；非 TTY → light |
 | --planning | 逗号分隔多路径（默认 .plan/），尾斜杠归一 | TTY 问卷（askPlanning：回车=.plan/）；非 TTY → .plan/ |
 | --graph | init 时同步初始化知识图谱 .codegraph/（v0.30，需 Node ∈ [22.5, 25)） | TTY 第 4 问（askGraph：回车=否）；引擎不可用/建图失败→告警行，**init 仍退出 0**；未启用输出 `doclib graph index` 提示行 |
+| --no-hook | 跳过提交门禁自动安装（v0.5.1） | 默认自动安装：git 仓库装 `--strict` 档；既有非 doclib 钩子 → 警告跳过（init 不失败）；非 git → 提示后置安装 |
 
 ## 怎么运转
 
@@ -39,7 +40,8 @@ status: stable
 3. skills：对 skillsDir 非空的目标（claude→.claude/skills、opencode→.opencode/skills）copyDir 覆盖式同步
 4. 引导（--guide light 时）：writeGuides——**有戳更新、无戳跳过（用户内容保护）、缺失写入**
 5. 状态：loadState（兼容归一化）→ agents=目标 id 列表、structureVersion=STRUCTURE_VERSION（当前 3）→ saveState（既有快照链保留）
-6. 输出：模板数、agents、skills 落位、引导写入/跳过清单、下一步指引
+6. 门禁（--no-hook 未指定时）：resolveHooksDir 判 git → 非 git 提示行；readHookState=foreign → 警告跳过（用户钩子不动）；否则 runHook --strict 安装（幂等覆盖 doclib 自身钩子，无条件恢复可执行位）——复用 hook 命令全部健壮化能力（相对路径/fail-closed/worktree）；**门禁环节任何失败（含底层 fs 错误）降级为「跳过（原因）」行，init 不失败**（与 graph 初始化同构的全接语义）
+7. 输出：模板数、agents、skills 落位、引导写入/跳过清单、门禁状态行、下一步指引
 
 > v0.4.0 后续（2026-10-20）：version.ts 增导出 `PACKAGE_NAME`（读 package.json name，回退 @panxiangyu1995/doclib）——CI 模板包名单一事实源（hook 消费）；init 仍只消费 STRUCTURE_VERSION 与引导渲染的 CLI_VERSION。
 
@@ -59,3 +61,7 @@ status: stable
 - Given 已有手写 CLAUDE.md（无戳）When `init --force` Then CLAUDE.md 内容原样保留且输出"跳过"
 - Given 非 TTY When `init`（无参数）Then agents=generic、guide=light 自动落位
 - Given --agents foo When init Then 报错并列出可选 id
+- Given git 仓库 When init Then pre-commit 钩子自动落位（--strict 档）且输出「提交门禁: 已安装(--strict)」
+- Given `init --no-hook` When init Then 不装钩子，输出「提交门禁: 未安装（--no-hook 跳过）」
+- Given 既有非 doclib 钩子 When init Then init 成功、警告跳过、原钩子逐字节保留
+- Given 非 git 目录 When init Then init 成功并提示 git init 后可手动 `doclib hook --strict`

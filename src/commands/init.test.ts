@@ -170,3 +170,45 @@ test("init：cursor 无 skills 目录（设计如此），仅写引导", async (
   assert.ok(!(await has(root, ".cursor")));
   assert.ok(!(await has(root, ".claude")));
 });
+
+test("init：git 目录默认自动安装 --strict 门禁", async () => {
+  const root = await tmpRoot("doclib-acc-init-");
+  await fs.mkdir(path.join(root, ".git", "hooks"), { recursive: true });
+  const r = await runInit(root, {});
+  assert.match(r.text, /提交门禁: 已安装\(--strict\)/);
+  const hook = await get(root, ".git/hooks/pre-commit");
+  assert.ok(hook.includes("# doclib-hook"));
+  assert.ok(hook.includes("check --strict"));
+});
+
+test("init：--no-hook 显式跳过", async () => {
+  const root = await tmpRoot("doclib-acc-init-");
+  await fs.mkdir(path.join(root, ".git", "hooks"), { recursive: true });
+  const r = await runInit(root, { noHook: true });
+  assert.match(r.text, /提交门禁: 未安装（--no-hook 跳过）/);
+  assert.ok(!(await has(root, ".git/hooks/pre-commit")));
+});
+
+test("init：foreign 钩子警告跳过且 init 不失败、原钩子保留", async () => {
+  const root = await tmpRoot("doclib-acc-init-");
+  await fs.mkdir(path.join(root, ".git", "hooks"), { recursive: true });
+  await put(root, ".git/hooks/pre-commit", "#!/bin/sh\necho mine\n");
+  const r = await runInit(root, {});
+  assert.match(r.text, /提交门禁: 跳过/);
+  assert.match(r.text, /已初始化 DocLib/);
+  assert.equal(await get(root, ".git/hooks/pre-commit"), "#!/bin/sh\necho mine\n");
+});
+
+test("init：非 git 目录提示后置安装路径", async () => {
+  const root = await tmpRoot("doclib-acc-init-");
+  const r = await runInit(root, {});
+  assert.match(r.text, /提交门禁: 未安装（非 git 仓库；git init 后可运行 doclib hook --strict）/);
+});
+
+test("init：损坏 .git 指针文件 → 门禁降级提示，init 不失败", async () => {
+  const root = await tmpRoot("doclib-acc-init-");
+  await put(root, ".git", "gitdir: /nonexistent\n无 gitdir 行的垃圾内容\n");
+  const r = await runInit(root, {});
+  assert.match(r.text, /已初始化 DocLib/);
+  assert.match(r.text, /提交门禁: 跳过/);
+});
