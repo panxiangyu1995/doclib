@@ -55,7 +55,7 @@ github.com/panxiangyu1995/doclib
 
 | 片中数字 | 复跑命令 / 出处 | 期望值 | 核对 |
 | --- | --- | --- | --- |
-| npm 包版本 | `npm view @panxiangyu1995/doclib version` | 与 `package.json` 一致 | ☐ |
+| npm 包版本 | `npm view @panxiangyu1995/doclib version` | 与 `package.json` 一致 | ☑ 0.8.0（2026-10-27 已发布，latest 已指向） |
 | CLI 命令数 | `ls src/commands/*.ts \| grep -v test \| wc -l` | 14 | ☐ |
 | skills 数 | `ls -d skills/*/ \| wc -l` | 11 | ☐ |
 | 测试用例数 | `npm test` | 350 | ☐ |
@@ -71,7 +71,7 @@ github.com/panxiangyu1995/doclib
 ## 发布 checklist
 
 - ☐ 数值核对表逐行复跑并打勾（并发开发期数字漂移快）
-- ☐ `npm view @panxiangyu1995/doclib version` 与片中声明一致（**不一致则不要发布**——视频会失真）
+- ☑ `npm view @panxiangyu1995/doclib version` 与片中声明一致（**不一致则不要发布**——视频会失真）→ 0.8.0 已发布
 - ☐ 成片重新渲染终版（`--output renders/doclib-promo-16x9.mp4`），不沿用旧渲染
 - ☐ 封面帧从最新 `snapshot` 选取
 - ☐ 简介中的安装命令实跑一遍（`npx @panxiangyu1995/doclib init --agents claude,opencode`）
@@ -86,6 +86,7 @@ github.com/panxiangyu1995/doclib
 | 并发期数字漂移 | README 现状表已多次失真（0.5.0/13/10/283 等） | 数值核对表逐行复跑是发布前硬门 |
 | 竖屏分发 | 本片仅 16:9；9:16 变体未做（各幕为 16:9 专用栅格布局，改竖版需重排，不是零成本） | 需要时单独立项重排竖版 composition，不做简单缩放充数 |
 | 平台转码 | 平台会二次转码 | 不追 4K/60fps（官方分级建议：社交平台不值当） |
+| npm 版本 | 0.8.0 已于 2026-10-27 发布（latest 已指向），片中声明与实际安装版本一致 | 若后续发版改版本号，须同步本表与 `storyboard.md` 数字来源表 |
 
 ## 关联
 

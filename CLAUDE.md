@@ -108,7 +108,7 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
   - 10-22 #26/#27 README 门面重写（中英双语）+ 门面多语言变体模式豁免
   - 10-23 #23 基准扩容：四基准馆建成（aspnetcore/fd/csvkit/memos 均 100 A，doclib/50-testing/benchmark/）
 - 活跃注意：
-  - **npm latest 仍 0.4.0**（仓库 0.8.0 未发布）——推广视频发布与 npx 安装均受此阻塞；release.yml node 20 与 engines >=22.5<25 不自洽待改
+  - **npm 0.8.0 已发布**（2026-10-27，latest 已指向，SLSA provenance 齐备）——release.yml node 已改 24 自洽 engines；推广视频 CTA 的 npx 安装版本与片中声明一致
   - **本仓存在并发写入实例**（实测：另一实例提交 ee0023c 改写基线；本会话又见其占 3000 端口与 ffmpeg 抢带宽）——执行前须重核基线/工作区/端口
   - #42 第三梯队待授权执行；plausible/meilisearch/zellij 三仓**标「未实测」**（Elixir/Rust 钉版工具链下载受阻），宁可缺证不虚报
   - #34 transcript 批量回捞 planned——素材升级依赖它（OpenCode DB 285 会话/2.5 万消息待接入）
