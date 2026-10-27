@@ -8,6 +8,9 @@ import { DoclibError, LIBRARY_DIR, type State } from "./state.js";
 const PROGRESS_RELPATH = `${LIBRARY_DIR}/00-overview/progress.md`;
 const LESSONS_RELPATH = `${LIBRARY_DIR}/95-lessons/lessons.md`;
 const LESSON_EPOCH_RE = /<!--\s*doclib:lesson-epoch:\s*(\d{4}-\d{2}-\d{2})\s*-->/;
+const LESSON_SOURCE_EPOCH_RE = /<!--\s*doclib:lesson-source-epoch:\s*(\d{4}-\d{2}-\d{2})\s*-->/;
+const LESSON_ENTRY_SPLIT_RE = /(?=^## \d{4}-\d{2}-\d{2} · )/m;
+const SOURCE_PATH_TOKEN_RE = /(?:doclib|\.plan|\.doclib|src|skills|assets|dist|migrations|test)\/[^\s；;，,。）)】（(【\[]*/g;
 const ENTRY_SPLIT_RE = /(?=-\s*\*\*\d{4}-\d{2}-\d{2}\*\*)/;
 const ENTRY_DATE_RE = /\*\*(\d{4}-\d{2}-\d{2})\*\*/;
 const LESSON_REF_RE = /^95-lessons(?:@(\S+))?\s+(\d{4}-\d{2}-\d{2})\s*·\s*(.+)$/;
@@ -81,6 +84,18 @@ export async function archivalFindings(root: string, state: State): Promise<Chec
     }
   }
 
+  for (const r of rows) {
+    if (r.status !== "in-progress") continue;
+    const cell = r.docs.trim();
+    if (cell === "" || cell === "—" || cell === "-") {
+      findings.push({
+        kind: "implementation-anchor",
+        path: `#${r.n}`,
+        detail: "in-progress 条目无对应文档锚点 → .plan 实施文档路径或馆内规格写入对应文档列（沉淀锚点缺失的镜像）",
+      });
+    }
+  }
+
   const epochMatch = LESSON_EPOCH_RE.exec(progress);
   if (progress.includes("doclib:lesson-epoch")) {
     if (epochMatch === null || Number.isNaN(Date.parse(epochMatch[1]!))) {
@@ -135,5 +150,49 @@ export async function archivalFindings(root: string, state: State): Promise<Chec
     }
   }
 
+  findings.push(...(await lessonSourceFindings(root)));
+
+  return findings;
+}
+
+export async function lessonSourceFindings(root: string): Promise<CheckFinding[]> {
+  const findings: CheckFinding[] = [];
+  const raw = await fs.readFile(path.join(root, LESSONS_RELPATH), "utf8").catch(() => "");
+  if (!raw.includes("doclib:lesson-source-epoch")) return findings;
+  const sm = LESSON_SOURCE_EPOCH_RE.exec(raw);
+  if (sm === null || Number.isNaN(Date.parse(sm[1]!))) {
+    throw new DoclibError("lessons.md lesson-source-epoch 标记日期非法（需 <!-- doclib:lesson-source-epoch: YYYY-MM-DD -->）");
+  }
+  const epoch = sm[1]!;
+  for (const seg of raw.split(LESSON_ENTRY_SPLIT_RE)) {
+    const hm = /^## (\d{4}-\d{2}-\d{2}) · /m.exec(seg);
+    if (hm === null || hm[1]! < epoch) continue;
+    const date = hm[1]!;
+    const srcLine = seg
+      .split(/\r?\n/)
+      .find((l) => /^\s*[-*]\s*来源[:：]/.test(l.trim()));
+    if (srcLine === undefined) {
+      findings.push({
+        kind: "lesson-source",
+        path: date,
+        detail: "lessons 条目缺「来源:」行（epoch 后必带）→ 补可回溯来源：.plan/缺陷记录/验收档案路径或 progress 引用",
+      });
+      continue;
+    }
+    const tokens = [...new Set((srcLine.match(SOURCE_PATH_TOKEN_RE) ?? []).map((t) => t.replace(/[.,;、]+$/, "")))];
+    for (const token of tokens) {
+      const ok = await fs
+        .stat(path.join(root, token))
+        .then(() => true)
+        .catch(() => false);
+      if (!ok) {
+        findings.push({
+          kind: "lesson-source",
+          path: token,
+          detail: "lessons 来源行路径不存在（防幻觉）→ 核对路径或改写为真实上游",
+        });
+      }
+    }
+  }
   return findings;
 }

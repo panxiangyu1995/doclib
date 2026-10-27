@@ -183,6 +183,7 @@ doclib/
 | --- | --- | --- | --- |
 | Library | `init` | Initialize the `doclib/` skeleton, the `.doclib/` ledger, the skills and the guide files | Onboarding a new repo |
 | Library | `plan` | Generate a task book: BUILD / UPDATE / REBUILD / BOOTSTRAP / RESUME | Before starting any piece of work |
+| Library | `implement` | Splitter: planned candidates → readiness gate → `.plan` implementation skeleton (AC anchors pre-filled; dry-run by default, `--apply` to write) | Before starting a planned feature |
 | Library | `verify` | Coverage report: uncovered paths / stale documents / INDEX integrity | After building, and after every incremental update |
 | Library | `snapshot` | Record the current code state as the new baseline (library version +1, revision +1) | Once a sync is done |
 | Keep-alive | `diff` | Current code vs baseline: drift list + affected documents | Any time during development |
@@ -195,7 +196,7 @@ doclib/
 | Enhancement | `sync` | Regenerate the managed region of the guide files and the skills (idempotent, custom regions preserved) | After upgrading the CLI |
 | Enhancement | `graph` | Code knowledge graph: `index` / `status` / `draft` / `explore <query>` (optional enhancement, requires Node ≥ 22.5) | Accelerating large repos |
 
-Options that change behavior: `--agents` (agent targets for init), `--planning` (planning carrier paths for init), `--json` (machine-readable output), `--strict` (gate for check / hook), `--apply` (make `place` actually write), `--to` (rebuild target directory / target volume for place). See `doclib --help` for the full list.
+Options that change behavior: `--agents` (agent targets for init), `--planning` (planning carrier paths for init), `--json` (machine-readable output), `--strict` (gate for check / hook), `--apply` (make `place` actually write / write the `implement` skeleton), `--feature` (feature number for `implement`), `--to` (rebuild target directory / target volume for place). See `doclib --help` for the full list.
 
 > `graph` is an optional enhancement: it needs Node ≥ 22.5, degrades gracefully when unavailable, and **blocks no core flow**. Graph output is candidate-only and must be verified by the agent before it enters the library.
 
@@ -210,6 +211,7 @@ Skills are loaded by the agent by name, and each one is bound to a single trigge
 | `doclib-rebuild` | Rebuild from scratch using only the library | `plan --rebuild` |
 | `doclib-dev` ★ | Any day-to-day development session | `status` / `diff` / `snapshot` |
 | `doclib-bootstrap` | Build the library of a new project through dialogue | `plan --bootstrap` |
+| `doclib-implement` | Turn a planned feature into an actionable work order (fill AC anchors) | After `doclib implement` generates a skeleton |
 | `doclib-resume` | Take over a half-built project | `plan --resume` |
 | `doclib-setup` | Confirm installation and adaptation after init | `init` / `sync` |
 | `doclib-reconcile` | Reconcile the progress ledger against the code | `reconcile` |

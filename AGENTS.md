@@ -1,4 +1,4 @@
-<!-- doclib-guide cli=0.6.2 structure=3 -->
+<!-- doclib-guide cli=0.7.0 structure=3 -->
 # DocLib 工作流
 
 <!-- doclib:managed-begin -->
@@ -66,33 +66,38 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
 
 ## 架构速览
 
-- CLI 入口 `src/cli.ts`，十三命令于 `src/commands/`（init/plan/diff/snapshot/status/verify/sync/check/ack/place/hook/reconcile/graph）；纯逻辑于 `src/core/`（fsutil/frontmatter/state/mapping/check/orphan/place/ledger/docquality/surface/guides/assets/agents/prompts/version/codegraph 等）（`doclib/20-modules/_index.md`）
+- CLI 入口 `src/cli.ts`，十四命令于 `src/commands/`（init/plan/diff/snapshot/status/verify/sync/check/ack/place/hook/reconcile/graph/implement）；纯逻辑于 `src/core/`（`doclib/20-modules/_index.md`）
+- 规划直通车（F17）：对话规划 bootstrap 五阶段→工具收编（BMAD/spec-kit/OpenSpec/Kiro 快照式）→`doclib implement` 拆单（readiness+AC 锚点骨架）→门禁三件套（`doclib/30-features/040-planning-express.md`）
 - 知识图谱引擎 vendored 于 `vendor/codegraph/`（git subtree；就地改动必须登记 FORK-NOTES.md，优先在 adapter 层 `src/core/codegraph/` 扩展）（`doclib/30-features/graph.md`）
 - 需求唯一事实源 `doclib/10-architecture/prd.md`｜设计 `doclib/10-architecture/design.md`｜ADR 账本 `doclib/10-architecture/decisions.md`
 
-## 硬规则
+## 模块地图
 
-- ESM：导入带 `.js` 后缀；strict + noUncheckedIndexedAccess；源码不写注释；错误一律抛 DoclibError（`doclib/40-guides/conventions.md`）
-- 文档写行为/契约/设计意图/验收标准；除 ≤10 行示意片段外禁止搬运源码（非克隆铁律）（`doclib/40-guides/conventions.md`）
-- 引导三区：managed 区 sync 再生｜project 反哺区禁直改（改 `.doclib/guide-project.md` 后 sync）｜custom 区手写（`doclib/30-features/guides.md`）
-- 馆为事实源：查实体先查登记簿，无账不答；入馆写前先 `doclib check` 对账（`doclib/40-guides/workflow.md`）
+- `commands/` 参数解析与输出编排（返回 {text, json}）；`core/` 纯逻辑零副作用——两者边界不可反向，模块与职责清单以 `doclib/20-modules/_index.md` 为唯一事实源（数字易腐，此处不抄）
+- 架构三原则：纯 Markdown 产物、确定性执法、零重依赖——一切设计裁决回溯这三条（`doclib/10-architecture/overview.md`）
+
+## 开发宪法
+
+- 架构铁律：commands/core 职责边界不可反向｜vendored 源禁直改（FORK-NOTES.md 登记账）｜图谱扩展走 adapter 层｜破坏约定先立 ADR 再动代码（`10-architecture/overview.md`·`decisions.md`·`40-guides/conventions.md`）
+- 编码铁律：TypeScript ESM 导入带 `.js` 后缀｜strict + noUncheckedIndexedAccess（数组访问判空是常态）｜源码不写注释（设计解释进 ADR）｜用户可见错误一律抛 DoclibError｜文件 kebab-case/导出动宾/常量全大写（`40-guides/conventions.md`）
+- 数据与迁移：N-A（无数据库；引入持久化时先在 `10-architecture/migrations.md` 账本取号，forward-only、applied 不可变）
+- UI/UX：N-A（CLI 无图形界面，`80-design/README.md` 显式声明；CLI 文案体验归 30-features 行为规格）
+- 测试与验收铁律：node:test + assert/strict 零依赖，测试与被测同目录 `*.test.ts`，新测试文件必须登记 package.json test script（漏登记=静默退出门禁）｜typecheck + 全量测试绿后，命令行为改动须临时目录冒烟（`50-testing/testing.md`）
+- 禁区：禁直改引导 project 区（改簿记后 sync）｜禁引入重运行时依赖（先过零重依赖审视，ADR #13）｜禁无账回答实体问题（先馆后码，查询即建账）｜馆与记忆冲突以馆为准（`40-guides/workflow.md`）
+- 规则唯一事实源指针：架构/编码/迁移/UI/测试规则一律以馆为准；馆无规则→提案入 ADR/规格，禁止即兴发明；外部规则文档以馆内收编版本为准（`40-guides/workflow.md`）
 
 ## 命令速查
 
-- `npm run build`（tsc vendor 岛 + 主工程 + copy-assets）｜`npm run typecheck`｜`npm test`（`doclib/60-config/settings.md`）
-- CLI 试运行：`node dist/cli.js <命令>`（`doclib/60-config/settings.md`）
+- `npm run build`（tsc vendor 岛 + 主工程 + copy-assets）｜`npm run typecheck`｜`npm test`｜CLI 试运行 `node dist/cli.js <命令>`（`60-config/config.md`）
 <!-- doclib:project-end -->
 
 <!-- doclib:custom-begin -->
 ## 本项目定制（DocLib 仓库）
 
 - 定位：把任意项目蒸馏成可复原的文档图书馆；本仓库已启用 DocLib 自身（身先士卒）
-- 命令：`npm run build`（tsc vendor 岛 + tsc 主工程 + copy-assets）｜`npm run typecheck`｜`npm test`｜CLI 试运行 `node dist/cli.js <命令>`｜`doclib graph`（index/status/draft/explore，知识图谱命令族）；版本 0.6.1（structure v3）
-- 结构：`src/cli.ts` 入口；`src/commands/` 十三命令（init/plan/diff/snapshot/status/verify/sync/check/ack/place/hook/reconcile/graph）；`src/core/` 纯逻辑（fsutil/frontmatter/state/detect/mapping/check/orphan/place/ledger/docquality/surface/guides/assets/agents/prompts/version/codegraph）；`assets/` 模板与引导源（guides=managed 区再生源，改引导规则须改此处再 sync）；`skills/` 手册源（`doclib sync` 分发至 `.claude/skills/` `.opencode/skills/`）；PRD+DESIGN 已入馆 `doclib/10-architecture/`
-- 约定：ESM（导入带 .js 后缀）；strict + noUncheckedIndexedAccess；运行时依赖 ignore + 图谱引擎解析运行时（web-tree-sitter/picomatch/jsonc-parser，皆纯 JS，ADR #13）；源码不写注释；错误一律抛 DoclibError；术语见 doclib/10-architecture/prd.md §4
-- 验证：typecheck + test 全绿后，命令行为改动须临时目录冒烟（init --agents claude,opencode → plan → snapshot → 改文件 → diff → plan → verify）
+- 结构：`src/cli.ts` 入口；`src/commands/` 十三命令（init/plan/diff/snapshot/status/verify/sync/check/ack/place/hook/reconcile/graph）；`src/core/` 纯逻辑模块（清单与职责以 `doclib/20-modules/_index.md` 为准，不在此枚举防漂移）；`assets/` 模板与引导源（guides=managed 区再生源，改引导规则须改此处再 sync）；`skills/` 手册源（`doclib sync` 分发至 `.claude/skills/` `.opencode/skills/`）；PRD+DESIGN 已入馆 `doclib/10-architecture/`
 - skills 状态：10/10 全部实现（build/update/rebuild + dev/bootstrap/resume/setup/reconcile/audit/accept，feature-map #6）
-- 进度指针：`doclib/10-architecture/prd.md`（v0.30）｜`doclib/10-architecture/design.md`（v2）｜`doclib/00-overview/feature-map.md`｜`doclib/00-overview/progress.md`
+- 进度指针：`doclib/10-architecture/prd.md`（v0.38）｜`doclib/10-architecture/design.md`（v2）｜`doclib/00-overview/feature-map.md`｜`doclib/00-overview/progress.md`
 - 术语：图书馆=doclib/、簿记=.doclib/、任务书=.doclib/tasks/、基线=snapshot、漂移=drift、锚点=covers
 - 会话档案：agent 对话原始记录导出落 `doclib/98-sessions/`（F9 唯一白名案例外，ADR #19）——会话收尾三动作（导出提醒→落位补 frontmatter 五要素→.plan 头部登记）见 `.opencode/commands/planstore.md`（双侧同文）与 `doclib/40-guides/transcripts.md`；文件名 `<slug>-<yyyymmdd>-<NN>.md`
 - 基准铁律：复原对比对象=**原仓库**（非图书馆）——重建↔原仓库实质差距=建馆缺陷显影器（benchmark.md 目的铁律）（三阶段：P1 信息零遗漏→P2 质量保证→P3 升华超越原仓库）

@@ -25,3 +25,4 @@ status: stable
 | BOOTSTRAP/RESUME 任务书 | 待写 | — | planned |
 | .plan 检测与双锚点提醒 | 待写 | — | planned |
 | 进度对账与 reconcile | [reconcile.md](reconcile.md) | src/commands/reconcile.ts、src/core/reconcile.ts | implemented（v0.34 补规格欠账 + 判定修正） |
+| F17 规划直通车（bootstrap v2 对话协议 + 工具兼容层 + implement 拆单 + 门禁三件套 + provenance 提醒） | [040-planning-express.md](040-planning-express.md) | src/commands/implement.ts、src/core/implement.ts、src/core/planning.ts、src/core/docquality.ts、src/core/archival.ts、skills/doclib-bootstrap/SKILL.md、skills/doclib-implement/SKILL.md | implemented（v0.7.0） |

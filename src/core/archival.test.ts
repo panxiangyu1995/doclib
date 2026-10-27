@@ -185,3 +185,85 @@ test("archival：epoch 标记日期非法 → fail-fast", async () => {
   await seedProgress(root, "<!-- doclib:lesson-epoch: not-a-date -->\n");
   await assert.rejects(() => archivalFindings(root, state()), DoclibError);
 });
+
+const SRC_EPOCH = "<!-- doclib:lesson-source-epoch: 2026-10-26 -->\n";
+
+test("lessonSource：无标记不活跃零违规；标记在而条目早于 epoch 豁免", async () => {
+  const root = await tmp();
+  await seedLessons(root, "导语\n\n## 2026-10-20 · 旧条目\n- 现象：x\n");
+  let findings = await archivalFindings(root, state());
+  assert.deepEqual(findings.filter((f) => f.kind === "lesson-source"), []);
+  await seedLessons(root, `导语\n${SRC_EPOCH}\n## 2026-10-20 · 旧条目\n- 现象：x\n`);
+  findings = await archivalFindings(root, state());
+  assert.deepEqual(findings.filter((f) => f.kind === "lesson-source"), []);
+});
+
+test("lessonSource：标记非法 fail-fast；epoch 后缺来源行 → lesson-source", async () => {
+  const root = await tmp();
+  await seedLessons(root, `导语\n<!-- doclib:lesson-source-epoch: bad -->\n`);
+  await assert.rejects(() => archivalFindings(root, state()), DoclibError);
+  await seedLessons(root, `导语\n${SRC_EPOCH}\n## 2026-10-26 · 新条目\n- 现象：x\n`);
+  const findings = await archivalFindings(root, state());
+  const src = findings.filter((f) => f.kind === "lesson-source");
+  assert.deepEqual(src.map((f) => f.path), ["2026-10-26"]);
+  assert.match(src[0]!.detail ?? "", /来源/);
+});
+
+test("lessonSource：路径 token 失效 → 违规；真实路径与描述性来源合法；doclib/ 前缀解析", async () => {
+  const root = await tmp();
+  await seedLessons(
+    root,
+    `导语\n${SRC_EPOCH}\n## 2026-10-26 · A\n- 现象：x\n- 来源：.plan/2026-10-26/missing.md 执行发现\n`,
+  );
+  let findings = await archivalFindings(root, state());
+  let src = findings.filter((f) => f.kind === "lesson-source");
+  assert.equal(src.length, 1);
+  assert.match(src[0]!.path ?? "", /missing\.md/);
+
+  await seedCarrier(root, ".plan/2026-10-26/real.md");
+  await fs.mkdir(path.join(root, "doclib", "50-testing"), { recursive: true });
+  await fs.writeFile(path.join(root, "doclib", "50-testing", "acc.md"), "x", "utf8");
+  await seedLessons(
+    root,
+    `导语\n${SRC_EPOCH}\n## 2026-10-26 · A\n- 现象：x\n- 来源：.plan/2026-10-26/real.md；doclib/50-testing/acc.md（F-1）\n`,
+  );
+  findings = await archivalFindings(root, state());
+  assert.deepEqual(findings.filter((f) => f.kind === "lesson-source"), []);
+
+  await seedLessons(
+    root,
+    `导语\n${SRC_EPOCH}\n## 2026-10-26 · B\n- 现象：y\n- 来源：progress 2026-10-26 #32 REVIEW 轮（D-02）\n`,
+  );
+  findings = await archivalFindings(root, state());
+  assert.deepEqual(findings.filter((f) => f.kind === "lesson-source"), []);
+});
+
+test("archival：in-progress 对应文档空 → implementation-anchor", async () => {
+  const root = await tmp();
+  await seedMap(root, ["1 | A | a |  | in-progress"]);
+  const findings = await archivalFindings(root, state());
+  assert.deepEqual(
+    findings.filter((f) => f.kind === "implementation-anchor").map((f) => f.path),
+    ["#1"],
+  );
+  assert.equal(findings.length, 1);
+});
+
+test("archival：in-progress 有实施载体 → 零违规", async () => {
+  const root = await tmp();
+  await seedMap(root, ["1 | A | a | .plan/2026-10-27/x.md | in-progress"]);
+  await seedCarrier(root, ".plan/2026-10-27/x.md");
+  await seedProgress(root, "- 开工 .plan/2026-10-27/x.md\n");
+  const findings = await archivalFindings(root, state());
+  assert.equal(findings.length, 0);
+});
+
+test("archival：in-progress ASCII \"-\" 同判实施锚点缺失（PRD 口径）", async () => {
+  const root = await tmp();
+  await seedMap(root, ["1 | A | a | - | in-progress"]);
+  const findings = await archivalFindings(root, state());
+  assert.deepEqual(
+    findings.filter((f) => f.kind === "implementation-anchor").map((f) => f.path),
+    ["#1"],
+  );
+});

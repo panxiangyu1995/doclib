@@ -206,6 +206,25 @@ test("status：guide-project 含非法区域标记 → 降级提示行（不炸 
   assert.match(j.guides.feed, /区域保留标记/);
 });
 
+test("status：反哺行走查覆盖度三态（12/12、未留账、非法）", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, { agents: "claude", noHook: true });
+  const fed = "00-overview, 10-architecture, 20-modules, 30-features, 40-guides, 50-testing, 60-config, 70-deploy, 90-reference, 95-lessons";
+  await put(root, ".doclib/guide-project.md", `---\nsnapshot: 1\nvolumes-fed: [${fed}]\nvolumes-na: [80-design, 99-archive]\n---\n\n## 项目反哺\n`);
+  let r = await runStatus(root, {});
+  assert.match(r.text, /反哺: snapshot 1 · .* · 走查 12\/12/);
+  const fedDup = "00-overview, 00-overview, 10-architecture, 20-modules, 30-features, 40-guides, 50-testing, 60-config, 90-reference, 95-lessons";
+  await put(root, ".doclib/guide-project.md", `---\nsnapshot: 1\nvolumes-fed: [${fedDup}]\nvolumes-na: [80-design, 99-archive]\n---\n\n## 项目反哺\n`);
+  r = await runStatus(root, {});
+  assert.match(r.text, /反哺: snapshot 1 · .* · 走查 11\/12/);
+  await put(root, ".doclib/guide-project.md", "---\nsnapshot: 1\n---\n\n## 项目反哺\n");
+  r = await runStatus(root, {});
+  assert.match(r.text, /反哺: snapshot 1 · .* · 走查 未留账 ⚠/);
+  await put(root, ".doclib/guide-project.md", "---\nsnapshot: 1\nvolumes-fed: 80-design\n---\n\n## 项目反哺\n");
+  r = await runStatus(root, {});
+  assert.match(r.text, /反哺: snapshot 1 · .* · 走查 非法 ⚠/);
+});
+
 test("status：常见规划载体未声明 → 载体建议行与 json 字段", async () => {
   const root = await tmpRoot("doclib-acc-status-");
   await runInit(root, { agents: "claude" });

@@ -46,6 +46,18 @@ export async function runInit(
       "utf8",
     );
   }
+  const lessonsAbs = path.join(libRoot, "95-lessons", "lessons.md");
+  const lessonsTpl = await fs.readFile(lessonsAbs, "utf8").catch(() => null);
+  if (lessonsTpl !== null && lessonsTpl.includes("doclib:lesson-source-epoch:") && !/doclib:lesson-source-epoch:\s*\d{4}-\d{2}-\d{2}/.test(lessonsTpl)) {
+    await fs.writeFile(
+      lessonsAbs,
+      lessonsTpl.replace(
+        /doclib:lesson-source-epoch:\s*-->/,
+        `doclib:lesson-source-epoch: ${new Date().toISOString().slice(0, 10)} -->`,
+      ),
+      "utf8",
+    );
+  }
 
   await fs.mkdir(path.join(root, TASKS_DIR), { recursive: true });
 

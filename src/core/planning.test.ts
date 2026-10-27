@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { carrierDocs, detectCarrierShape, pendingArchive, planningIgnores, planningReminderReport, suggestCarriers } from "./planning.js";
-import { emptyState, saveState, type Snapshot } from "./state.js";
+import { carrierDocs, detectCarrierShape, pendingArchive, planningIgnores, planningReminderReport, sha16, sourceDrifts, suggestCarriers } from "./planning.js";
+import { emptyState, loadState, saveState, type Snapshot } from "./state.js";
 
 async function tmp(): Promise<string> {
   return fs.mkdtemp(path.join(os.tmpdir(), "doclib-planning-"));
@@ -83,4 +83,30 @@ test("detectCarrierShape：四工具形态与未命中", () => {
   assert.equal(detectCarrierShape(".kiro/specs/auth/tasks.md"), "Kiro");
   assert.equal(detectCarrierShape("doclib/30-features/check.md"), null);
   assert.equal(detectCarrierShape("src/core/place.ts"), null);
+});
+
+test("sourceDrifts：hash 失配检出；一致与无标记忽略；提醒行入 planningReminderReport", async () => {
+  const root = await tmp();
+  await fs.mkdir(path.join(root, "doclib", "30-features"), { recursive: true });
+  await fs.mkdir(path.join(root, "src"), { recursive: true });
+  await fs.writeFile(path.join(root, "src", "t.ts"), "v1", "utf8");
+  const h1 = sha16("v1");
+  await fs.writeFile(
+    path.join(root, "doclib", "30-features", "t.md"),
+    `---\ntitle: T\ncovers: []\nstatus: stable\nsource-path: src/t.ts\nsource-hash: ${h1}\n---\n\n# T\n`,
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(root, "doclib", "30-features", "plain.md"),
+    "---\ntitle: P\ncovers: []\nstatus: stable\n---\n\n# P\n",
+    "utf8",
+  );
+  assert.deepEqual(await sourceDrifts(root), []);
+  await fs.writeFile(path.join(root, "src", "t.ts"), "v2", "utf8");
+  const drifts = await sourceDrifts(root);
+  assert.deepEqual(drifts, [{ doc: "doclib/30-features/t.md", sourcePath: "src/t.ts" }]);
+  await saveState(root, { ...emptyState(), planning: [".plan/"] });
+  const report = await planningReminderReport(root, await loadState(root), null);
+  assert.ok(report.includes("源已变更待再转化"));
+  assert.ok(report.includes("src/t.ts"));
 });

@@ -1,6 +1,9 @@
+import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { Snapshot, State } from "./state.js";
+import { collectFiles } from "./fsutil.js";
+import { parseFrontmatter } from "./frontmatter.js";
+import { LIBRARY_DIR, type Snapshot, type State } from "./state.js";
 
 export function loadPlanningPaths(state: State): string[] {
   return Array.isArray(state.planning) && state.planning.length > 0 ? state.planning : [".plan/"];
@@ -60,6 +63,35 @@ export async function pendingArchive(root: string): Promise<PendingArchive> {
   return { planned, inProgress };
 }
 
+export type SourceDrift = { doc: string; sourcePath: string };
+
+export function sha16(content: Buffer | string): string {
+  return createHash("sha256").update(content).digest("hex").slice(0, 16);
+}
+
+async function sourceSha16(root: string, rel: string): Promise<string | null> {
+  const raw = await fs.readFile(path.join(root, rel)).catch(() => null);
+  if (raw === null) return null;
+  return sha16(raw);
+}
+
+export async function sourceDrifts(root: string): Promise<SourceDrift[]> {
+  const libRoot = path.join(root, LIBRARY_DIR);
+  const all = (await collectFiles(libRoot).catch(() => [] as string[])).filter((f) => f.endsWith(".md"));
+  const out: SourceDrift[] = [];
+  for (const f of all) {
+    const raw = await fs.readFile(path.join(libRoot, f), "utf8").catch(() => null);
+    if (raw === null) continue;
+    const { data } = parseFrontmatter(raw);
+    const sp = data["source-path"];
+    const sh = data["source-hash"];
+    if (typeof sp !== "string" || typeof sh !== "string" || sp === "" || sh === "") continue;
+    const cur = await sourceSha16(root, sp);
+    if (cur !== null && cur !== sh.trim()) out.push({ doc: `${LIBRARY_DIR}/${f}`, sourcePath: sp });
+  }
+  return out.sort((a, b) => a.doc.localeCompare(b.doc));
+}
+
 export async function planningReminderReport(root: string, state: State, latest: Snapshot | null): Promise<string> {
   const planningPaths = loadPlanningPaths(state);
   const parts: string[] = [];
@@ -78,10 +110,19 @@ export async function planningReminderReport(root: string, state: State, latest:
       `待归档（锚点二）: ${arch.planned} planned / ${arch.inProgress} in-progress——完成的请归档成果并推进 implemented`,
     );
   }
+  const drifts = await sourceDrifts(root);
+  if (drifts.length > 0) {
+    parts.push(
+      `源已变更待再转化: ${drifts.length} 份收编产物对应源文件有改动——按 40-guides/010-tool-adoption.md 增量再转化（${drifts
+        .slice(0, 3)
+        .map((d) => `${d.doc} ← ${d.sourcePath}`)
+        .join(", ")}${drifts.length > 3 ? " …" : ""}）`,
+    );
+  }
   return parts.join("\n");
 }
 
-export const COMMON_CARRIER_DIRS: readonly string[] = [".specify/", "openspec/", "specs/", ".kiro/specs/"];
+export const COMMON_CARRIER_DIRS: readonly string[] = [".specify/", "openspec/", "specs/", ".kiro/specs/", "_bmad-output/"];
 
 export async function suggestCarriers(root: string, state: State): Promise<string[]> {
   const declared = loadPlanningPaths(state).map((p) => (p.endsWith("/") ? p : `${p}/`));

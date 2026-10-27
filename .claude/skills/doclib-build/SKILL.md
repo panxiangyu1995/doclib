@@ -25,7 +25,7 @@ description: 将任意代码项目蒸馏为"可复原的文档图书馆"。当�
 3. **填充图书馆**：按骨架逐卷撰写。顺序：00-overview → 10-architecture → 20-modules → 30-features → 40-guides → 90-reference → 最后更新 INDEX.md
    - **馆外存量四态盘点**（建馆期一次性判定，防孤儿回流）：①馆内 ②非文档资产（vendor/第三方/生成物/夹具——不收编）③工具链豁免（agent 工具目录与引导文件——位置由工具链决定，不收编）④待归位（真·馆外知识文档——收编入馆或入棺归档）。`doclib place list` 给出待归位清单与建议归宿，逐份判定，禁止整目录豁免
 4. **自检**：执行下方"覆盖度清单"，全过才算完成
-5. **蒸馏反哺区**：读馆撰写 `.doclib/guide-project.md`（frontmatter：`snapshot` 当前基线版本 + `docs-hash` 当前馆内指纹，可用 `doclib status` 反哺行读取）——五段各 ≤10 行、每条附馆内路径：项目定位（00-overview/project）/ 架构速览（10-architecture/overview + 关键 ADR）/ 模块地图（20-modules/_index）/ 硬规则（40-guides/conventions + 95-lessons 高频教训）/ 命令速查（60-config/settings）；然后 `doclib sync` 注入引导文件。真相在馆，反哺区仅再生禁止直改
+5. **蒸馏反哺区（开发宪法）**：读馆撰写 `.doclib/guide-project.md`（frontmatter：`snapshot` 当前基线版本 + `docs-hash` 当前馆内指纹 + **12 卷走查账** `volumes-fed`/`volumes-na` 双列表——`doclib status` 反哺行可读指纹）——五段各 ≤10 行、每条附馆内路径：项目定位（00-overview/project）/ 架构速览（10-architecture/overview + 关键 ADR）/ 模块地图（20-modules/_index）/ **开发宪法**（六篇：①架构铁律←10-architecture/overview+design+ADR+20-modules ②编码铁律←40-guides/conventions+95-lessons 高频教训 ③数据与迁移铁律←10-architecture/migrations+data-model ④UI/UX 铁律←80-design ⑤测试与验收铁律←50-testing+30-features ⑥禁区←各卷红线蒸馏；每条一行+馆内路径；不适用篇**显式写 N-A 行**；段末置「规则唯一事实源指针」句：馆无规则→提案入 ADR/规格，禁止即兴发明）/ 命令速查（60-config/config）。**裁决三问前置**（每条落笔前）：①馆内已有裁决吗？②实况多套并存吗（混用先裁决：结构性入 ADR、轻量条目内标注「以 X 为准，存量渐进收敛」）？③描述存量还是规定增量（描述性实况优先/规定性文档声称优先）？无法裁决区域显式写豁免；项目原有规则文档（CONTRIBUTING 等）真相先入馆（covers 锚定/收编）再蒸馏，禁止跳馆转写。**12 卷走查**：每卷裁决 fed（知识进反哺正文）或 na（不适用/非冷启动必需；99-archive 恒 na），两列表齐备——check `guide-feed-walk` strict 强校验（未知卷/未全覆盖/重叠/单边非法）。然后 `doclib sync` 注入引导文件。真相在馆，反哺区仅再生禁止直改
 6. **收尾**：运行 `doclib verify`，然后 `doclib snapshot --note "initial build"` 固化基线
 
 ## 反克隆铁律
@@ -71,7 +71,7 @@ description: 将任意代码项目蒸馏为"可复原的文档图书馆"。当�
 - **00-overview/feature-map.md 是全馆之锚**：必须穷尽所有用户可感知行为（页面/接口/CLI 命令/后台任务/定时任务/配置开关），每项标注对应文档。复原者按它验收
 - **10-architecture**：技术选型必须带理由与约束（为什么是它、不是什么替代品）；数据模型给到字段级；关键决策写 ADR（决策/背景/被否备选/后果）
 - **20-modules**：每卷讲清职责边界、对外契约（输入/输出/错误）、内部关键流程；frontmatter 的 `covers` 指向该模块的代码目录或文件
-- **30-features**：每个功能一份行为规格，含**可执行的验收标准**（Given/When/Then）。这是 90% 复原度的量化基础，宁可多不可漏
+- **30-features**：每个功能一份行为规格，含**可执行的验收标准**（Given/When/Then，**编号 AC-1..N**——.plan 实施清单与 accept 答卷按 `规格路径#AC-x` 引用此锚点，新增文档强制编号、存量不追溯）。这是 90% 复原度的量化基础，宁可多不可漏
 - **40-guides/rebuild-plan.md**：复原的施工顺序——按依赖关系分阶段（脚手架 → 数据层 → 核心域 → 接口层 → 次要功能 → 打磨），每阶段给出依据文档与完成标准
 - 所有文档的 `covers` 必须填写真实代码路径（文件或目录），它是日后增量更新的锚点
 - **实体 token 单点原则**：旗标/端点/路由等实体清单的权威出处是登记簿册——叙述文档（规格/架构书）引用登记簿而不重列全清单；两处各自维护必然漂移（同源联动错的根因，Q29 复用性判据落地）

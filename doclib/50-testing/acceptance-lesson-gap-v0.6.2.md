@@ -31,3 +31,5 @@ status: stable
 ## 覆盖说明
 
 结构性判定（处置位缺失/引用存在性/epoch fail-fast/存量豁免）由 `core/archival.test.ts` 15 例锁定；本验收补真实仓库存量兼容（T1）、退化数据（T3）与高噪声环境（T4）三个单测不可覆盖的维度。
+
+> v0.6.4 增量（#38 教训实时性）：本档案覆盖的 `src/core/archival.ts` 增 `lessonSourceFindings`（来源行 epoch 执法）+ `src/core/archival.test.ts` +3 例——本档案验收的处置位/引用判定语义未变，增量规格见 [30-features/check.md](../30-features/check.md)。

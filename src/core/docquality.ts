@@ -30,6 +30,7 @@ export const DEFAULT_GENRE: Record<string, GenreMode> = {
 
 const POLLUTION_PATTERN = /回灌补记|复原口径|实测补|原仓库答卷/;
 const POLLUTION_EXEMPT_PREFIX = "50-testing/benchmark/";
+const ASSUMPTION_PATTERN = /\[ASSUMPTION\s*[:：]/i;
 const NARRATIVE_SECTIONS = ["为什么", "是什么", "怎么运转"] as const;
 const CARD_LINE_LIMIT = 10;
 const CARD_CHAR_LIMIT = 400;
@@ -144,12 +145,50 @@ export async function checkGenreCompliance(libraryRoot: string): Promise<GenreRe
   return { violations, warnings };
 }
 
+export type AssumptionReport = {
+  violations: Array<{ doc: string; detail: string }>;
+  draftWarnings: Array<{ doc: string; detail: string }>;
+};
+
+export async function assumptionFindings(libraryRoot: string): Promise<AssumptionReport> {
+  const all = (await collectFiles(libraryRoot).catch(() => [] as string[])).filter((f) => f.endsWith(".md"));
+  const violations: AssumptionReport["violations"] = [];
+  const draftWarnings: AssumptionReport["draftWarnings"] = [];
+  for (const f of all) {
+    const base = f.slice(f.lastIndexOf("/") + 1);
+    const topDir = f.includes("/") ? (f.split("/")[0] ?? "") : "";
+    if (base === "INDEX.md" || base === "README.md" || base === "_index.md") continue;
+    if (topDir === "98-sessions" || topDir === "99-archive" || f.startsWith(POLLUTION_EXEMPT_PREFIX)) continue;
+    const raw = await fs.readFile(path.join(libraryRoot, f), "utf8").catch(() => null);
+    if (raw === null) continue;
+    const { data, body } = parseFrontmatter(raw);
+    const mode = resolveGenreMode(f, data.type);
+    if (mode !== "narrative") continue;
+    const lines = body.split(/\r?\n/);
+    let hitLine = -1;
+    for (let i = 0; i < lines.length; i++) {
+      if (ASSUMPTION_PATTERN.test(lines[i]!)) {
+        hitLine = i;
+        break;
+      }
+    }
+    if (hitLine === -1) continue;
+    const detail = `L${hitLine + 1} 含未清 ASSUMPTION 标签 → 用户确认后删除或转正（F17 17a 假设显式化纪律）`;
+    if (data.status === "draft") draftWarnings.push({ doc: f, detail: `[draft 降级] ${detail}` });
+    else violations.push({ doc: f, detail });
+  }
+  violations.sort((a, b) => a.doc.localeCompare(b.doc));
+  draftWarnings.sort((a, b) => a.doc.localeCompare(b.doc));
+  return { violations, draftWarnings };
+}
+
 export async function scanBrokenLinks(root: string): Promise<string[]> {
   const libRoot = path.join(root, LIBRARY_DIR);
   const allMd = (await collectFiles(libRoot).catch(() => [] as string[])).filter((f) => f.endsWith(".md"));
   const broken: string[] = [];
   for (const md of allMd) {
     if (md === "INDEX.md") continue;
+    if (md.startsWith("98-sessions/")) continue;
     const raw = await fs.readFile(path.join(libRoot, md), "utf8").catch(() => null);
     if (raw === null) continue;
     for (const m of raw.matchAll(MD_LINK)) {

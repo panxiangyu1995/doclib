@@ -20,9 +20,23 @@ export const CUSTOM_END = "<!-- doclib:custom-end -->";
 export const PROJECT_BUDGET_LINES = 50;
 export const GUIDE_PROJECT_PATH = `${STATE_DIR}/guide-project.md`;
 
-export type GuideProject = { snapshot: number | null; docsHash: string | null; body: string };
+export type GuideProject = { snapshot: number | null; docsHash: string | null; body: string; walk: VolumesWalk };
+
+export type WalkAccount = { fed: string[]; na: string[] };
+export type VolumesWalk = WalkAccount | "invalid" | null;
+export const WALK_FED_KEY = "volumes-fed";
+export const WALK_NA_KEY = "volumes-na";
 
 const REGION_MARKERS = [MANAGED_BEGIN, MANAGED_END, PROJECT_BEGIN, PROJECT_END, CUSTOM_BEGIN, CUSTOM_END];
+
+export function parseVolumesWalk(data: Record<string, string | string[]>): VolumesWalk {
+  const fed = data[WALK_FED_KEY];
+  const na = data[WALK_NA_KEY];
+  if (fed === undefined && na === undefined) return null;
+  if (!Array.isArray(fed) || !Array.isArray(na)) return "invalid";
+  const clean = (list: string[]) => list.map((v) => v.trim()).filter((v) => v.length > 0);
+  return { fed: clean(fed), na: clean(na) };
+}
 
 export async function readGuideProject(root: string): Promise<GuideProject | null> {
   const raw = await readFileOrNull(path.join(root, GUIDE_PROJECT_PATH));
@@ -42,6 +56,7 @@ export async function readGuideProject(root: string): Promise<GuideProject | nul
     snapshot: Number.isFinite(snapshotRaw) ? snapshotRaw : null,
     docsHash,
     body: trimmed,
+    walk: parseVolumesWalk(data),
   };
 }
 

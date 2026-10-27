@@ -68,7 +68,7 @@ description: DocLib 日常开发会话工作流（★主力）。当进入任何
 
 ## .plan/载体双锚点
 
-- **锚点一（登记）**：规划文档完成 → feature-map 新增/更新 planned 条目 + progress.md 补记（check「载体未登记」「进度账缺口」strict 拦截，hook 阻断提交）
+- **锚点一（登记）**：规划文档完成 → feature-map 新增/更新 planned 条目 + progress.md 补记（check「载体未登记」「进度账缺口」strict 拦截，hook 阻断提交）。**细化 planned 功能开工**：`doclib implement --feature <N>` 生成 .plan 实施骨架（readiness 校验 + AC 锚点预填，干跑默认）→ doclib-implement skill 对话填实（每条清单引用 AC 锚点；开工置 in-progress 时「对应文档」列写 .plan 路径——check「实施锚点缺失」拦截）
 - **锚点二（归档）**：开发完成 → 过程材料留载体不动；长期价值沉淀入馆（ADR/规格/参考卷/95-lessons）；更新 covers；feature-map → implemented（对应文档列不得为空——check「沉淀锚点缺失」拦截）；progress.md 补记（末字段 `教训:` 处置位——check「教训账缺口」拦截）
 
 ## 入馆写协调
@@ -77,12 +77,17 @@ description: DocLib 日常开发会话工作流（★主力）。当进入任何
 - 写后跑 `doclib check`：revision 已变 = 他人动过馆 → 重新对账再继续
 - 同一时间约定单会话入馆写
 
-## 会话结束：自检四问
+## 踩坑一行制（开发中实时）
+
+每踩一个坑（报错/返工/预期失手/重踩旧坑），**当下**在当前 .plan 规划文档「失败尝试与踩坑」节追加一行（日期 + 现象一句话）——只记一行不打断主流程；lessons 四段蒸馏留会话收尾（防中断永久丢失上游素材，planstore 踩坑一行制）。
+
+## 会话结束：自检五问
 
 1. 改动归档了吗？（馆内文档同步）
 2. feature-map 状态推进了吗？
 3. progress.md 补记了吗？
 4. 引导文件需要更新吗？（新规则入 custom 区；确认普适的提示 `doclib sync`）
+5. 踩坑都处置了吗？（.plan 第九节回填齐 + lessons 四段已入档且带真实路径 `来源:` 行 + progress 处置位声明——planstore 收尾核对动作）
 
 ## 纪律底线
 

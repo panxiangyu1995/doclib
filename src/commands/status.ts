@@ -6,6 +6,7 @@ import { LIBRARY_DIR, STATE_DIR, TASKS_DIR, latestSnapshot, loadState, computeDr
 import { guideBudgetReport, guideStampReport, libraryFingerprint, readGuideProject } from "../core/guides.js";
 import { loadPlanningPaths, planningReminderReport, planningIgnores, suggestCarriers } from "../core/planning.js";
 import { runCheckCore } from "../core/check.js";
+import { LIBRARY_VOLUMES } from "../core/place.js";
 import { readHookState } from "./hook.js";
 import type { CommandResult } from "./init.js";
 
@@ -40,7 +41,15 @@ export async function runStatus(root: string, opts: { json?: boolean } = {}): Pr
     } else {
       const fp = await libraryFingerprint(root);
       const stale = feed.docsHash !== null && feed.docsHash !== fp;
-      feedLine = `snapshot ${feed.snapshot ?? "?"} · fingerprint ${(feed.docsHash ?? "?").slice(0, 12)}${stale ? " ⚠ 反哺过期 → 重新蒸馏" : ""}`;
+      let walkPart: string;
+      if (feed.walk === null) walkPart = " · 走查 未留账 ⚠（重蒸馏时补 12 卷裁决）";
+      else if (feed.walk === "invalid") walkPart = " · 走查 非法 ⚠（volumes-fed/volumes-na 须为内联列表）";
+      else {
+        const covered = new Set(feed.walk.fed);
+        for (const v of feed.walk.na) covered.add(v);
+        walkPart = ` · 走查 ${covered.size}/${LIBRARY_VOLUMES.length}`;
+      }
+      feedLine = `snapshot ${feed.snapshot ?? "?"} · fingerprint ${(feed.docsHash ?? "?").slice(0, 12)}${stale ? " ⚠ 反哺过期 → 重新蒸馏" : ""}${walkPart}`;
     }
   } catch (e) {
     feedLine = `⚠ ${e instanceof Error ? e.message : String(e)}`;

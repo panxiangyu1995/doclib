@@ -3,15 +3,24 @@ import { collectFiles, fileExists, hashAll } from "./fsutil.js";
 import { computeDrift, DoclibError, latestSnapshot, LIBRARY_DIR, loadState } from "./state.js";
 import { buildCoverIndex, docsForPath } from "./mapping.js";
 import { hashDocs, validateMigrations, type CheckFinding } from "./ledger.js";
-import { fingerprintOf, managedRegionFresh, readGuideProject, GUIDE_PROJECT_PATH } from "./guides.js";
+import { fingerprintOf, managedRegionFresh, readGuideProject, GUIDE_PROJECT_PATH, type VolumesWalk } from "./guides.js";
 import { detectSuspectedToolchainDirs, scanExternalDocs } from "./orphan.js";
-import { scanBrokenLinks, checkGenreCompliance } from "./docquality.js";
+import { scanBrokenLinks, checkGenreCompliance, assumptionFindings } from "./docquality.js";
 import { loadPlanningPaths, planningIgnores } from "./planning.js";
 import { archivalFindings } from "./archival.js";
+import { acceptanceAnchorFindings } from "./implement.js";
+import { LIBRARY_VOLUMES } from "./place.js";
 
 export type { CheckFinding, CheckFindingKind } from "./ledger.js";
 
-export type CheckNoticeKind = "toolchain-exempt" | "guide-exempt" | "pointer-exempt" | "toolchain-suspect" | "newly-ignored";
+export type CheckNoticeKind =
+  | "toolchain-exempt"
+  | "guide-exempt"
+  | "pointer-exempt"
+  | "toolchain-suspect"
+  | "newly-ignored"
+  | "guide-feed-walk-absent"
+  | "assumption-draft";
 
 export type CheckNotice = {
   kind: CheckNoticeKind;
@@ -84,6 +93,53 @@ export type CheckResult = {
     docsChanged: string[];
   };
 };
+
+export type GuideWalkVerdict = { findings: CheckFinding[]; absent: boolean };
+
+export function guideWalkVerdict(walk: VolumesWalk): GuideWalkVerdict {
+  if (walk === null) return { findings: [], absent: true };
+  if (walk === "invalid") {
+    return {
+      findings: [
+        {
+          kind: "guide-feed-walk",
+          path: GUIDE_PROJECT_PATH,
+          detail: "走查账字段非法（volumes-fed/volumes-na 须为内联列表）→ 重新蒸馏补写 12 卷逐卷裁决",
+        },
+      ],
+      absent: false,
+    };
+  }
+  const findings: CheckFinding[] = [];
+  const known = new Set(LIBRARY_VOLUMES);
+  const covered = new Set(walk.fed);
+  for (const v of walk.na) covered.add(v);
+  const unknown = [...covered].filter((v) => !known.has(v));
+  const missing = LIBRARY_VOLUMES.filter((v) => !covered.has(v));
+  const overlap = [...new Set(walk.fed.filter((v) => walk.na.includes(v)))];
+  if (unknown.length > 0) {
+    findings.push({
+      kind: "guide-feed-walk",
+      path: GUIDE_PROJECT_PATH,
+      detail: `走查账含未知卷名（12 卷基线外）：${unknown.join(", ")}`,
+    });
+  }
+  if (missing.length > 0) {
+    findings.push({
+      kind: "guide-feed-walk",
+      path: GUIDE_PROJECT_PATH,
+      detail: `走查账未覆盖全部 12 卷（缺：${missing.join(", ")}）→ 逐卷补裁决（fed/na）`,
+    });
+  }
+  if (overlap.length > 0) {
+    findings.push({
+      kind: "guide-feed-walk",
+      path: GUIDE_PROJECT_PATH,
+      detail: `走查账重复裁决（同卷既 fed 又 na）：${overlap.join(", ")}`,
+    });
+  }
+  return { findings, absent: false };
+}
 
 export async function runCheckCore(root: string): Promise<CheckResult> {
   const state = await loadState(root);
@@ -168,6 +224,17 @@ export async function runCheckCore(root: string): Promise<CheckResult> {
       });
     }
   }
+  if (feed !== null) {
+    const walk = guideWalkVerdict(feed.walk);
+    findings.push(...walk.findings);
+    if (walk.absent) {
+      notices.push({
+        kind: "guide-feed-walk-absent",
+        path: GUIDE_PROJECT_PATH,
+        detail: "反哺簿记未留 12 卷走查账（volumes-fed/volumes-na）——soft 提示不判违规；重新蒸馏时补逐卷裁决",
+      });
+    }
+  }
 
   const planningDirs = loadPlanningPaths(state).map((p) => p.replace(/\/$/, ""));
   const scan = await scanExternalDocs(root);
@@ -230,6 +297,14 @@ export async function runCheckCore(root: string): Promise<CheckResult> {
     findings.push({ kind: "genre", path: `${LIBRARY_DIR}/${v.doc}`, detail: `${v.kind}：${v.detail}` });
   }
   findings.push(...(await archivalFindings(root, state)));
+  findings.push(...(await acceptanceAnchorFindings(root, loadPlanningPaths(state))));
+  const assumption = await assumptionFindings(path.join(root, LIBRARY_DIR));
+  for (const v of assumption.violations) {
+    findings.push({ kind: "assumption-residue", path: `${LIBRARY_DIR}/${v.doc}`, detail: v.detail });
+  }
+  for (const w of assumption.draftWarnings) {
+    notices.push({ kind: "assumption-draft", path: `${LIBRARY_DIR}/${w.doc}`, detail: w.detail });
+  }
   const health = healthScore({
     driftTotal: changedPaths.length,
     unaccounted: unaccountedCount,

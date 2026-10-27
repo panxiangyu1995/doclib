@@ -119,6 +119,9 @@ status: living
 | 墓碑 | 过时内容的原地注记【v0.18】：何时失效、为何失效、取代者指针——保证"旧决策落地参考"可追溯；过时内容降级不删除的载体 |
 | 文体 | 藏书文档的类型【v0.32】：`narrative`（叙述书，讲理解，教科书五段）/ `ledger`（登记簿册，供查询）/ `index`（索引页，导航）；识别优先级 = frontmatter `type` 字段 > 卷默认映射；规范与门禁见 §7.6 |
 | 档案卷 | `99-archive/`【v0.18】：收容过时叙述段落与退役文档，每份带墓碑元数据；不参与覆盖度考核，但参与索引；技术兜底：归档动作在快照链留痕，误删可追回 |
+| AC 锚点 | 验收标准的编号引用单元【v0.40】：30-features 验收标准编号 `AC-1..N`，以 `规格路径#AC-x` 形式被 .plan 骨架/实施清单/accept 答卷/同题共答答卷引用——验收标准写一次，全生命周期五处消费（规划/拆单/施工/验收/双跑） |
+| 语义件 | 外部规划工具产出物的语义分类【v0.40】：愿景定位/术语/功能规格+验收/技术方案/UI-UX/任务拆单/编码宪法/深度材料八类——四工具兼容映射表的组织轴（40-guides/010-tool-adoption.md） |
+| 规划直通车 | F17 总名【v0.40】：对话规划引擎（bootstrap v2）+ 工具兼容层（快照式收编）+ 拆单器（implement）+ 门禁三件套；双入口一管道——对话规划与工具转化殊途同归于「馆 + feature-map planned（AC 锚点）」，共用拆单与门禁 |
 
 ## 5. 目标与非目标
 
@@ -220,7 +223,7 @@ status: living
 - **文体合规门禁【v0.32】**（机器确定性维度，分级同 F13：默认 soft、`--strict` 阻断）：按 §7.6 文体对馆藏逐篇检查——①结构完备性（narrative 缺导读/三段）②卡片化（narrative 正文有效行 <10）③注记污染（实验编号/答卷日期/口径字样入正文）——三项为违规（strict 计入门禁）；④倾倒（表格/列表行占比 >70%）仅警告永不阻断；ledger 册、00-overview、95-lessons、99-archive、根 README/INDEX 豁免结构检查（细节见 §7.6）；语义层可读性裁决归 audit 抽查（教科书三问）
 - 说明：未覆盖 ≠ 必须建文档，粒度由 agent 按 skill 判断（目录级 covers 合法；登记簿条目为实体级 covers，粒度更细）
 
-### F5 Agent 引导注入（P0）【已确认；v0.6 修订：扩展源项目轻量引导】
+### F5 Agent 引导注入（P0）【已确认；v0.6 修订：扩展源项目轻量引导；v0.6.3 宪法反哺】
 
 **复原项目——完整引导**【已确认】：在复原产出的项目中生成并维护 `CLAUDE.md` 与 `AGENTS.md`，使 Claude 等通用 agent 进入项目即能自助明白：
 
@@ -232,12 +235,14 @@ status: living
 6. **无账不答纪律【v0.21，反幻觉】**：agent 查登记簿**无果时禁止凭空回答实体问题**——必须读码验证并**回填建账**（查码即建账的执法面）；"文档缺失 + agent 幻觉"是 AI 时代最危险的失效组合，纪律须写死
 7. **入馆写协调约定【v0.21，soft】**：入馆写前先跑 `doclib check` 对账（他人动过馆先对账再写）；单会话入馆写约定（详见 F13 写协调）
 8. **记忆冲突纪律【v0.22；Q39 确认采纳】**：agent 自动记忆或历史习惯与图书馆冲突时，**以图书馆为准**——馆是唯一事实源在 agent 侧的延伸（官方调研发现 agent 自动记忆与项目馆是两套记忆，须裁决规则）
+10. **教训实时性纪律【v0.6.4，#38/ADR #23】**：踩坑当下 .plan「失败尝试与踩坑」节记一行（一行制防中断丢失）→ 会话收尾核对回填并蒸馏 lessons 四段（planstore 四动作/doclib-dev 五问）→ epoch 后 lessons 条目必带 `来源:` 行且路径真实存在（check `lesson-source` 执法，F9 合规只做存在性）→ audit 上游完整性抽查兜底——三层对症「何时记」执法盲区
+9. **开发宪法反哺【v0.6.3，#37/ADR #22】**：反哺区「硬规则」升格「开发宪法」六篇（架构/编码/数据与迁移/UI-UX/测试与验收/禁区，每条一行+馆内路径指针；不适用显式 N-A 行；段末规则唯一事实源指针句——馆无规则→提案入 ADR/规格，禁止即兴发明）——防切换 agent/模型/换人产生编码习惯分歧与「一个项目多个 UI 规则」；蒸馏过**裁决三问**（实况-规范分离三原则：应然非实然/裁决必留痕/无法裁决显式豁免；项目原有规则文档双向裁决：描述性实况优先/规定性文档声称优先）；12 卷走查账（`volumes-fed`/`volumes-na`）入 check strict（缺席 soft 存量零破坏）
 
 **源项目——轻量工作流提醒**【已确认，v0.6 新增】：源项目可（用户选择开启）写入轻量 `CLAUDE.md`/`AGENTS.md` 片段，仅声明 DocLib 工作流规则（**实时同步规则**、F9 双锚点归档、保活循环触发时机），不包含完整引导内容。
 
 生成方式【已确认：CLI 模板 + agent 补充；v0.14 完善为区域契约】：
 
-- **区域契约**：引导文件分两区——`managed` 规则区（实时同步映射表/会话纪律/纪律底线/速查，CLI 全权管理）与 `custom` 定制区（项目专属内容，agent/用户维护）
+- **区域契约【v0.6.0 三区定稿；v0.6.3 宪法升格】**：引导文件分三区——`managed` 规则区（实时同步映射表/会话纪律/纪律底线/速查，CLI 全权管理）、`project` 图书馆反哺区（真相单源在簿记 `.doclib/guide-project.md`，五段蒸馏注入两份引导，含开发宪法六篇 + 12 卷走查账）、`custom` 定制区（项目专属内容，agent/用户维护；归属判据：真相在馆进 project 区，真相只在引导进 custom 区）
 - **三层分流【v0.21，防引导膨胀】**：引导文件只放**会话必守的少数硬规则**（映射表 + 纪律底线）；操作方法论进 skills；完整知识进馆——新增引导规则前先问"能否入 skill / 入馆"；预算意识见 Q37
 - **引导裁剪纪律【v0.22，官方最佳实践制度化；v0.23 硬预算定稿 Q37/38】**：新增引导规则前自问"**删掉这条 agent 会犯错吗**"——不会则入 skill / 入馆，绝不进引导；详细 API 知识用链接指向馆，禁止内联；关键规则**单点强调**（官方实验：多处 IMPORTANT 全部失效）；**硬预算：managed 区 ≤150 行**，`status` 报告行数、超限提示瘦身（只显示不阻断）
 - **`doclib sync`（可重入更新）**：把最新 skills 与引导规则区同步到已安装 agent；幂等（无变化不写）；旧版有戳无区文件整体再生并提示；无戳文件永远跳过
@@ -651,6 +656,23 @@ doclib/
 
 `doclib graph index|status|draft|explore`——index 建/同步/重建图；status 只读状态；draft 产出 `.doclib/drafts/` 四册登记簿候选（routes→80-design、modules→20-modules、dependencies→10-architecture、unused→状态机候选，每文件 `provenance: codegraph-draft` 警示头 + `TODO(agent)` 契约位，**禁止直接入馆**）；explore 面向 agent 的符号导航上下文（markdown 直出）。`init --graph` 交互第 4 问一步建图；BUILD 任务书检测 `.codegraph/` 附候选段。引擎：vendored codegraph CJS 岛（`src/core/codegraph/engine.ts` 单点桥 + Node∈[22.5,25) 门 + 优雅降级，graph 失败不阻塞 doclib 核心）。行为规格与验收标准：`30-features/graph.md`（AC1–AC10）。
 
+### F17 规划直通车（P0）【v0.40 立项，Q43–Q48】
+
+**定位**：打通「规划性文档 ↔ 图书馆 ↔ .plan 实施工单」的双向通路——新项目对话规划直接产馆；外部工具用户快照式收编；馆内规划一键拆单为可实施可验收的工单。**与 F9/Q11 的边界【Q44 拍板】**：本条所有生成能力均为**用户显式请求的服务**（命令驱动、opt-in、非默认行为），不属于 F9「不输出工作流」与 Q11「不提供规划文档模板」的约束范围——F9/Q11 原则文字不动。
+
+**四组件（双入口一管道）**：
+
+- **17a 对话规划引擎（bootstrap v2）**：`doclib-bootstrap` 升级为五阶段对话协议——阶段 0 Brain dump（用户倒出一切 + 指向已有文件/工具目录；命中四工具形态即转 17b）→ 阶段 1 定位与术语（`00-overview/project.md` + glossary.md；**Glossary 锚定**：此后对话全程逐字用术语，同义词即纪律违规）→ 阶段 2 功能规格（`30-features/`：行为叙述 + AC 编号可测验收标准（Given/When/Then）+ Out of Scope；推断打 ASSUMPTION 行内标签、用户确认后清零，残留由 17d 执法）→ 阶段 3 架构决策（**spine 判据**：「两个会话独立建造会不会选出不兼容的东西」——只记冲突面决策，防文档膨胀）→ 阶段 4 UI/UX（有界面才做，`80-design/`）。**双模式**：Fast（批量补漏 1–2 问 → 整篇草稿带 ASSUMPTION 标签）/ Coaching（逐节引导、答得薄即 push back）；每阶段收尾进**深化菜单**（9 方法固定集写死 skill 文本，零脚本零依赖：红队攻击/第一性原理/边界穷举/用户旅程走查/反漏项核对/前置条件质疑/换位审问（复原者·新用户·审计者三视角）/反例构造/简化挑战；HALT 等选择 + Apply/Reject 门控——未经用户接受不改稿）。
+- **17b 工具兼容层（快照式收编【Q46】）**：首批四工具 **BMAD / spec-kit / OpenSpec / Kiro**（Q47）；统一语义映射表入馆 `40-guides/010-tool-adoption.md`（八类语义件：愿景定位/术语/功能规格+验收/技术方案/UI-UX/任务拆单/编码宪法/深度材料 × 四工具源形态 × 馆唯一归宿）；CLI 仅持**形态识别模式闭集**（`_bmad-output/`、`.specify/`+`specs/`、`openspec/changes/`、`.kiro/specs/`）与映射预览（干跑，place list 建议形态同构）；**转化执行并入 doclib-bootstrap**（Q47）；兼容语义 = **快照式收编**——转化时刻内容入馆即唯一事实源，源文档原位保留（F9 双轨），源侧再改动 = 新规划信号 → 增量再转化；转化产物 frontmatter 记 `source-tool`/`source-path`/`source-hash`（**provenance**，与 graph draft 惯例同构），源 hash 变更 → status/plan 输出 soft 提醒「源已变更待再转化」；任务清单**自动提取 planned 候选 + agent 逐条与用户确认后登记**（机器出候选不代写）。
+- **17c 拆单器（图书馆 → .plan 实施工单）**：`doclib implement [--feature N] [--apply]`——无 feature 列 planned 候选清单；有则 **readiness 校验**（对应文档列有值 + AC 锚点可解析——馆内依据齐备才可开工，BMAD readiness gate 的 DocLib 映射）→ 干跑展示骨架 → `--apply` 落盘 `.plan/<日期>/<slug>.md`；骨架 frontmatter `type: plan-skeleton` / `feature: N` / `generated` / `anchors: [<规格路径#AC-x>...]`，目的/边界/引用锚点预填（馆内确定性字段），方案设计/实施清单留 `TODO(agent)` 契约位（graph draft 同款惯例）；agent 面新 skill `doclib-implement` 对话填实（施工顺序/方案/备选），实施清单每条引用 AC 锚点，**填实保留 frontmatter**（执法前提）。落点语义：任务书 = `.doclib/tasks/` 簿记工单，实施文档 = `.plan/` 载体规划材料——落点不同语义不同，分开不混（Q41 同源逻辑）。
+- **17d 门禁三件套**（check 违规类 14→17；全部存在性/词面判定零语义猜测，ADR #20 同范式）：① **acceptance-anchor**——载体中 `type: plan-skeleton` 生成物的实施清单条目缺 AC 引用 token、或引用的 AC 在馆内不存在（**仅约束 CLI 生成物，用户自由格式 .plan 不受检**——F9 不解析载体格式的边界守住）② **assumption-residue**——馆内 narrative 正文含未清 ASSUMPTION 词面（`status: draft` 降级警告，docquality 同构）③ **implementation-anchor**——feature-map in-progress 行对应文档列空/"-"（与沉淀锚点缺失镜像对称）。
+
+**设计推论**：
+
+- **AC 编号规范【Q45】**：30-features 验收标准编号 `AC-1..N`——新增文档强制、存量不追溯（Q33 先例）；AC 锚点贯穿「对话规划/工具转化 → 拆单骨架 → 施工自检 → accept 验收 → F14 同题共答双跑」**五处消费**——验收标准写一次全生命周期共用
+- **双入口一管道**：对话规划（17a）与工具转化（17b）殊途同归——馆内各卷 + feature-map planned 条目（带 AC 锚点）；此后共用拆单器（17c）→ doclib-dev 开发循环 → 门禁（17d）
+- **既有机制红利**：implement 生成的 .plan 文档须登记回 feature-map，否则触发「载体未登记」违规——闭环自洽，零新执法范式
+
 ## 10. 路线图【提案，待 PRD 稳定后重排】
 
 - v0.2：F10 落地——npm 发布、npx init、agent 适配表与 skills 安装；F5 引导文件注入落地；§7 基线分类法模板重做；git 感知基线
@@ -705,9 +727,18 @@ doclib/
 | Q41 | 孤儿处置的授权边界——「入棺」自动化是否越权（F13 原为手动三态）？剔除列闭集扩围到何处？处置面是新增命令还是复用既有命令？ | ✅ 已拍板（用户授权"所有需拍板项按长远考虑、一步到位"）：**新增 `doclib place` 第 12 命令**（不塞进 `ack`/`plan`——豁免与处置语义相反，混命令必乱）；剔除列扩为**工具链目录闭集 26 项 + 任意层级引导文件 + 归档指针文件**；入棺自动化**获授权**（F13 升格为四态 + 三层防线），护栏=干跑默认 + covers 硬拦截 + 归档账可 restore；处置面一次到位不分期；豁免扩展走 `ack --dir`（零代码）而非等下个版本 |
 
 | Q42 | 根级门面文件的多语言变体（`README.en.md` 等）算不算「生态惯例豁免」？逐项加进闭集还是模式识别？ | ✅ 已拍板（2026-10-22，用户指令"继续完成这个产品级建议"）：**模式识别**——`isRootFacadeFile` 按 locale 标签（BCP-47 形状 `^[a-z]{2}([-_][A-Za-z0-9]{2,8}){0,2}$`）识别 `README.<locale>.md` 等变体，与基名同权豁免；**否决逐项列举**（闭集必然滞后，同 95-lessons「豁免清单是闭集」教训——根治靠模式而非加条目）；locale 变体与基名在**孤儿判定面**同权，「无归属」判定面不变（仍需 covers 锚点，与 `README.md` 完全对等，不因语言而宽严不一） |
+| Q43 | F17 组件一：对话规划引擎载体——升级 bootstrap 还是新增独立 skill 群（doclib-prd/arch/ux）？深化菜单方法集规模？ | ✅ 已拍板（2026-10-27）：**A1 升级 bootstrap**（五阶段协议直接产馆，零新增 skill，复用 BOOTSTRAP 任务书/双锚点/feature-map；否决独立 skill 群——skill 爆炸且中间文档层违反单一事实源）；菜单**固定 9 方法**写死 skill 文本（用户选"8+"偏离推荐 6；否决 BMAD methods.csv+脚本——零重依赖铁律） |
+| Q44 | F17 组件二：图书馆→.plan 实施工单的 CLI 形态与 agent 面？与 F9「不输出工作流」/Q11「不提供模板」的关系？ | ✅ 已拍板（2026-10-27）：**独立命令 `doclib implement`** + 新 skill **doclib-implement**（否决扩展 plan 第六类型——任务书落 .doclib/tasks/ 簿记、实施文档落 .plan/ 载体，落点语义不同分开不混）；**F9/Q11 文字不动**——implement 定位为**用户显式请求的服务**（命令驱动、opt-in、非默认行为），不属于「输出工作流」约束范围，F17 条款登记边界；被否纯 CLI 全自动生成（施工顺序/方案是语义裁决，机器出候选不代写） |
+| Q45 | F17 基座：30-features 验收标准是否编号化（AC-1..N，.plan 引用锚点的前提）？ | ✅ 已拍板（2026-10-27）：**编号化**——新增文档强制、存量不追溯（Q33 先例）；AC 锚点以 `规格路径#AC-x` 贯穿规划/拆单/施工/验收/同题共答双跑五处 |
+| Q46 | F17 组件四：外部工具兼容语义——X 一次性迁移 / Y 持续同步 / Z 快照式收编？ | ✅ 已拍板（2026-10-27）：**Z 快照式收编**——转化时刻内容入馆即唯一事实源；源文档原位保留（F9 双轨）；源侧再改动 = 新规划信号 → 增量再转化（provenance hash 对账触发）；否决 Y（馆永远滞后于工具产出，agent 读旧规格，双事实源漂移危险）与 X（打断 BMAD 用户习惯） |
+| Q47 | F17 组件四：首批兼容工具范围？映射表落点？转化执行归谁？ | ✅ 已拍板（2026-10-27）：**四工具全上**（BMAD 54.6k★/spec-kit 143k★/OpenSpec 73k★/Kiro EARS——产物全为纯 Markdown，映射表驱动边际成本低；非 Markdown 工具如 task-master 后批观察）；映射表入**馆内 40-guides/010-tool-adoption.md**（先馆后码；否决 skill 内嵌/CLI 常量）；**转化执行并入 doclib-bootstrap**（用户选择，偏离推荐新 skill doclib-adopt）；provenance **hash 对账进 soft 提醒**（否决仅留痕不对账）；planned **自动提取+人工确认**（机器出候选不代写） |
+| Q48 | F17 组件三：门禁力度？acceptance-anchor 的执法边界（用户自由格式 .plan 是否受检）？ | ✅ 已拍板（2026-10-27）：**三件全上**（acceptance-anchor/assumption-residue/implementation-anchor，同 Q17「三层全上」先例；全部存在性/词面判定零语义猜测，ADR #20 同范式）；**acceptance-anchor 仅约束 CLI 生成物**（frontmatter `type: plan-skeleton`）——用户自由格式 .plan 不受检，F9 不解析载体格式的边界守住；in-progress 镜像扩展与沉淀锚点缺失对称 |
 
-> v0.12 时开放问题曾全部清零；v0.17–v0.22 历次立项新增 Q20–Q40；**v0.23 批量拍板 Q20–Q39（Q30/Q32 同步执行实体操作），Q40 留待 F14 实测；Q41 v0.29 拍板；Q42 为 v0.31 门面多语言变体立项新增**。
+> v0.12 时开放问题曾全部清零；v0.17–v0.22 历次立项新增 Q20–Q40；**v0.23 批量拍板 Q20–Q39（Q30/Q32 同步执行实体操作），Q40 留待 F14 实测；Q41 v0.29 拍板；Q42 为 v0.31 门面多语言变体立项新增；Q43–Q48 为 v0.40 规划直通车立项新增（2026-10-27 拍板）**。
 | v0.34 | 2026-10-26 | **进度账对账修复与三项裁决**（规划 .plan/2026-10-26/reconcile-path-resolution.md；用户裁决「全都做了」）：①**reconcile 判定修正**（F11 最底层兜底）——「对应文档」列改按**存在性**判定（多候选「 + 」拆分 + 库内/仓库根双解析 + 库内锚点与载体证据分流），修正旧实现（只取首 token 且一律按 `doclib/` 前缀解析）导致本仓 **15 条 implemented 全数误报**、真失真被淹没的缺陷；②**补建库内规格** `30-features/reconcile.md`——v0.25 以来首份 reconcile 规格（此前 `src/core/reconcile.ts` 无任何馆内 covers 锚点，规格欠账由「改代码即触发无归属」暴露）+ 两级索引登记；③**进度账三项裁决**——#17 文档治理全周期+双层图书馆 → **implemented**（九项子能力逐项取证落地）；#19 收窄为 **ast-grep 阶段 1**（规程与引导四纪律另立 #30 implemented、codegraph 阶段 2 = #25）；#23 描述更新（四馆建馆侧已建成，复原侧闭环与档案入馆待做）；④新条目 #30 / #31；ADR #17 |
 | v0.35 | 2026-10-26 | **对话原始记录档案区（98-sessions）与导出纪律**（规划 .plan/2026-10-26/transcript-archive.md；用户担忧 .plan 蒸馏层关键信息遗漏 + 会话记录 30 天自动清理实证——Claude Code `cleanupPeriodDays` / Gemini CLI `sessionRetention` 均默认 30d）：F9 双轨边界增设**唯一白名案例外**——agent 对话原始记录（transcript）入馆新分区 `98-sessions/`（98=档案但未失效，与 99-archive 失效棺材对偶；不入 LIBRARY_VOLUMES，place collect 闭集不变）；命名 `<slug>-<yyyymmdd>-<NN>.md` + frontmatter 五要素（type: transcript/tool/session-id/date/plan-slug）与 .plan 双向关联；planstore 指令升级（七栏目 + 反遗漏自检 + 会话收尾三动作，.opencode/.claude 双侧一致）；文体门禁全豁免（docquality `DEFAULT_GENRE` + check 循环双重）；M2 批量回捞 `doclib transcript`（OpenCode SQLite 渲染器起步；首个读用户主目录的能力面，只读 + 保真优先 + --redact 可选）登记 planned；M3 生态路线（Gemini CLI 开源 PR 候选 / Cursor 闭源仅人工）入 40-guides/transcripts.md；六项决策点按 INNOVATE 推荐代定；ADR #19；feature-map #33/#34 |
 | v0.36 | 2026-10-26 | **归档闭环强验证与载体检测建议**（规划 .plan/2026-10-26/archival-loop-enforcement.md；用户实证「特别容易遗漏更新进馆，还是手动更新了一次」+ 追问「怎么设计才不会发生漏录入馆内的情况，达到100%进馆？」）：①**归档闭环三不变量进 check strict**（F13 扩充，core/archival.ts）——载体未登记（已声明载体 .md 未被 feature-map 引用且无 ack，存在性判定）/进度账缺口（feature-map 行引用载体但 progress.md 无补记，交叉引用判定）/沉淀锚点缺失（implemented 行对应文档列为空，机械子集），经 pre-commit hook 自动执法；与 Q23 分层调和（mtime 提醒 soft 不变）；治理健康分公式不变 ②**常见载体检测建议落地**（兑现 F1 v0.17 悬空承诺）——init/status 检测 .specify//openspec//specs//.kiro/specs/ 未声明含 .md → 软提示声明；place list 载体形态识别（OpenSpec/spec-kit/Kiro）首建议声明而非收编，消除 .kiro/specs 静默豁免盲区 ③**featuremap.ts 抽取**（feature-map 解析去 reconcile 单点，供 archival/planning 复用）；测试 269→291；ADR #20；feature-map #35 |
 | v0.37 | 2026-10-26 | **教训账缺口不变量（归档闭环④）**（规划 .plan/2026-10-26/lesson-gap-enforcement.md；用户实证教训入馆纯靠自觉——hook REVIEW D-01/D-02 与 card 度量等教训未入档、progress 声明「95-lessons +2」跨馆歧义）：F13 归档闭环增第四不变量 `lesson-gap`——progress.md 置 `<!-- doclib:lesson-epoch -->` 标记（缺席不活跃=存量零破坏；非法 fail-fast）后，epoch 后条目强制末字段 `教训:` 处置位（`无（理由）` 或 `95-lessons[@<dir>] <date> · <标题>` 引用），引用按同日期+标题前缀在目标馆 lessons.md 存在性核对；lessons 条目增可选 `来源:` 行（双向回溯）；init 自动落标记+模板骨架教学；audit 增教训完备性抽查兜底；存量补录 6 课（D-01/D-02/card/自指/CLI 副作用断言/test script 漏登记）；**执行期发现 archival.test.js 漏登记 test script=测试静默退出执法门**（显式列表代价，教训入档+清单 diff 自查）；与 F9 不解析载体边界干净（只查库内账本）；ADR #21；feature-map #36 |
+| v0.38 | 2026-10-26 | **开发宪法反哺升格 + 12 卷走查执法**（规划 .plan/2026-10-26/guide-constitution.md；RIPER-5 四段；用户研究指令：架构/UI/SQL 等开发性规则应反哺两份引导作宪法铁律，防切换 agent/模型/换人产生规则分歧；拍板五段重组/γ 一步到位/custom 去重随轮/N-A 显式一行 + 追加两矛盾预案）：F5 增第 9 条**开发宪法反哺**——反哺「硬规则」升格「开发宪法」六篇（每条附馆内路径指针 + 不适用显式 N-A 行 + 规则唯一事实源指针句）；**实况-规范分离三原则**（应然非实然/裁决必留痕/无法裁决显式豁免）+ 项目原有规则文档**双向裁决**（描述性实况优先/规定性文档声称优先）；簿记 frontmatter 12 卷走查账（volumes-fed/volumes-na 齐备契约）——check 新违规类 `guide-feed-walk` strict 三面校验（未知卷/未全覆盖/重叠），缺席 soft 存量零破坏（ADR #21 先例）；语义裁决不入确定性检测（skills 裁决三问 + audit 抽查兜底）；F5 区域契约欠账修正（两区→三区，#32 时未同步）；custom 区双写去重；ADR #22；feature-map #37 |
+| v0.39 | 2026-10-26 | **教训实时性：一行制+收尾核对+来源行执法**（规划 .plan/2026-10-26/lesson-realtime.md；用户研究指令源于 #37 会话实测观察「教训为什么没记录进 lessons.md」——研究结论两条在馆引用命中，实质缺口 .plan 第九节承诺空置+轮末批量+「何时记」零执法；纯强调第三次实证无效）：F5 增第 10 条教训实时性纪律——β 踩坑一行制（当下记一行防中断丢失）+ α planstore 收尾四动作（踩坑回填与教训入档核对）+ γ audit 第 10 项上游完整性抽查 + δ lessons 来源行执法（`lesson-source-epoch` 标记与 lesson-epoch 同构，epoch 后条目必带来源行+路径 token 存在性核对——新违规类 `lesson-source` 第 14 类；F9 合规不解析 .plan 内容）；init 模板携标记 init 落当日；本仓违约回填（.plan 第九节 3 坑）+ 存量补来源（POSIX sh 条）；ADR #23；feature-map #38 |
+| v0.40 | 2026-10-27 | **F17 规划直通车立项**（规划 .plan/2026-10-27/planning-express.md；RIPER-5 四模式；BMAD 调研 context7+gh+官方文档四篇 + 外部工具调研 spec-kit/OpenSpec/Kiro；用户提问工具两批 13+1 项拍板）：F17 四组件（双入口一管道）——17a 对话规划引擎 bootstrap v2（五阶段协议：brain dump→定位术语 Glossary 锚定→功能规格 AC 化+ASSUMPTION 标签→架构 spine 判据→UI/UX 按需；Fast/Coaching 双模式；深化菜单 9 方法 HALT+Apply/Reject 门控）+ 17b 工具兼容层（BMAD/spec-kit/OpenSpec/Kiro 快照式收编 Z；统一语义映射表入 40-guides；转化执行并入 bootstrap；provenance source-tool/path/hash + 源 hash 对账 soft 提醒；planned 自动提取+人工确认）+ 17c 拆单器（`doclib implement [--feature N] [--apply]` readiness 校验+骨架生成 type: plan-skeleton+AC 锚点预填+TODO(agent) 契约位；新 skill doclib-implement 对话填实）+ 17d 门禁三件套（acceptance-anchor/assumption-residue/implementation-anchor，违规类 14→17，全部存在性/词面判定）；AC 编号化（Q45：30-features 验收标准 AC-1..N，新增强制存量不追溯）；**F9/Q11 文字不动**，implement 定位为用户显式请求的服务、F17 条款登记边界（Q44）；Q43–Q48 |

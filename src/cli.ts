@@ -12,6 +12,7 @@ import { runHook } from "./commands/hook.js";
 import { runReconcile } from "./commands/reconcile.js";
 import { runGraph } from "./commands/graph.js";
 import { runPlace } from "./commands/place.js";
+import { runImplement } from "./commands/implement.js";
 import { DoclibError } from "./core/state.js";
 import { CLI_VERSION } from "./core/version.js";
 
@@ -35,6 +36,7 @@ type Flags = {
   planning?: string;
   ci?: string;
   reason?: string;
+  feature?: number;
 };
 
 function parseArgs(argv: string[]): { cmd: string; args: string[]; flags: Flags } {
@@ -74,6 +76,7 @@ function parseArgs(argv: string[]): { cmd: string; args: string[]; flags: Flags 
     else if (a === "--planning") flags.planning = argv[++i];
     else if (a === "--ci") flags.ci = argv[++i];
     else if (a === "--reason") flags.reason = argv[++i];
+    else if (a === "--feature") flags.feature = Number(argv[++i]);
     else positional.push(a);
   }
   return { cmd: positional[0] ?? "help", args: positional, flags };
@@ -97,6 +100,7 @@ const HELP = `doclib — 把任意项目蒸馏成可复原的文档图书馆
   hook      pre-commit 钩子安装/移除（--strict；--ci github 发 CI 模板）
   reconcile 进度对账重建：疑似完成/进度不符/待推进清单
   graph     代码知识图谱: index 建图(增量同步)/status 状态/draft 登记簿候选草稿/explore 上下文查询（可选增强，需 Node >= 22.5）
+  implement 拆单器：无 --feature 列 planned 候选；--feature <N> readiness 校验后生成 .plan 实施骨架（干跑默认，--apply 落盘）
 
 选项:
   --json       以 JSON 输出 (diff/verify/status/place list/graph status)
@@ -111,13 +115,15 @@ const HELP = `doclib — 把任意项目蒸馏成可复原的文档图书馆
   --agents     init 适配的 agent: claude,opencode,cursor,generic（缺省交互/降级 generic）
   --guide      init 引导文件档位: light | none（缺省交互/降级 light）
   --planning   init 规划载体路径（逗号分隔多路径，默认 .plan/）
-  --apply      place 写操作实际执行（缺省仅干跑预览）
+  --apply      place 写操作实际执行（缺省仅干跑预览）；implement 骨架落盘（缺省仅预览）
+  --feature    implement 的 feature-map 功能号
   --dir        ack 以目录前缀登记豁免（不判孤儿但仍进代码账）
   --reason     place archive 的失效原因（入棺必填）
 
 闭环:
   init → plan(BUILD) → agent 按 doclib-build 构建图书馆 → verify → snapshot
   新项目: init → plan(--bootstrap) → agent 按 doclib-bootstrap 对话挖掘 → 文档先行开发
+  拆单:   doclib implement --feature <N> → agent 按 doclib-implement 填实实施清单 → 逐条 AC 施工自检
   半成品: init → plan(--resume) → agent 按 doclib-resume 蒸馏+登记规划 → 转日常开发
   改代码 → diff → plan(UPDATE) → agent 按 doclib-update 增量更新 → verify → snapshot
   馆外文档: check → place list → place collect/archive --apply → check（归位卫生分回升）
@@ -167,6 +173,9 @@ async function main(): Promise<void> {
       break;
     case "graph":
       console.log((await runGraph(root, args[1] ?? "", { ...flags, query: args[2] })).text);
+      break;
+    case "implement":
+      console.log((await runImplement(root, { feature: flags.feature, apply: flags.apply })).text);
       break;
     case "version":
     case "--version":

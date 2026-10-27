@@ -48,13 +48,18 @@ export type CheckFindingKind =
   | "migration"
   | "guide-stale"
   | "guide-feed-stale"
+  | "guide-feed-walk"
   | "orphan-doc"
   | "doc-quality"
   | "genre"
   | "carrier-unregistered"
   | "ledger-gap"
   | "anchor-missing"
-  | "lesson-gap";
+  | "lesson-gap"
+  | "lesson-source"
+  | "acceptance-anchor"
+  | "assumption-residue"
+  | "implementation-anchor";
 
 export type CheckFinding = {
   kind: CheckFindingKind;

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { healthScore, runCheckCore } from "./check.js";
+import { guideWalkVerdict, healthScore, runCheckCore } from "./check.js";
 import { hashAll } from "./fsutil.js";
 import { loadState, saveState, type Snapshot } from "./state.js";
 import { runSnapshot } from "../commands/snapshot.js";
@@ -244,4 +244,30 @@ test("check：无载体仓库 → 归档三不变量零误报", async () => {
   assert.ok(!r.findings.some((f) => f.kind === "carrier-unregistered"));
   assert.ok(!r.findings.some((f) => f.kind === "ledger-gap"));
   assert.ok(!r.findings.some((f) => f.kind === "anchor-missing"));
+});
+
+test("guideWalkVerdict：合法全覆盖零输出；未知卷/缺卷/重叠/invalid 各自独立检出；缺席→absent", () => {
+  const all = { fed: ["00-overview", "10-architecture", "20-modules", "30-features", "40-guides", "50-testing", "60-config", "70-deploy", "90-reference", "95-lessons"], na: ["80-design", "99-archive"] };
+  assert.deepEqual(guideWalkVerdict(all), { findings: [], absent: false });
+
+  const unknown = guideWalkVerdict({ fed: ["00-overview", "85-registry"], na: [] });
+  assert.equal(unknown.findings.length, 2);
+  assert.ok(unknown.findings.some((f) => /未知卷名/.test(f.detail ?? "") && /85-registry/.test(f.detail ?? "")));
+  assert.ok(unknown.findings.some((f) => /未覆盖全部 12 卷/.test(f.detail ?? "")));
+
+  const overlap = guideWalkVerdict({ fed: ["00-overview", "80-design"], na: ["80-design"] });
+  assert.ok(overlap.findings.some((f) => /重复裁决/.test(f.detail ?? "") && /80-design/.test(f.detail ?? "")));
+
+  const fedDup = guideWalkVerdict({ fed: ["00-overview", "00-overview"], na: [] });
+  assert.equal(fedDup.findings.length, 1);
+  assert.ok(/未覆盖全部 12 卷/.test(fedDup.findings[0]!.detail ?? ""));
+  assert.ok(!/重复裁决/.test(fedDup.findings[0]!.detail ?? ""));
+  const overlapDup = guideWalkVerdict({ fed: ["00-overview", "00-overview", "80-design"], na: ["80-design"] });
+  assert.equal((overlapDup.findings.find((f) => /重复裁决/.test(f.detail ?? ""))!.detail ?? "").match(/80-design/g)!.length, 1);
+
+  const invalid = guideWalkVerdict("invalid");
+  assert.equal(invalid.findings.length, 1);
+  assert.ok(/字段非法/.test(invalid.findings[0]!.detail ?? ""));
+
+  assert.deepEqual(guideWalkVerdict(null), { findings: [], absent: true });
 });

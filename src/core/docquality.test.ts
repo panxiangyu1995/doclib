@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { checkGenreCompliance, checkVolumeIndexes, scanBrokenLinks } from "./docquality.js";
+import { assumptionFindings, checkGenreCompliance, checkVolumeIndexes, scanBrokenLinks } from "./docquality.js";
 
 async function tmpLib(): Promise<string> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "doclib-docq-"));
@@ -21,6 +21,12 @@ test("scanBrokenLinks：馆内相对断链检出；外链/锚点/根绝对/INDEX
   );
   await fs.writeFile(path.join(root, "doclib", "50-testing", "t.md"), "T", "utf8");
   await fs.writeFile(path.join(root, "doclib", "INDEX.md"), "[broken](nope.md)", "utf8");
+  await fs.mkdir(path.join(root, "doclib", "98-sessions"), { recursive: true });
+  await fs.writeFile(
+    path.join(root, "doclib", "98-sessions", "s-20261026-01.md"),
+    "对话原文提及 [check.md](check.md) 与 [nope.md](nope.md)——原文不改写不进链接对账",
+    "utf8",
+  );
   const broken = await scanBrokenLinks(root);
   assert.deepEqual(broken, ["30-features/a.md → missing.md"]);
 });
@@ -242,4 +248,29 @@ test("checkGenreCompliance：400 字符阈值——稀薄正文（<10 行且 <40
   const r = await checkGenreCompliance(path.join(root, "doclib"));
   assert.ok(r.violations.some((x) => x.doc === "30-features/thin.md" && x.kind === "card"));
   assert.equal(r.violations.filter((x) => x.doc === "30-features/rich.md").length, 0);
+});
+
+test("assumptionFindings：narrative 含 ASSUMPTION → 违规；draft 降级警告；ledger 忽略", async () => {
+  const root = await tmpLib();
+  const lib = path.join(root, "doclib");
+  await fs.writeFile(
+    path.join(lib, "30-features", "a.md"),
+    "---\ntitle: A\ncovers: []\nstatus: stable\n---\n\n# A\n\n导读。\n\n## 为什么\n\n叙述。\n\n## 是什么\n\n叙述。\n\n## 怎么运转\n\n含 [ASSUMPTION: 未确认推断] 的段落。\n",
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(lib, "30-features", "d.md"),
+    "---\ntitle: D\ncovers: []\nstatus: draft\n---\n\n# D\n\n导读。\n\n## 为什么\n\n叙述。\n\n## 是什么\n\n叙述。\n\n## 怎么运转\n\n含 [assumption: 小写命中] 的段落。\n",
+    "utf8",
+  );
+  await fs.mkdir(path.join(lib, "60-config"), { recursive: true });
+  await fs.writeFile(
+    path.join(lib, "60-config", "c.md"),
+    "---\ntitle: C\ncovers: []\nstatus: stable\ntype: ledger\n---\n\n| 键 | 值 |\n| --- | --- |\n| ASSUMPTION | x |\n",
+    "utf8",
+  );
+  const r = await assumptionFindings(lib);
+  assert.deepEqual(r.violations.map((v) => v.doc), ["30-features/a.md"]);
+  assert.deepEqual(r.draftWarnings.map((v) => v.doc), ["30-features/d.md"]);
+  assert.ok(r.draftWarnings[0]!.detail.includes("[draft 降级]"));
 });

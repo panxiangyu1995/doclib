@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { CUSTOM_BEGIN, CUSTOM_END, GUIDE_BUDGET_LINES, PROJECT_BEGIN, PROJECT_BUDGET_LINES, PROJECT_END, applyProjectRegion, fingerprintOf, guideBudgetReport, managedRegionFresh, parseGuideStamp, readGuideProject, renderGuide, renderFullGuide, writeGuides } from "./guides.js";
+import { CUSTOM_BEGIN, CUSTOM_END, GUIDE_BUDGET_LINES, PROJECT_BEGIN, PROJECT_BUDGET_LINES, PROJECT_END, applyProjectRegion, fingerprintOf, guideBudgetReport, managedRegionFresh, parseGuideStamp, parseVolumesWalk, readGuideProject, renderGuide, renderFullGuide, writeGuides } from "./guides.js";
 import { DoclibError } from "./state.js";
 import { AGENT_TARGETS } from "./agents.js";
 
@@ -109,8 +109,21 @@ test("readGuideProject：无文件/空正文 → null；frontmatter 解析 snaps
   assert.equal(feed.snapshot, 3);
   assert.equal(feed.docsHash, "abc123");
   assert.equal(feed.body, "正文内容");
+  assert.equal(feed.walk, null);
   await fs.writeFile(path.join(root, ".doclib", "guide-project.md"), "---\nsnapshot: 3\n---\n\n", "utf8");
   assert.equal(await readGuideProject(root), null);
+});
+
+test("parseVolumesWalk：双列表合法/单边或非列表 invalid/缺席 null/trim 去空", () => {
+  assert.equal(parseVolumesWalk({}), null);
+  assert.equal(parseVolumesWalk({ "volumes-fed": "80-design" }), "invalid");
+  assert.equal(parseVolumesWalk({ "volumes-fed": ["10-architecture"] }), "invalid");
+  assert.equal(parseVolumesWalk({ "volumes-na": ["80-design"] }), "invalid");
+  const walk = parseVolumesWalk({
+    "volumes-fed": [" 10-architecture ", "", "40-guides"],
+    "volumes-na": ["80-design", "99-archive"],
+  });
+  assert.deepEqual(walk, { fed: ["10-architecture", "40-guides"], na: ["80-design", "99-archive"] });
 });
 
 test("readGuideProject：正文含区域保留标记 → DoclibError（D-1：防注入破坏 custom 契约）", async () => {

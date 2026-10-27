@@ -18,19 +18,21 @@ status: living
 | [10-architecture/data-model.md](10-architecture/data-model.md) | state.json v2 与 frontmatter 字段语义 | stable |
 | [10-architecture/data-flow.md](10-architecture/data-flow.md) | init 落位流、保活三层流、复原流 | stable |
 | [10-architecture/dependencies.md](10-architecture/dependencies.md) | 依赖选型决策（ignore 等） | stable |
-| [10-architecture/decisions.md](10-architecture/decisions.md) | ADR 二十一则（assets 化/戳策略/双层图书馆/基准测试/归位宪法/开放册制/移除规程与工具集成/codegraph 集成/门面多语言变体豁免/文体学/旗标面对账/对应文档存在性判定/引导图书馆反哺/98-sessions 档案区/归档闭环三不变量/教训账缺口等） | stable |
+| [10-architecture/decisions.md](10-architecture/decisions.md) | ADR 二十三则（…/开发宪法与走查账/教训实时性三层等） | stable |
 | [10-architecture/prd.md](10-architecture/prd.md) | DocLib PRD（v0.23，需求唯一事实源；v0.23 迁入馆） | living |
 | [10-architecture/design.md](10-architecture/design.md) | 架构设计 v2（对齐 PRD；v0.23 迁入馆） | living |
 | [10-architecture/migrations.md](10-architecture/migrations.md) | 数据库迁移账本（取号/状态/纪律，暂空置） | living |
-| [20-modules/_index.md](20-modules/_index.md) | 模块索引（18 个模块，covers 齐全） | stable |
+| [20-modules/_index.md](20-modules/_index.md) | 模块索引（core/commands 全模块职责与 covers，数量以本表为准） | stable |
 | [30-features/_index.md](30-features/_index.md) | 功能规格索引（含规格欠账清单） | stable |
 | [30-features/init-v2.md](30-features/init-v2.md) | init v2 行为规格 + 验收标准（门禁自动装 v0.5.1 + 常见载体检测建议 v0.6.1） | stable |
-| [30-features/check.md](30-features/check.md) | 强验证体系规格（check/ack/hook + 十一类违规含归档闭环四不变量 + 四态判定与三层防线） | stable |
+| [30-features/check.md](30-features/check.md) | 强验证体系规格（check/ack/hook + 十七类违规含归档闭环四不变量与教训来源缺失与验收锚点/假设残留/实施锚点三新类 + 四态判定与三层防线） | stable |
 | [30-features/hook.md](30-features/hook.md) | 提交门禁规格（install/remove/ci + fail-closed 自检 + worktree + init 自动装/sync 幂等补装） | stable |
 | [30-features/place.md](30-features/place.md) | 孤儿归位与处置规格（place 五子命令 + 干跑契约 + 入棺三护栏 + 载体形态识别建议） | living |
 | [30-features/graph.md](30-features/graph.md) | 代码知识图谱规格（graph 命令族 + 草稿候选管道 + vendor CJS 岛与降级） | living |
 | [30-features/reconcile.md](30-features/reconcile.md) | 进度对账规格（reconcile 三段报告 + 对应文档混合引用判定 + 库内/载体证据分流） | stable |
-| [30-features/guides.md](30-features/guides.md) | 引导文件体系规格（三区契约 + 图书馆反哺注入 + 双闸检测 + 双预算） | stable |
+| [30-features/guides.md](30-features/guides.md) | 引导文件体系规格（三区契约 + 图书馆反哺注入 + 开发宪法六篇 + 12 卷走查账 + 双闸检测 + 双预算） | stable |
+| [30-features/040-planning-express.md](30-features/040-planning-express.md) | F17 规划直通车规格（bootstrap v2 五阶段对话协议 + 工具兼容层快照式收编 + implement 拆单器 + 门禁三件套 + AC 编号规范） | stable |
+| [40-guides/010-tool-adoption.md](40-guides/010-tool-adoption.md) | 外部规划工具收编指南（BMAD/spec-kit/OpenSpec/Kiro 语义映射表 + 快照式收编纪律 + provenance 规范） | stable |
 | [40-guides/rebuild-plan.md](40-guides/rebuild-plan.md) | 复原路线图（更名 roadmap 待迁移） | draft |
 | [40-guides/conventions.md](40-guides/conventions.md) | 编码约定 | draft |
 | [40-guides/benchmark.md](40-guides/benchmark.md) | 复原基准测试指南（F14 方法论操作沉淀） | living |

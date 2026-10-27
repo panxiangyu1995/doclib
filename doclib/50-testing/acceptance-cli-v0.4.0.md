@@ -67,3 +67,8 @@ type: ledger
 - zsh 变量不分词导致 CLI 调用失败（环境，非产品）
 - `cli` 与用户机器既有 ao-cli 包装命令重名（环境）
 - --force 覆盖同名模板 / cursor skillsDir=null / rebuild 无基线可生成——三处初判 FAIL 均为断言与规格不符，规格本身正确
+
+## v0.7.0 追记（规划直通车）
+
+- `doclib implement` 第十四命令注册于 `src/cli.ts`（--feature/--apply）；验收规格 `30-features/040-planning-express.md`（AC-1..12），临时目录冒烟 10 项全过（候选清单/readiness 拒绝 exit 1/干跑不落盘/--apply 落盘 frontmatter 齐备/三新违规类正反例/F9 自由格式豁免/provenance 提醒/四工具形态识别）
+- 命令语义以 `src/cli.ts` HELP 为唯一事实源；本轮 HELP 同步 implement 行与闭环指引

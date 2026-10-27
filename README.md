@@ -183,6 +183,7 @@ doclib/
 | --- | --- | --- | --- |
 | 建馆 | `init` | 初始化 `doclib/` 骨架、`.doclib/` 簿记、skills 与引导文件 | 接入一个新 repo |
 | 建馆 | `plan` | 生成任务书：BUILD / UPDATE / REBUILD / BOOTSTRAP / RESUME | 每次开工前 |
+| 建馆 | `implement` | 拆单器：planned 候选清单 → readiness 校验 → `.plan` 实施骨架（AC 锚点预填，干跑默认、`--apply` 落盘） | 馆内功能开工前 |
 | 建馆 | `verify` | 覆盖度报告：未覆盖路径 / 失效文档 / INDEX 完整性 | 建馆后、每次增量更新后 |
 | 建馆 | `snapshot` | 把当前代码状态记为新基线（图书馆版本 +1，revision +1） | 同步完成后 |
 | 保活 | `diff` | 当前代码 vs 基线：漂移清单 + 受影响文档 | 开发中随时 |
@@ -195,7 +196,7 @@ doclib/
 | 增强 | `sync` | 引导文件规则区与 skills 同步再生（幂等，定制区保留） | 升级 CLI 后 |
 | 增强 | `graph` | 代码知识图谱：`index` / `status` / `draft` / `explore <query>`（可选增强，需 Node ≥ 22.5） | 大仓库加速 |
 
-会改变行为的常用选项：`--agents`（init 的 agent 目标）、`--planning`（init 的规划载体路径）、`--json`（机器可读输出）、`--strict`（check / hook 门禁）、`--apply`（place 实际执行写操作）、`--to`（rebuild 目标目录 / place 目标卷）。完整选项见 `doclib --help`。
+会改变行为的常用选项：`--agents`（init 的 agent 目标）、`--planning`（init 的规划载体路径）、`--json`（机器可读输出）、`--strict`（check / hook 门禁）、`--apply`（place 实际执行写操作 / implement 骨架落盘）、`--feature`（implement 的功能号）、`--to`（rebuild 目标目录 / place 目标卷）。完整选项见 `doclib --help`。
 
 > `graph` 是可选增强：需要 Node ≥ 22.5，缺失时优雅降级，**不阻塞任何核心流程**；图输出只是候选，须经 agent 核实后才能入馆。
 
@@ -210,6 +211,7 @@ skills 由 agent 按名称加载，各自绑定一个触发场景：
 | `doclib-rebuild` | 只凭图书馆从零复原 | `plan --rebuild` |
 | `doclib-dev` ★ | 任何日常开发会话 | `status` / `diff` / `snapshot` |
 | `doclib-bootstrap` | 新项目对话式建馆 | `plan --bootstrap` |
+| `doclib-implement` | planned 功能细化为实施工单（AC 锚点填实） | `implement` 生成骨架后 |
 | `doclib-resume` | 半成品项目接手 | `plan --resume` |
 | `doclib-setup` | init 之后的安装与适配确认 | `init` / `sync` |
 | `doclib-reconcile` | 进度账与代码对账 | `reconcile` |

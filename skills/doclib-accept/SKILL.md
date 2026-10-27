@@ -24,8 +24,8 @@ description: 验收执行器。当功能完成、REBUILD 复原收尾、或需�
 1. **圈定范围**：从 feature-map 取目标条目（或全部 in-progress 条目），读对应 30-features 规格
 2. **逐条执行验收标准**：
    - 每条 Given/When/Then：构造前置（Given）→ 执行动作（When）→ 断言结果（Then）
-   - 留痕（**双跑答卷格式**，与 30-features 模板同构，两侧答卷可逐条 diff，一致率即复原度得分）：
-     `条目号 | 输入/动作 | 期望 | 实测 | 一致? | 证据`
+    - 留痕（**双跑答卷格式**，与 30-features 模板同构，两侧答卷可逐条 diff，一致率即复原度得分）：
+      `条目号 | 输入/动作 | 期望 | 实测 | 一致? | 证据`——条目号用馆内 **AC 编号**（`AC-x`；.plan 实施清单引用同一锚点，施工自检与本验收同源；存量无编号文档按 Given/When/Then 顺序编号并在答卷头部声明口径）
    - 答卷头部记录**运行时声明**（node/依赖版本、环境前置 DB/端口），保证双跑同构
    - **断言可观测**：证据落到状态码/响应体形状/DB 行数/退出码；契约细节（方法/状态码/参数/凭证载体）从响应与代码实证，不从文档转抄——发现与文档不符即回写规格（表述缺陷）
    - **含不可逆动作的功能**（如归位处置 `doclib place`）必须三段验收：①干跑无副作用（不加 `--apply` 时零落盘）②`--apply` 后状态正确（墓碑五要素、原路径指针、两级索引登记、归档账条目）③还原路径可用（`place restore` 回原位）
@@ -33,7 +33,7 @@ description: 验收执行器。当功能完成、REBUILD 复原收尾、或需�
 3. **失败处置**：实现 bug → 转修复（doclib-dev）；规格歧义 → 回写规格（表述缺陷）；规格缺失 → 补规格再验收
 4. **留痕文件**：验收结果写入 `doclib/50-testing/`（或 40-guides 指定位置）；REBUILD 场景写 REBUILD-LOG.md
 5. **全绿判定**：目标条目全部验收通过 → feature-map 推 implemented；REBUILD 场景 = 90% 复原达成
-6. **蒸馏反哺区**：验收涉及馆内容变更时，重新蒸馏 `.doclib/guide-project.md`（frontmatter 更新 `snapshot` 与 `docs-hash`——`doclib status` 反哺行报 ⚠ 反哺过期即需更新），五段各 ≤10 行、每条附馆内路径；`doclib sync` 注入引导文件
+6. **蒸馏反哺区（开发宪法）**：验收涉及馆内容变更时，重新蒸馏 `.doclib/guide-project.md`（frontmatter 更新 `snapshot`、`docs-hash` 与 **12 卷走查账** `volumes-fed`/`volumes-na`——`doclib status` 反哺行报 ⚠ 反哺过期即需更新），五段各 ≤10 行、每条附馆内路径；「硬规则」段按**开发宪法六篇**蒸馏（架构/编码/数据迁移/UI-UX/测试/禁区，不适用显式 N-A 行，段末事实源指针句），落笔前过**裁决三问**（实况混用先裁决留痕；描述性实况优先/规定性文档声称优先）；走查账逐卷裁决（fed/na 齐备，check `guide-feed-walk` 强校验）；`doclib sync` 注入引导文件
 7. **收尾**：`doclib check` → `doclib snapshot --note "accept: <范围>"`
 
 ## 纪律

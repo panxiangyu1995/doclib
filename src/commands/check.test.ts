@@ -165,6 +165,28 @@ test("check：project 区直改报引导过期，sync 修复归零", async () =>
   assert.doesNotMatch(r.text, /引导过期/);
 });
 
+test("check：走查账缺卷报违规，补齐归零；旧簿记缺席仅 soft notice", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  const fed = "00-overview, 10-architecture, 20-modules, 30-features, 40-guides, 50-testing, 60-config, 70-deploy, 90-reference, 95-lessons";
+  const full = `---\nsnapshot: 1\nvolumes-fed: [${fed}]\nvolumes-na: [80-design, 99-archive]\n---\n\n## 项目反哺\n`;
+  await put(root, ".doclib/guide-project.md", full);
+  let r = await runCheck(root, {});
+  assert.doesNotMatch(r.text, /走查账违规/);
+  await put(root, ".doclib/guide-project.md", full.replace("60-config, ", ""));
+  r = await runCheck(root, {});
+  assert.match(r.text, /走查账违规 \(1\)/);
+  assert.match(r.text, /未覆盖全部 12 卷（缺：60-config）/);
+  await put(root, ".doclib/guide-project.md", full);
+  r = await runCheck(root, {});
+  assert.doesNotMatch(r.text, /走查账违规/);
+  await put(root, ".doclib/guide-project.md", "---\nsnapshot: 1\n---\n\n## 项目反哺\n");
+  r = await runCheck(root, {});
+  assert.doesNotMatch(r.text, /走查账违规/);
+  const j = JSON.parse((await runCheck(root, { json: true })).text) as { notices: { kind: string }[] };
+  assert.ok(j.notices.some((n) => n.kind === "guide-feed-walk-absent"));
+});
+
 test("check：孤儿文档检出/豁免路径（根级豁免/前缀豁免/covers 有主；豁免 ≠ 免无归属）", async () => {
   const root = await tmpRoot("doclib-acc-check-");
   await seedBase(root);

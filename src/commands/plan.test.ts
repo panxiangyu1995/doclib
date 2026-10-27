@@ -16,15 +16,14 @@ async function tasks(root: string): Promise<string[]> {
   return fs.readdir(path.join(root, ".doclib", "tasks")).catch(() => [] as string[]);
 }
 
-test("plan --bootstrap：生成 BOOTSTRAP 任务书（含挖掘清单与 revision）", async () => {
+test("plan --bootstrap：生成 BOOTSTRAP 任务书（含五阶段协议与 revision）", async () => {
   const root = await tmp();
-  await fs.mkdir(path.join(root, "doclib"), { recursive: true });
+  await seedState(root);
   const r = await runPlan(root, { bootstrap: true });
   assert.match(r.text, /BOOTSTRAP-001/);
   const content = await fs.readFile(path.join(root, ".doclib", "tasks", "BOOTSTRAP-001.md"), "utf8");
-  assert.ok(content.includes("对话挖掘"));
-  assert.ok(content.includes("revision: 0"));
-  assert.ok(content.includes("文档先行"));
+  assert.ok(content.includes("五阶段对话协议"));
+  assert.ok(content.includes("doclib implement"));
 });
 
 test("plan --resume：生成 RESUME 任务书（含项目清单）", async () => {

@@ -30,7 +30,7 @@ status: stable
 
 ## 怎么运转
 
-`doclib check [--strict] [--json]`——无 AI、无网络、可复现。违规分类 10 类（另含非违规状态 3 类与豁免提示 notices）：
+`doclib check [--strict] [--json]`——无 AI、无网络、可复现。违规分类 17 类（另含非违规状态 3 类与豁免提示 notices）：
 
 | 分类 | 判定 | 违规 |
 | --- | --- | --- |
@@ -40,16 +40,22 @@ status: stable
 | 文档先行 | 只改文档 | 否 |
 | 已豁免 | ack 命中（once 绑定基线 / standing 长期） | 否 |
 | 迁移违规 | migrations/ 脚本未登记、编号重复、断号、账本指向不存在、命名不符 | 是 |
-| 引导过期 | 引导 managed 区落后模板 | 提示 sync |
+| 引导过期 | 引导 managed 区落后模板，或 project 区≠簿记注入结果（直改/落后） | 提示 sync |
+| 反哺过期 | 簿记 `docs-hash` ≠ 当前馆内指纹（馆变了反哺没跟上，`core/check.ts`） | 是（strict 计入门禁） |
 | 孤儿文档 | 馆外知识型 .md 未收编且未豁免（豁免：根 README/CHANGELOG/CONTRIBUTING **及其多语言变体**（`README.<locale>.md` 等，locale 标签形如 `en`/`zh-CN`/`pt_BR`）+ 工具链目录闭集 26 项 + 任意层级引导文件 + 归档指针文件） | 是（strict 计入门禁；默认 soft 报告语义） |
-| 文档质量 | 馆内相对 .md 链接失效（外链/锚点/根绝对路径跳过；INDEX.md 自身跳过，与 verify 同源扫描 `core/docquality.ts`） | 是（strict 计入门禁） |
+| 文档质量 | 馆内相对 .md 链接失效（外链/锚点/根绝对路径跳过；INDEX.md 自身跳过；**98-sessions 会话档案区跳过 v0.6.3**——对话原文中的路径提及非馆内链接契约，与文体豁免同口径 ADR #19；与 verify 同源扫描 `core/docquality.ts`） | 是（strict 计入门禁） |
 | 文体违规 | 按 PRD §7.6 文体逐篇检查（`checkGenreCompliance`）：①narrative 缺导读/三段（为什么/是什么/怎么运转）②narrative 正文有效行 <10 且有效字符 <400（卡片化，双阈值抓稀薄）③注记污染（过程短语，全文体生效）——三项违规；`status: draft` 文档的①②降级为警告（不计门禁），③不降级；④倾倒（表格/列表行占比 >70%）仅 verify 警告不进 check。豁免：_index/README/INDEX、98-sessions（对话原始记录档案区——**全豁免含污染检查**，对话原文不改写，ADR #19）、99-archive、50-testing/benchmark 档案区、ledger·00-overview·95-lessons 免结构检查；frontmatter `type` 覆盖 > 卷默认 | 是（strict 计入门禁） |
 | 载体未登记 | 已声明规划路径（`state.planning`）下每个 `.md`：未被 feature-map「对应文档」列任一行引用（原始子串判定，存在性非 mtime 零噪音）且无 ack 豁免（`core/archival.ts`）——归档闭环不变量①，拦「锚点一漏登记」 | 是（strict 计入门禁） |
 | 进度账缺口 | feature-map 行引用的载体路径（按已声明前缀匹配，注解括号切分后按「 + 」拆分）未出现在 `progress.md` 原文中——归档闭环不变量②，拦「进度账记一半」（feature-map 有 / progress 无） | 是（strict 计入门禁） |
 | 沉淀锚点缺失 | feature-map 行 status=implemented 且「对应文档」列为空或 "—"——归档闭环不变量③（语义沉淀的机械子集，不追溯仅引用目录的既有行），拦「实现了却零文档沉淀」 | 是（strict 计入门禁） |
 | 教训账缺口 | progress.md 含 `<!-- doclib:lesson-epoch: YYYY-MM-DD -->` 标记（缺席=不变量不活跃，存量库零破坏；标记在而日期非法 → fail-fast）时：①epoch 之后条目缺末字段 `教训:` 处置位 ②处置引用（`95-lessons[@<dir>] <date> · <标题>`，多条「；」分隔）在目标馆 lessons.md 无 `## <date> · <标题>` 前缀命中（`core/archival.ts`）——归档闭环不变量④，拦「教训没想过」与「声明了却没入档」 | 是（strict 计入门禁） |
+| 走查账违规 | 反哺簿记 frontmatter 12 卷走查账（`volumes-fed`/`volumes-na` 双列表必须齐备，单边判非法）：①未知卷名（12 卷基线外）②fed∪na≠12 卷闭集（漏裁决）③两集重叠（重复裁决）④字段非列表（`core/check.ts` `guideWalkVerdict`）；**走查账缺席仅 notice 不违规**（存量零破坏，ADR #21 先例）——拦「蒸馏漏卷」与「闭集覆盖不可判定」 | 是（strict 计入门禁） |
+| 教训来源缺失 | lessons.md 置 `<!-- doclib:lesson-source-epoch: YYYY-MM-DD -->` 标记（缺席=不变量不活跃存量零破坏；非法 fail-fast）后：epoch（条目标题日期 ≥ epoch）条目①缺 `来源[:：]` 行 ②来源行中路径 token（doclib/|.plan|src/skills 等前缀）在仓库根/馆内不存在（防幻觉路径；无路径 token 的描述性来源合法）——`core/archival.ts` `lessonSourceFindings`，拦「记了却不可回溯」与「来源指鹿为马」（v0.6.4 #38） | 是（strict 计入门禁） |
+| 验收锚点缺失 | 已声明规划路径下 frontmatter `type: plan-skeleton` 的**生成物**文档：实施清单条目（`- [ ]` 复选行）缺 AC 引用 token（`AC-<数字>`），或引用的 `规格路径#AC-x` 锚点（规格文档或 AC 编号）在馆内不存在——**仅约束 CLI 生成物，用户自由格式 .plan 不受检**（F9 不解析载体格式的边界；v0.40 #39），拦「实施与验收脱钩的自说自话」 | 是（strict 计入门禁） |
+| 假设残留 | 馆内 narrative 文档正文含未清假设标签词面（带冒号载荷的行内标签；词面规则归 `core/docquality.ts` 实现，规范文档不落词面防自指误报——同注记污染纪律）——对话规划的推断残留毒化事实源（v0.40 #39）；`status: draft` 降级警告不阻断（同文体①②惯例） | 是（strict 计入门禁） |
+| 实施锚点缺失 | feature-map 行 status=in-progress 且「对应文档」列为空、"-" 或 "—"（ASCII 与全角空位同判）——沉淀锚点缺失的镜像对称（in-progress 应有 .plan 实施文档或馆内规格在改；v0.40 #39），拦「开工了却无实施载体」 | 是（strict 计入门禁） |
 
-分类口径统一（v0.29 修正措辞；v0.32 增文体；v0.6.1 增归档闭环三不变量；v0.6.2 增教训账缺口）：**违规 findings 11 类**（unaccounted / uncovered / migration / guide-stale / orphan-doc / doc-quality / genre / carrier-unregistered / ledger-gap / anchor-missing / lesson-gap）＋**非违规状态 3 类**（已对账 / 文档先行 / 已豁免）＋**豁免与提示 notices**（不计门禁、不扣治理分，仅计数可见）。归档闭环四不变量**不计入治理健康分五分项**（公式不变），执法面走 strict 门禁与 pre-commit hook。
+分类口径统一（v0.29 修正措辞；v0.32 增文体；v0.6.1 增归档闭环三不变量；v0.6.2 增教训账缺口；v0.6.3 增走查账违规并补列 guide-feed-stale——口径行历史上漏计该类，与 union 对齐；v0.6.4 增教训来源缺失；v0.40 增验收锚点缺失/假设残留/实施锚点缺失）：**违规 findings 17 类**（unaccounted / uncovered / migration / guide-stale / guide-feed-stale / guide-feed-walk / orphan-doc / doc-quality / genre / carrier-unregistered / ledger-gap / anchor-missing / lesson-gap / lesson-source / acceptance-anchor / assumption-residue / implementation-anchor）＋**非违规状态 3 类**（已对账 / 文档先行 / 已豁免）＋**豁免与提示 notices**（不计门禁、不扣治理分，仅计数可见；v0.6.3 增 `guide-feed-walk-absent` 走查缺席提示）。归档闭环四不变量**不计入治理健康分五分项**（公式不变），执法面走 strict 门禁与 pre-commit hook；验收锚点/假设残留/实施锚点三新类同不入五分项（v0.40，公式不变）。
 
 ## 四态判定与三层防线【v0.29】
 
@@ -142,3 +148,15 @@ status: stable
 - Given 处置引用 `95-lessons <date> · <标题>` 在本馆 lessons.md 无前缀命中 When check Then 教训账缺口检出（path=引用串）；补录条目后归零
 - Given 处置引用 `95-lessons@<dir> <date> · <标题>` When check Then 按 `<dir>/doclib/95-lessons/lessons.md` 解析；`教训: 无（理由）` 不需解析
 - Given progress 无 lesson-epoch 标记 When check Then 教训账缺口不变量不活跃（存量库零破坏）；标记在而日期非法 Then fail-fast
+- Given 反哺簿记走查账缺一卷/含未知卷/两集重叠/字段非列表 When check Then 走查账违规检出（kind=guide-feed-walk，detail 列明问题卷名）；--strict 退出码 1
+- Given 反哺簿记走查账 12 卷全覆盖且两列表齐备 When check Then 无走查违规；status 反哺行报「走查 12/12」
+- Given 反哺簿记无走查账字段（旧簿记） When check Then 仅 `guide-feed-walk-absent` notice（不计门禁不扣治理分）；status 报「走查 未留账 ⚠」
+- Given lessons.md 无 source-epoch 标记 When check Then 不变量不活跃零违规（存量零破坏）；标记日期非法 Then fail-fast
+- Given epoch 后 lessons 条目缺 `来源:` 行 When check Then 教训来源缺失检出（path=条目日期）；补来源后归零
+- Given 来源行路径 token 不存在 When check Then 教训来源缺失检出（path=失效 token，防幻觉）；描述性来源（无路径 token）合法
+- Given 条目日期早于 epoch When check Then 豁免
+- Given 载体中 type: plan-skeleton 生成物的实施清单条目缺 AC 引用 token When check Then 验收锚点缺失检出；补 AC 引用后归零
+- Given 生成物引用的 `规格路径#AC-x` 中规格文档或 AC 编号在馆内不存在 When check Then 验收锚点缺失检出（path=锚点串）
+- Given 用户自由格式 .plan（无 plan-skeleton frontmatter）When check Then 不受验收锚点检查（F9 边界，零误报）
+- Given narrative 正文含未清 ASSUMPTION 词面 When check Then 假设残留检出；status: draft 同况仅警告（[draft 降级] 前缀）
+- Given in-progress 行对应文档列为空或 "—" When check Then 实施锚点缺失检出；列有值 Then 无违规（implemented/planned 行按既有不变量各自判定，互不越界）

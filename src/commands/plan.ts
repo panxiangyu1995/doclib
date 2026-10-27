@@ -174,10 +174,11 @@ revision: ${state.revision}（入馆写前记录此值；写后 doclib check 比
 
 ## 执行
 
-1. 对话挖掘（与用户逐项确认）：项目定位与目标用户、核心功能清单、边界与非目标、关键数据流、技术选型与理由
-2. 填馆顺序：00-overview（定位/术语/feature-map 全量 planned）→ 10-architecture（数据模型/数据流/依赖决策）→ 30-features（每功能规格+验收标准）→ 40-guides → INDEX
-3. 挖掘结论实时入馆（实时同步原则），过程材料留在规划载体
-4. 文档先行开发循环：选功能 → 按规格写代码 → 按 30-features 验收标准逐条自检 → feature-map 推 implemented
+1. 五阶段对话协议（doclib-bootstrap skill）：阶段 0 Brain dump（用户倒出一切+指向已有文件；识别外部工具产物 _bmad-output//.specify//openspec//.kiro/ 即转兼容层流程）→ 阶段 1 定位与术语（Glossary 锚定，全程逐字用术语）→ 阶段 2 功能规格（AC 编号验收标准 AC-1..N + ASSUMPTION 标签）→ 阶段 3 架构决策（spine 判据：只记两会话独立建造会冲突的决策）→ 阶段 4 UI/UX（有界面才做）
+2. Fast/Coaching 双模式开场确认；每阶段收尾进深化菜单（9 方法，HALT + Apply/Reject 门控——未经用户接受不改稿）
+3. 兼容层流程（外部工具规划文档）：识别 → 映射预览（映射表唯一事实源 40-guides/010-tool-adoption.md）→ 对话转化（文体学重写+AC 无损转写）→ 提取 planned 候选逐条确认 → provenance 留痕（source-tool/source-path/source-hash）
+4. 挖掘结论实时入馆（实时同步原则），过程材料留在规划载体
+5. 文档先行开发循环：doclib implement --feature <N> 生成实施骨架（readiness 校验+AC 锚点预填）→ doclib-implement skill 对话填实 → 按清单施工 → 逐条 AC 自检 → feature-map 推 implemented
 
 ## 收尾
 
