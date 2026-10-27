@@ -17,7 +17,7 @@ Turn project documentation from *notes that rot the moment they are written* int
 
 ## 30-second start
 
-Initialize once in your project (`--agents` picks the agents you use; `claude` / `opencode` also install the 10 skills and the guide files):
+Initialize once in your project (`--agents` picks the agents you use; `claude` / `opencode` also install the 11 skills and the guide files):
 
 ```bash
 npx @panxiangyu1995/doclib init --agents claude,opencode
@@ -71,7 +71,7 @@ Documentation does not rot because you did not write enough — it rots because 
 │    doclib/ ◀────────┤ Library: narratives + entity ledgers   │
 │    .doclib/ ◀───────┤ Ledger: snapshots + task books         │
 │    CLAUDE.md ◀──────┤ Guides: how agents use all this        │
-│    .claude/         │ Agent adapters: 10 skills land here    │
+│    .claude/         │ Agent adapters: 11 skills land here   │
 └─────────────────────┼────────────────────────────────────────┘
                       │  hash / diff / mapping / reconciliation
                ┌──────┴──────┐
@@ -222,12 +222,13 @@ Skills are loaded by the agent by name, and each one is bound to a single trigge
 
 | Item | Value | Source |
 | --- | --- | --- |
-| npm package / version | `@panxiangyu1995/doclib` / 0.5.0 | `package.json` |
+| npm package / version | `@panxiangyu1995/doclib` / 0.8.0 | `package.json` |
 | License / Node | MIT / `>=22.5 <25` | `package.json` |
-| CLI commands / Skills | 13 / 10 | `src/commands/` · `skills/` |
+| Runtime dependencies | 4: `ignore` / `jsonc-parser` / `picomatch` / `web-tree-sitter` | `dependencies` in `package.json` |
+| CLI commands / Skills | 14 / 11 | `src/commands/` · `skills/` |
 | Library skeleton | 12 volumes + ledger family (first 5 books) + `99-archive` + `98-sessions`, 33 skeleton files in total | `assets/templates/library/` |
-| Tests | 32 test files / 283 cases | the test script in `package.json` |
-| Source size | 4,691 lines of non-test code / 3,924 lines of tests | `src/` |
+| Tests | 35 test files / 350 cases | the test script in `package.json` |
+| Source size | 5,793 lines of non-test code / 5,400 lines of tests | `src/` |
 | This repo's own governance | 100/100 (A), zero violations | `doclib check` |
 | Rebuild benchmark | umami: 97% coverage at build time → 96.4% on the same-question double run (53/55) → 100% on regression | `doclib/50-testing/benchmark/` |
 | Benchmark scale | Rebuilt output: 124 routes / 26 models / 67k lines | `doclib/40-guides/benchmark.md` |

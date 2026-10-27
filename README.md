@@ -17,7 +17,7 @@
 
 ## 30 秒上手
 
-在项目里初始化一次（`--agents` 按你用的 agent 选，`claude`/`opencode` 会落位 10 个 skills 与引导文件）：
+在项目里初始化一次（`--agents` 按你用的 agent 选，`claude`/`opencode` 会落位 11 个 skills 与引导文件）：
 
 ```bash
 npx @panxiangyu1995/doclib init --agents claude,opencode
@@ -71,7 +71,7 @@ npx @panxiangyu1995/doclib init --agents claude,opencode
 │    doclib/ ◀───┤ 图书馆：12 卷叙述层 + 实体登记簿（唯一事实源）   │
 │    .doclib/ ◀──┤ 簿记：快照链 + 任务书（CLI 私有，不入馆）        │
 │    CLAUDE.md ◀─┤ 引导：让 agent 自助会用这套体系                │
-│    .claude/    ┤ agent 适配：10 个 skills 的落位目录             │
+│    .claude/    ┤ agent 适配：11 个 skills 的落位目录             │
 └────────────────┼──────────────────────────────────────────────┘
                  │  hash / diff / 映射 / 对账
           ┌──────┴──────┐
@@ -222,12 +222,13 @@ skills 由 agent 按名称加载，各自绑定一个触发场景：
 
 | 项 | 值 | 来源 |
 | --- | --- | --- |
-| npm 包 / 版本 | `@panxiangyu1995/doclib` / 0.5.0 | `package.json` |
+| npm 包 / 版本 | `@panxiangyu1995/doclib` / 0.8.0 | `package.json` |
 | License / Node | MIT / `>=22.5 <25` | `package.json` |
-| CLI 命令 / Skills | 13 / 10 | `src/commands/` · `skills/` |
+| 运行时依赖 | 4 个：`ignore` / `jsonc-parser` / `picomatch` / `web-tree-sitter` | `package.json` `dependencies` |
+| CLI 命令 / Skills | 14 / 11 | `src/commands/` · `skills/` |
 | 图书馆骨架 | 12 卷 + 登记簿族（首批 5 册）+ `99-archive` + `98-sessions`，共 33 个骨架文件 | `assets/templates/library/` |
-| 测试 | 32 个测试文件 / 283 用例 | `package.json` test 脚本 |
-| 源码规模 | 非测试 4,691 行 / 测试 3,924 行 | `src/` |
+| 测试 | 35 个测试文件 / 350 用例 | `package.json` test 脚本 |
+| 源码规模 | 非测试 5,793 行 / 测试 5,400 行 | `src/` |
 | 本仓库自身治理 | 100/100 (A)，违规 0 | `doclib check` |
 | 复原基准 | umami：建馆 97% 覆盖 → 同题共答 96.4%（53/55）→ 回归 100% | `doclib/50-testing/benchmark/` |
 | 基准规模 | 复原产物 124 路由 / 26 模型 / 6.7 万行 | `doclib/40-guides/benchmark.md` |
