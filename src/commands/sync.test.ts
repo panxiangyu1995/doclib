@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { runSync } from "./sync.js";
 import { runInit } from "./init.js";
 import { DoclibError, loadState } from "../core/state.js";
-import { renderGuide, MANAGED_BEGIN, MANAGED_END, CUSTOM_BEGIN, CUSTOM_END, MEMORY_BEGIN, MEMORY_END, PROJECT_BEGIN, PROJECT_END } from "../core/guides.js";
+import { renderFullGuide, MANAGED_BEGIN, MANAGED_END, CUSTOM_BEGIN, CUSTOM_END, MEMORY_BEGIN, MEMORY_END, PROJECT_BEGIN, PROJECT_END } from "../core/guides.js";
 import { get, put, tmpRoot } from "./testkit.js";
 
 function regionOf(content: string, begin: string, end: string): string {
@@ -51,7 +51,7 @@ test("sync：定制区保留、managed 区再生为模板内容（篡改后写�
   const after = await get(root, p);
   assert.match(after, /我的项目专属规则/);
   assert.match(after, /永远先跑测试/);
-  const tpl = await renderGuide("light");
+  const tpl = await renderFullGuide(root);
   assert.equal(regionOf(after, MANAGED_BEGIN, MANAGED_END), regionOf(tpl, MANAGED_BEGIN, MANAGED_END));
 });
 
@@ -81,7 +81,7 @@ test("sync：managed 区被篡改 → 再生修复", async () => {
   const r = await runSync(root, {});
   assert.match(r.text, /写入 CLAUDE\.md/);
   const after = await get(root, p);
-  const tpl = await renderGuide("light");
+  const tpl = await renderFullGuide(root);
   assert.equal(regionOf(after, MANAGED_BEGIN, MANAGED_END), regionOf(tpl, MANAGED_BEGIN, MANAGED_END));
 });
 
@@ -94,7 +94,7 @@ test("sync：旧版文件（无定制区标记）整体再生并提示 legacy", 
   await put(root, p, legacy);
   const r = await runSync(root, {});
   assert.match(r.text, /旧版引导已整体再生: CLAUDE\.md（原文件无区域标记，如有手工补充请检查 git diff）/);
-  assert.equal(await get(root, p), await renderGuide("light"));
+  assert.equal(await get(root, p), await renderFullGuide(root));
 });
 
 test("sync：无戳文件跳过不动", async () => {

@@ -7,6 +7,7 @@ import { parseFrontmatter } from "./frontmatter.js";
 import { hashDocs } from "./ledger.js";
 import { CLI_VERSION, STRUCTURE_VERSION } from "./version.js";
 import { LIBRARY_DIR, STATE_DIR, DoclibError } from "./state.js";
+import { loadTestChain, type TestChain } from "./harness.js";
 import type { AgentTarget } from "./agents.js";
 
 export type GuideTier = "light";
@@ -112,13 +113,26 @@ export function applyMemoryRegion(template: string, body: string | null): string
 }
 
 export async function renderFullGuide(root: string, tier: GuideTier = "light"): Promise<string> {
-  const template = await renderGuide(tier);
+  const chain = await loadTestChain(root);
+  const template = await renderGuide(tier, { TEST_CHAIN: testChainBlock(chain) });
   const project = await readGuideProject(root);
   const memory = await readGuideMemory(root);
   return applyMemoryRegion(
     applyProjectRegion(template, project === null ? null : project.body),
     memory === null ? null : memory.body,
   );
+}
+
+export function testChainBlock(chain: TestChain | null): string {
+  if (chain === null) {
+    return "N-A：未声明 test-chain（`doclib/50-testing/testing.md` frontmatter）——长程测试链执法未启用（声明方式见 `doclib/40-guides/harness.md`）";
+  }
+  const lines = [
+    `- **fast 档**（提交门禁烘焙）：${chain.fast.map((c) => `\`${c}\``).join("、")}`,
+    `- **full 档**（CI 与长程收尾验收）：${chain.full.map((c) => `\`${c}\``).join("、")}`,
+    "长程开发回路与阻塞协议见 doclib-dev skill 情形 B；声明事实源：`doclib/50-testing/testing.md` frontmatter（变更后重跑 `doclib sync` 与 `doclib hook install`）",
+  ];
+  return lines.join("\n");
 }
 
 export function fingerprintOf(docs: Record<string, string>): string {

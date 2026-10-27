@@ -16,6 +16,8 @@ covers:
   - src/commands/stress.test.ts
   - src/core/implement.test.ts
   - src/commands/implement.test.ts
+  - src/core/check.test.ts
+  - src/core/harness.test.ts
   - package.json
 status: stable
 ---
@@ -37,6 +39,7 @@ status: stable
 > 2026-10-27 字符集根治增量（#40 同轮，用户拍板「顺手根治」）：`commands/check.test.ts` +1（反引号/星号包裹路径界定符不进 token）；`core/archival.test.ts` 既有 token 用例内扩 2 场景块（包裹真实路径零误报/反引号内失效路径干净）——**全套 349/349 绿（35 测试文件）**。
 > 2026-10-27 REVIEW 轮增量（#40 R-1..R-4 全修）：`commands/check.test.ts` +1（相对穿越 token → memory-pointer notice 且不 stat 根外路径）+ 界定符用例补引号/「」形态；`core/archival.test.ts` 既有用例内扩（引号/直角引号零误报 + 穿越 token 判违规）；`core/guides.test.ts` 日期用例补 2026-13-45 语义校验回归（形状合法但不可能的日期 fail-fast）——**全套 350/350 绿（35 测试文件）**。
 > 2026-10-27 发版前修复（v0.8.0 CI 349/350 红）：`commands/plan.test.ts`「载体规划文档晚于基线 → 待登记提醒」用例的 mtime 依赖被显式化——原用例靠「写文件后比基线晚」成立，而 `pendingRegistration` 的比较是 `d.mtime > Date.parse(latest.at)`：本地实测两者仅差 **1.96ms**（亚毫秒级竞态），CI 的 overlayfs mtime 精度为**整秒** → 比较必然翻转（v0.8.0 首次发版 CI 即因此红）。修法：测试内 `fs.utimes` 显式设定 mtime 为基线后 5s，使断言与文件系统 mtime 精度解耦；**用例数不变（350/350）**，产品行为未改。纪律沉淀：时间比较类断言必须显式设定时间戳（引导开发宪法「测试与验收铁律」同步增补）。
+> 2026-10-27 F19 长程开发闭环增量（#43）：新增 `src/core/harness.test.ts`（11：test-chain 双档解析五形态/嵌套 fail-fast/loadTestChain 缺席/链指纹稳定性/烘焙行/清单联动三态）；`commands/hook.test.ts` +4（链烘焙/重装刷新与链移除还原/ci full 档步骤/链阻断提交 e2e——放行侧用 `.git/` 哨兵避免污染代码账）；`core/check.test.ts` +2（skeleton-progress/blocked-residue/skeleton-open 三态集成、chain-stale 三态含指纹匹配）；`commands/check.test.ts` +2（钩子烘焙失配 notice 管道、清单状态失真 strict 退出码）；`commands/sync.test.ts` 期望值改 root 感知渲染（renderFullGuide——TEST_CHAIN 注入后模板期望须含链块）——**全套 372/372 绿（36 测试文件）**；covers 增 `src/core/check.test.ts`、`src/core/harness.test.ts`（living 套件文档承载存量 core 测试映射，exact 优先于 prefix 的覆盖匹配语义）。
 
 > 2026-10-22 增量（#25 codegraph 克隆集成）：新增 `src/core/codegraph/engine.test.ts`（9）、`src/core/codegraph/draft.test.ts`（6）、`src/commands/graph.test.ts`（4），扩写 `commands/cli.e2e.test.ts`（+1 全流程）、`core/fsutil.test.ts`（+1）、`core/orphan.test.ts`（+1）——**全套 240/240 绿**（31 测试文件）；graph 测试带 Node<22.5 自动 skip 守卫；验收标准 AC1–AC10 见 [30-features/graph.md](../30-features/graph.md)；真实仓库五仓实测见 [acceptance-graph-v0.5.0.md](acceptance-graph-v0.5.0.md)。
 

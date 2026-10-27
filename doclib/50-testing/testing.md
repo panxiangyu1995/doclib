@@ -4,6 +4,8 @@ covers:
   - package.json
   - src/core/
 status: stable
+test-chain-fast: npm run typecheck
+test-chain-full: npm test
 ---
 
 # 测试策略

@@ -32,7 +32,9 @@ status: living
 | [30-features/reconcile.md](30-features/reconcile.md) | 进度对账规格（reconcile 三段报告 + 对应文档混合引用判定 + 库内/载体证据分流） | stable |
 | [30-features/guides.md](30-features/guides.md) | 引导文件体系规格（四区契约 + 图书馆反哺注入 + 开发宪法六篇 + 12 卷走查账 + 记忆快照双层快照 + 双闸检测 + 三预算） | stable |
 | [30-features/040-planning-express.md](30-features/040-planning-express.md) | F17 规划直通车规格（bootstrap v2 五阶段对话协议 + 工具兼容层快照式收编 + implement 拆单器 + 门禁三件套 + AC 编号规范） | stable |
+| [30-features/050-harness.md](30-features/050-harness.md) | F19 长程开发闭环规格（test-chain 馆内声明 + hook 烘焙执法 + 清单状态失真三类判定 + doclib-dev 双情形六步回路 + sync 确定性反哺） | stable |
 | [40-guides/010-tool-adoption.md](40-guides/010-tool-adoption.md) | 外部规划工具收编指南（BMAD/spec-kit/OpenSpec/Kiro 语义映射表 + 快照式收编纪律 + provenance 规范） | stable |
+| [40-guides/harness.md](40-guides/harness.md) | 长程开发指南（测试链声明规范 + 分级模板 + 浏览器工具序 playwright-cli 首选 + 阻塞协议 + 执法点速查） | stable |
 | [40-guides/rebuild-plan.md](40-guides/rebuild-plan.md) | 复原路线图（更名 roadmap 待迁移） | draft |
 | [40-guides/conventions.md](40-guides/conventions.md) | 编码约定 | draft |
 | [40-guides/benchmark.md](40-guides/benchmark.md) | 复原基准测试指南（F14 方法论操作沉淀） | living |

@@ -372,3 +372,37 @@ test("check：guide-project 非法区域标记 → fail-fast（DoclibError）", 
   await put(root, ".doclib/guide-project.md", "---\nsnapshot: 1\n---\n\n坏 <!-- doclib:project-end --> 内容\n");
   await assert.rejects(() => runCheck(root, {}), (e: unknown) => e instanceof DoclibError && /区域保留标记/.test(e.message));
 });
+
+test("check：钩子烘焙链失配 → 测试链过期 notice；无钩子不判", async () => {
+  const root = await tmpRoot("doclib-acc-check-chain-");
+  await seedBase(root);
+  await put(root, "doclib/50-testing/testing.md", "---\ntitle: 测试策略\ncovers: []\nstatus: draft\ntest-chain-fast: npm test\n---\n\n# 测试策略\n\n> 测试是行为规格的可执行形态：方案、矩阵、设置与回归回填在此定档，测试链声明驱动长程开发执法。\n\n## 为什么\n\n测试分层与覆盖目标的取舍理由（哪些层值得投入、为什么）：测试链 fast 档进提交门禁，full 档进 CI 与收尾验收。\n\n## 是什么\n\n- 策略与分层（单元/集成/E2E）：单元与集成覆盖命令契约，e2e 覆盖全生命周期。\n- 覆盖目标：正常路径、错误路径、边界与压力四级全锁定。\n\n## 怎么运转\n\n- 框架与运行方式：node:test + assert/strict 零依赖，测试与被测同目录。\n- 各层测试的运行命令与耗时预期：npm test 一键全量，typecheck 秒级。\n- fixture 与测试数据：临时目录 + 种子状态。\n- 测试环境前置依赖：无（零外部服务）。\n- bug 修复后的回归用例回填此处并链接 95-lessons 对应条目。\n\n## 怎么验收\n\n- 全绿标准：typecheck 与全量测试通过，新测试文件已登记 test script。\n");
+  await put(root, ".git/hooks/pre-commit", "#!/bin/sh\n# doclib-hook\n# doclib-chain:000000000000\nnode x\n");
+  await withExit(async () => {
+    const r = await runCheck(root, {});
+    assert.match(r.text, /测试链过期 1/);
+    assert.match(r.text, /失配/);
+    assert.notEqual(process.exitCode, 1);
+  });
+  await fs.rm(path.join(root, ".git"), { recursive: true, force: true });
+  await withExit(async () => {
+    const r = await runCheck(root, {});
+    assert.ok(!r.text.includes("测试链过期"));
+  });
+});
+
+test("check：清单状态失真 → strict 退出码 1", async () => {
+  const root = await tmpRoot("doclib-acc-check-skel-");
+  await seedBase(root);
+  await put(
+    root,
+    "doclib/00-overview/feature-map.md",
+    "| # | 功能 | 描述 | 对应文档 | 状态 |\n| --- | --- | --- | --- | --- |\n| 1 | F | d | doclib/30-features/a.md | implemented |\n",
+  );
+  await put(root, ".plan/d1/skel.md", "---\ntype: plan-skeleton\nfeature: 1\n---\n- [ ] 动作 → doclib/30-features/a.md#AC-1\n");
+  await withExit(async () => {
+    const r = await runCheck(root, { strict: true });
+    assert.match(r.text, /清单状态失真 \(1\)/);
+    assert.equal(process.exitCode, 1);
+  });
+});

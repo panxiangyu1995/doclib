@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { bakeChainLines, chainMarker, loadTestChain, type TestChain } from "../core/harness.js";
 import { DoclibError } from "../core/state.js";
 import { CLI_VERSION, PACKAGE_NAME } from "../core/version.js";
 import type { CommandResult } from "./init.js";
@@ -40,10 +41,10 @@ export async function readHookState(root: string): Promise<HookState> {
   return raw.includes("--strict") ? "doclib-strict" : "doclib";
 }
 
-function hookScript(root: string, strict: boolean): string {
+function hookScript(root: string, strict: boolean, chain: TestChain | null): string {
   const flags = strict ? " --strict" : "";
   const cli = relativeCliPath(root, cliAbsPath());
-  return [
+  const lines = [
     "#!/bin/sh",
     MARKER,
     "# 由 doclib hook install 生成；移除请运行 doclib hook remove",
@@ -52,28 +53,43 @@ function hookScript(root: string, strict: boolean): string {
     `CLI="${cli}"`,
     '[ -f "${CLI}" ] || { echo "doclib hook: CLI 不存在（${CLI}）——若尚未构建请先构建项目，或运行 doclib hook remove 移除门禁" >&2; exit 1; }',
     `node "\${CLI}" check${flags} || exit 1`,
-    "",
-  ].join("\n");
+  ];
+  if (chain !== null) {
+    lines.push(chainMarker(chain));
+    lines.push(...bakeChainLines(chain.fast, "测试链 fast 档"));
+  }
+  lines.push("");
+  return lines.join("\n");
 }
 
-const CI_WORKFLOW = `name: doclib-check
-
-on:
-  pull_request:
-  push:
-    branches: [main]
-
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      # 版本在安装时固化，保证 CI 可复现
-      - run: npx --yes ${PACKAGE_NAME}@${CLI_VERSION} check --strict
-`;
+function ciWorkflow(chain: TestChain | null): string {
+  const lines = [
+    "name: doclib-check",
+    "",
+    "on:",
+    "  pull_request:",
+    "  push:",
+    "    branches: [main]",
+    "",
+    "jobs:",
+    "  check:",
+    "    runs-on: ubuntu-latest",
+    "    steps:",
+    "      - uses: actions/checkout@v4",
+    "      - uses: actions/setup-node@v4",
+    "        with:",
+    "          node-version: 20",
+    "      # 版本在安装时固化，保证 CI 可复现",
+    `      - run: npx --yes ${PACKAGE_NAME}@${CLI_VERSION} check --strict`,
+  ];
+  if (chain !== null) {
+    chain.full.forEach((cmd, i) => {
+      lines.push(`      - run: ${cmd}`);
+      lines.push(`        name: test-chain full ${i + 1}/${chain.full.length}`);
+    });
+  }
+  return `${lines.join("\n")}\n`;
+}
 
 export async function runHook(
   root: string,
@@ -91,11 +107,13 @@ export async function runHook(
   }
   if (opts.ci !== undefined) {
     if (opts.ci !== "github") throw new DoclibError("--ci 仅支持 github");
+    const chain = await loadTestChain(root);
     const wfDir = path.join(root, ".github", "workflows");
     await fs.mkdir(wfDir, { recursive: true });
     const wfPath = path.join(wfDir, "doclib-check.yml");
-    await fs.writeFile(wfPath, CI_WORKFLOW, "utf8");
-    return { text: `已生成 CI 模板: .github/workflows/doclib-check.yml（push/PR 时运行 doclib check --strict）\n`, json: { path: ".github/workflows/doclib-check.yml" } };
+    await fs.writeFile(wfPath, ciWorkflow(chain), "utf8");
+    const chainNote = chain === null ? "" : `（含测试链 full 档 ${chain.full.length} 条）`;
+    return { text: `已生成 CI 模板: .github/workflows/doclib-check.yml（push/PR 时运行 doclib check --strict）${chainNote}\n`, json: { path: ".github/workflows/doclib-check.yml" } };
   }
   const hooksDir = await resolveHooksDir(root);
   if (hooksDir === null) throw new DoclibError("当前目录不是 git 仓库，无法安装钩子");
@@ -105,11 +123,13 @@ export async function runHook(
   if (state === "foreign") {
     throw new DoclibError("已存在非 doclib 管理的 pre-commit 钩子；请手动合并后重试");
   }
-  await fs.writeFile(p, hookScript(root, opts.strict === true), { mode: 0o755 });
+  const chain = await loadTestChain(root);
+  await fs.writeFile(p, hookScript(root, opts.strict === true, chain), { mode: 0o755 });
   await fs.chmod(p, 0o755);
   const shown = path.relative(root, hooksDir).replace(/\\/g, "/") + "/pre-commit";
+  const chainNote = chain === null ? "" : `测试链 fast 档 ${chain.fast.length} 条已烘焙（馆内 test-chain 变更后重跑本命令刷新）。`;
   return {
-    text: `已安装 pre-commit 钩子（提交时运行 doclib check${opts.strict ? " --strict" : ""}）。\n`,
-    json: { path: shown, strict: opts.strict === true },
+    text: `已安装 pre-commit 钩子（提交时运行 doclib check${opts.strict ? " --strict" : ""}）。${chainNote}\n`,
+    json: { path: shown, strict: opts.strict === true, chainBaked: chain !== null },
   };
 }

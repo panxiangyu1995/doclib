@@ -35,6 +35,7 @@ status: stable
 - **路径策略**：CLI 位于仓库内部（DocLib 自身仓库、本地 devDependency 场景）时写入相对路径并统一正斜杠，项目整体移动、重装不失效；CLI 位于仓库外（npx/全局安装场景）时退回绝对路径，与旧版行为兼容。
 - **worktree 支持**：`.git` 为文件时解析 `gitdir:` 指针（相对路径按仓库根解析），钩子落位真实 GIT_DIR 的 `hooks/`；install、remove、status 共用同一解析函数，worktree 内 status 同样如实反映。
 - **冲突保护**：安装前检测既有钩子，无 `# doclib-hook` 标记则抛 DoclibError，绝不覆盖他人钩子。
+- **测试链烘焙（v0.9.0 F19）**：安装时读取馆内 `50-testing/testing.md` frontmatter `test-chain-fast`/`test-chain-full`（解析规则见 [050-harness.md](050-harness.md)）——有链则在 check 行后追加指纹注释行（`# doclib-chain:<sha256 前 12 hex>`，覆盖 fast+full 双档）与 fast 档逐命令行（`<命令> || exit 1`，失败即断），输出注明烘焙条数与「链变更后重装刷新」；`--ci github` 模板同步烘焙 full 档独立 run 步骤（含序号）；未声明链时产物与无链形态逐字节等价。链声明变更后 check 输出 `测试链过期` notice（指纹失配/单侧缺失，soft），重装即清零。
 
 ## 验收标准
 
@@ -48,5 +49,8 @@ status: stable
 - Given 三种钩子状态（未安装 / 已安装 / 已安装(--strict)）When `doclib status` Then 文本行与 json `hook` 字段如实反映
 - Given `--ci gitlab` When `hook` Then 抛 DoclibError「--ci 仅支持 github」
 - Given `--ci github` When 查看 workflow Then 含固化的 `npx 包名@版本 check --strict`
+- Given testing.md 声明 test-chain When `hook install` Then 钩子含指纹注释与 fast 档逐命令行（失败即断）；Given 未声明 Then 产物与无链形态逐字节等价
+- Given 链声明变更未重装 When `doclib check` Then `测试链过期` notice；Given 重装 Then 清零
+- Given `--ci github` 且链声明 When 查看 workflow Then 含 full 档独立 run 步骤（含序号）
 - Given git 仓库 When `doclib init` Then 门禁自动落位（--strict 档）且 init 输出门禁状态行；Given 既有 foreign 钩子 Then init 成功且原钩子保留
 - Given 钩子缺失 When `doclib sync` Then 幂等补装(--strict)；Given 在岗 Then 无动作（档位不越权变更）；Given foreign Then 跳过不覆盖

@@ -1,9 +1,9 @@
 ---
 name: doclib-dev
-description: DocLib 日常开发会话工作流（★主力）。当进入任何已启用 DocLib 的项目进行开发/迭代/修 bug 时使用。覆盖：会话开始检查、实时同步规则执行、.plan/载体双锚点、写前写后 revision 比对、会话结束自检。
+description: DocLib 开发会话工作流（★主力），双情形：A=常规开发（单任务会话：新功能/迭代/修 bug）；B=长程开发（批量 planned 功能连续推进/多小时循环施工/长工程复现——六步回路+测试链执法+阻塞协议）。覆盖：会话开始检查、实时同步规则执行、.plan/载体双锚点、写前写后 revision 比对、会话结束自检、长程回路。
 ---
 
-# doclib-dev · 日常开发会话工作流
+# doclib-dev · 开发会话工作流
 
 ## 使命
 
@@ -11,8 +11,8 @@ description: DocLib 日常开发会话工作流（★主力）。当进入任何
 
 ## 何时使用
 
-- 任何已启用 DocLib 的项目中的每个开发会话（新功能/迭代/修 bug/重构）
-- 触发点：会话开始即加载本 skill；已有 bootstrap/resume 建馆后转入本循环
+- **情形 A（常规开发）**：任何已启用 DocLib 的项目中的单任务开发会话（新功能/迭代/修 bug/重构）。触发点：会话开始即加载本 skill；已有 bootstrap/resume 建馆后转入本循环
+- **情形 B（长程开发）**：一批 planned 功能连续推进、多小时循环施工、或 rebuild 类长工程——共享骨架不变，另加载下文「情形 B：长程开发回路」节
 
 ## 会话开始
 
@@ -70,6 +70,31 @@ description: DocLib 日常开发会话工作流（★主力）。当进入任何
 
 - **锚点一（登记）**：规划文档完成 → feature-map 新增/更新 planned 条目 + progress.md 补记（check「载体未登记」「进度账缺口」strict 拦截，hook 阻断提交）。**细化 planned 功能开工**：`doclib implement --feature <N>` 生成 .plan 实施骨架（readiness 校验 + AC 锚点预填，干跑默认）→ doclib-implement skill 对话填实（每条清单引用 AC 锚点；开工置 in-progress 时「对应文档」列写 .plan 路径——check「实施锚点缺失」拦截）
 - **锚点二（归档）**：开发完成 → 过程材料留载体不动；长期价值沉淀入馆（ADR/规格/参考卷/95-lessons）；更新 covers；feature-map → implemented（对应文档列不得为空——check「沉淀锚点缺失」拦截）；progress.md 补记（末字段 `教训:` 处置位——check「教训账缺口」拦截）
+
+## 情形 B：长程开发回路（多任务连续推进）
+
+一批 planned 功能连续施工、多小时无人值守循环、长工程复现（rebuild 同链路）时启用。共享骨架（会话开始/实时同步/双锚点/入馆写协调/踩坑一行制/五问）全程有效；本节是回路增量。
+
+**六步回路**（每任务一轮，循环至 planned 清零或用户叫停）：
+
+1. **选任务**：`doclib implement` 列 planned 候选——按依赖顺序与优先级选一个（一会话一任务；planned ≙ passes:false，implemented ≙ passes:true）
+2. **开工**：`doclib implement --feature <N> --apply` 生成骨架 → doclib-implement skill 对话填实（每条引用 AC 锚点）→ feature-map 置 in-progress（对应文档列写 .plan 路径）
+3. **开发**：按共享骨架全部纪律执行（实时同步/踩坑一行制/入馆写协调）
+4. **验证（分级强制）**：
+   - 一切改动：馆内 test-chain **fast 档全绿**（已烘焙 pre-commit，提交即执法；未装钩子先 `doclib hook install`）
+   - 交互面改动（UI/页面/CLI 交互输出）：浏览器或冒烟测试**必做**——工具序 playwright-cli（`npm i -g @playwright/cli`，`playwright-cli install --skills` 或读 `--help` 自助）> agent-browser skill > playwright mcp；纯 CLI/库项目浏览器档显式 N-A
+   - 收口前：test-chain **full 档全绿** + doclib-accept 逐条 AC 验收
+5. **收口**：实施清单逐条勾选 → feature-map 翻 implemented（对应文档列齐，check「清单状态失真」拦截伪造完成）→ progress.md 补记（教训: 处置位）→ **一任务一 commit**（代码+骨架+馆内账同 commit，钩子门禁通过后提交）
+6. **循环**：回到 1 选下一任务；全部完成跑 `doclib snapshot` 固化
+
+**阻塞协议**（环境缺失/外部依赖不可用/测试无法进行时）：
+
+- 禁止 commit、禁止翻 implemented、禁止假装完成
+- 骨架 frontmatter 写 `blocked: <原因与所需人工动作>`（check blocked-residue 提醒）
+- 输出结构化阻塞信息：当前任务/已完成工作/阻塞原因/所需人工步骤/解除后动作
+- 停止等待人工介入
+
+**铁律**：永不删任务（planned 只翻转不删除，废弃走 retired 状态机）；任务描述与 AC 不因施工不顺改写（改规格先走规格变更/ADR 流程）
 
 ## 入馆写协调
 

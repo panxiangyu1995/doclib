@@ -1,5 +1,8 @@
+import fs from "node:fs/promises";
+import path from "node:path";
 import { runCheckCore, type CheckFinding } from "../core/check.js";
 import { loadState } from "../core/state.js";
+import { readHookState, resolveHooksDir } from "./hook.js";
 import type { CommandResult } from "./init.js";
 
 function kindLabel(kind: CheckFinding["kind"]): string {
@@ -38,11 +41,22 @@ function kindLabel(kind: CheckFinding["kind"]): string {
       return "假设残留";
     case "implementation-anchor":
       return "实施锚点缺失";
+    case "skeleton-progress":
+      return "清单状态失真";
   }
 }
 
 export async function runCheck(root: string, opts: { json?: boolean; strict?: boolean }): Promise<CommandResult> {
-  const r = await runCheckCore(root);
+  const hookState = await readHookState(root);
+  let hookScript: string | null = null;
+  if (hookState === "doclib" || hookState === "doclib-strict") {
+    const hooksDir = await resolveHooksDir(root);
+    hookScript =
+      hooksDir === null
+        ? null
+        : await fs.readFile(path.join(hooksDir, "pre-commit"), "utf8").catch(() => null);
+  }
+  const r = await runCheckCore(root, { hookScript });
   if (opts.json) return { text: JSON.stringify(r, null, 2), json: r };
 
   const lines: string[] = [];
@@ -73,6 +87,7 @@ export async function runCheck(root: string, opts: { json?: boolean; strict?: bo
     "acceptance-anchor",
     "assumption-residue",
     "implementation-anchor",
+    "skeleton-progress",
   ];
   let any = false;
   for (const kind of kinds) {
@@ -96,6 +111,9 @@ export async function runCheck(root: string, opts: { json?: boolean; strict?: bo
     const ignored = count("newly-ignored");
     const assumptionDraft = count("assumption-draft");
     const memoryPointer = count("memory-pointer");
+    const skeletonOpen = count("skeleton-open");
+    const blockedResidue = count("blocked-residue");
+    const chainStale = count("chain-stale");
     const parts: string[] = [];
     if (toolchain > 0) parts.push(`工具链豁免 ${toolchain}`);
     if (guide > 0) parts.push(`引导文件豁免 ${guide}`);
@@ -104,6 +122,9 @@ export async function runCheck(root: string, opts: { json?: boolean; strict?: bo
     if (ignored > 0) parts.push(`新增忽略退出代码账 ${ignored}`);
     if (assumptionDraft > 0) parts.push(`假设残留(draft 警告) ${assumptionDraft}`);
     if (memoryPointer > 0) parts.push(`记忆指针警告 ${memoryPointer}`);
+    if (skeletonOpen > 0) parts.push(`施工中未勾选 ${skeletonOpen}`);
+    if (blockedResidue > 0) parts.push(`阻塞标记 ${blockedResidue}`);
+    if (chainStale > 0) parts.push(`测试链过期 ${chainStale}`);
     lines.push(`豁免与提示: ${parts.join(" ｜ ")}`);
     const suspectDirs = new Map<string, number>();
     for (const n of notices.filter((x) => x.kind === "toolchain-suspect")) {
@@ -114,6 +135,11 @@ export async function runCheck(root: string, opts: { json?: boolean; strict?: bo
     for (const [dir, files] of suspectDirs) {
       const detail = notices.find((x) => x.kind === "toolchain-suspect" && x.path === dir)?.detail ?? "";
       lines.push(`  - ${dir}/  —  ${files} 个文件｜${detail}`);
+    }
+    for (const k of ["chain-stale", "blocked-residue", "skeleton-open"] as const) {
+      for (const n of notices.filter((x) => x.kind === k)) {
+        lines.push(`  - ${n.path ?? "(repo)"}  —  ${n.detail}`);
+      }
     }
   }
   lines.push("");

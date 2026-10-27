@@ -9,6 +9,11 @@ import { scanBrokenLinks, checkGenreCompliance, assumptionFindings } from "./doc
 import { loadPlanningPaths, planningIgnores } from "./planning.js";
 import { archivalFindings, SOURCE_PATH_TOKEN_RE } from "./archival.js";
 import { acceptanceAnchorFindings } from "./implement.js";
+import {
+  chainStaleDetail,
+  loadTestChain,
+  skeletonProgressFindings,
+} from "./harness.js";
 import { LIBRARY_VOLUMES } from "./place.js";
 
 export type { CheckFinding, CheckFindingKind } from "./ledger.js";
@@ -21,7 +26,10 @@ export type CheckNoticeKind =
   | "newly-ignored"
   | "guide-feed-walk-absent"
   | "assumption-draft"
-  | "memory-pointer";
+  | "memory-pointer"
+  | "skeleton-open"
+  | "blocked-residue"
+  | "chain-stale";
 
 export type CheckNotice = {
   kind: CheckNoticeKind;
@@ -166,7 +174,10 @@ export function guideWalkVerdict(walk: VolumesWalk): GuideWalkVerdict {
   return { findings, absent: false };
 }
 
-export async function runCheckCore(root: string): Promise<CheckResult> {
+export async function runCheckCore(
+  root: string,
+  opts: { hookScript?: string | null } = {},
+): Promise<CheckResult> {
   const state = await loadState(root);
   const latest = latestSnapshot(state);
   if (!latest) throw new DoclibError("尚无基线快照：先执行 doclib snapshot");
@@ -328,6 +339,19 @@ export async function runCheckCore(root: string): Promise<CheckResult> {
   }
   findings.push(...(await archivalFindings(root, state)));
   findings.push(...(await acceptanceAnchorFindings(root, loadPlanningPaths(state))));
+  const harnessScan = await skeletonProgressFindings(root, loadPlanningPaths(state));
+  findings.push(...harnessScan.findings);
+  for (const n of harnessScan.openNotices) {
+    notices.push({ kind: "skeleton-open", path: n.path, detail: n.detail });
+  }
+  for (const n of harnessScan.blockedNotices) {
+    notices.push({ kind: "blocked-residue", path: n.path, detail: n.detail });
+  }
+  const chain = await loadTestChain(root);
+  const chainDetail = chainStaleDetail(opts.hookScript ?? null, chain);
+  if (chainDetail !== null) {
+    notices.push({ kind: "chain-stale", detail: chainDetail });
+  }
   const assumption = await assumptionFindings(path.join(root, LIBRARY_DIR));
   for (const v of assumption.violations) {
     findings.push({ kind: "assumption-residue", path: `${LIBRARY_DIR}/${v.doc}`, detail: v.detail });

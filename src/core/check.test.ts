@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { guideWalkVerdict, healthScore, runCheckCore } from "./check.js";
+import { chainMarker, loadTestChain } from "./harness.js";
 import { hashAll } from "./fsutil.js";
 import { loadState, saveState, type Snapshot } from "./state.js";
 import { runSnapshot } from "../commands/snapshot.js";
@@ -270,4 +271,77 @@ test("guideWalkVerdict：合法全覆盖零输出；未知卷/缺卷/重叠/inva
   assert.ok(/字段非法/.test(invalid.findings[0]!.detail ?? ""));
 
   assert.deepEqual(guideWalkVerdict(null), { findings: [], absent: true });
+});
+
+test("check：skeleton-progress/blocked-residue/skeleton-open 三态", async () => {
+  const root = await tmp();
+  await setupBaseline(root, true);
+  await fs.mkdir(path.join(root, "doclib", "00-overview"), { recursive: true });
+  await fs.writeFile(
+    path.join(root, "doclib", "00-overview", "feature-map.md"),
+    "| # | 功能 | 描述 | 对应文档 | 状态 |\n| --- | --- | --- | --- | --- |\n| 1 | F | d | doclib/30-features/a.md | implemented |\n",
+    "utf8",
+  );
+  await fs.mkdir(path.join(root, ".plan", "d1"), { recursive: true });
+  await fs.writeFile(
+    path.join(root, ".plan", "d1", "skel.md"),
+    "---\ntype: plan-skeleton\nfeature: 1\nblocked: 缺密钥\n---\n- [ ] 动作 → doclib/30-features/a.md#AC-1\n",
+    "utf8",
+  );
+  const r = await runCheckCore(root);
+  const f = r.findings.find((x) => x.kind === "skeleton-progress");
+  assert.ok(f);
+  assert.match(f.detail ?? "", /1 条未勾选/);
+  assert.ok(r.notices.some((n) => n.kind === "blocked-residue" && (n.detail ?? "").includes("缺密钥")));
+  assert.ok(!r.notices.some((n) => n.kind === "skeleton-open"));
+  await fs.writeFile(
+    path.join(root, "doclib", "00-overview", "feature-map.md"),
+    "| # | 功能 | 描述 | 对应文档 | 状态 |\n| --- | --- | --- | --- | --- |\n| 1 | F | d | doclib/30-features/a.md | in-progress |\n",
+    "utf8",
+  );
+  const r2 = await runCheckCore(root);
+  assert.ok(!r2.findings.some((x) => x.kind === "skeleton-progress"));
+  const open = r2.notices.find((n) => n.kind === "skeleton-open");
+  assert.ok(open);
+  assert.match(open.detail, /1 条未勾选/);
+  await fs.writeFile(
+    path.join(root, "doclib", "00-overview", "feature-map.md"),
+    "| # | 功能 | 描述 | 对应文档 | 状态 |\n| --- | --- | --- | --- | --- |\n| 1 | F | d | doclib/30-features/a.md | planned |\n",
+    "utf8",
+  );
+  const r3 = await runCheckCore(root);
+  assert.ok(!r3.findings.some((x) => x.kind === "skeleton-progress"));
+  assert.ok(!r3.notices.some((n) => n.kind === "skeleton-open"));
+  assert.ok(r3.notices.some((n) => n.kind === "blocked-residue"));
+  await fs.writeFile(
+    path.join(root, ".plan", "d1", "skel.md"),
+    "---\ntype: plan-skeleton\nfeature: 1\n---\n- [ ] 动作 → doclib/30-features/a.md#AC-1\n",
+    "utf8",
+  );
+  const r4 = await runCheckCore(root);
+  assert.ok(!r4.notices.some((n) => n.kind === "blocked-residue"));
+});
+
+test("check：chain-stale 三态（失配/匹配/未传脚本体不判）", async () => {
+  const root = await tmp();
+  await setupBaseline(root, true);
+  await fs.mkdir(path.join(root, "doclib", "50-testing"), { recursive: true });
+  await fs.writeFile(
+    path.join(root, "doclib", "50-testing", "testing.md"),
+    "---\ntitle: T\ntest-chain-fast: npm test\ntest-chain-full: npm test\n---\n正文\n",
+    "utf8",
+  );
+  const r1 = await runCheckCore(root, { hookScript: "#!/bin/sh\n# doclib-hook\n# doclib-chain:000000000000\nnode x\n" });
+  const stale = r1.notices.find((n) => n.kind === "chain-stale");
+  assert.ok(stale);
+  assert.match(stale.detail, /失配/);
+  const r2 = await runCheckCore(root, { hookScript: null });
+  assert.ok(!r2.notices.some((n) => n.kind === "chain-stale"));
+  const r3 = await runCheckCore(root);
+  assert.ok(!r3.notices.some((n) => n.kind === "chain-stale"));
+  const chain = await loadTestChain(root);
+  assert.ok(chain);
+  const ok = "#!/bin/sh\n# doclib-hook\n" + chainMarker(chain) + "\nnode x\n";
+  const r4 = await runCheckCore(root, { hookScript: ok });
+  assert.ok(!r4.notices.some((n) => n.kind === "chain-stale"));
 });

@@ -12,7 +12,7 @@ status: stable
 
 | 模块 | 职责一句话 | 卷入口 | covers |
 | --- | --- | --- | --- |
-| skills（10 册手册） | agent 手册源 `skills/` 与分发副本 `.claude/skills/`、`.opencode/skills/`（sync 幂等分发）；doclib-accept 收尾含反哺蒸馏步骤（#32 联动）；doclib-dev 实时同步表/双锚点含教训处置位与归档四不变量事实（#35/#36）+ 自检第 4 项含记忆快照刷新（#40 五动作联动）；doclib-audit 第 8 项教训完备性抽查（#36） | 30-features/guides.md | skills/ |
+| skills（10 册手册） | agent 手册源 `skills/` 与分发副本 `.claude/skills/`、`.opencode/skills/`（sync 幂等分发）；doclib-accept 收尾含反哺蒸馏步骤（#32 联动）；doclib-dev 实时同步表/双锚点含教训处置位与归档四不变量事实（#35/#36）+ 自检第 4 项含记忆快照刷新（#40 五动作联动）+ 双情形（A 常规/B 长程六步回路+阻塞协议，F19 #43）；doclib-audit 第 8 项教训完备性抽查（#36） | 30-features/guides.md | skills/ |
 | cli | 参数解析、命令分发、HELP、统一错误出口 | 待成卷 | src/cli.ts |
 | core/fsutil | 遍历/hash/树渲染/ignore 语义 | 待成卷 | src/core/fsutil.ts |
 | core/frontmatter | Markdown frontmatter（covers）解析 | 待成卷 | src/core/frontmatter.ts |
@@ -49,4 +49,5 @@ status: stable
 | commands/graph | graph 命令族（index/status/draft/explore；可选增强，telemetry 物理隔离） | 30-features/graph.md | src/commands/graph.ts |
 | commands/implement | 拆单器命令（planned 候选清单/readiness 校验/骨架干跑与 --apply 落盘） | 30-features/040-planning-express.md | src/commands/implement.ts |
 | core/implement | 拆单纯逻辑（候选解析/readinessVerdict/骨架渲染 slugify/验收锚点执法 acceptanceAnchorFindings——仅 type: plan-skeleton 生成物） | 30-features/040-planning-express.md | src/core/implement.ts |
+| core/harness | 长程闭环纯逻辑（test-chain 解析 loadTestChain/链指纹与烘焙 chainMarker·bakeChainLines/骨架清单联动扫描 skeletonProgressFindings） | 30-features/050-harness.md | src/core/harness.ts |
 | scripts/copy-assets | 构建期资产拷贝（零依赖脚本） | 待成卷 | scripts/copy-assets.js |

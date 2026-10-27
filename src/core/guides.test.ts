@@ -341,3 +341,30 @@ test("guideBudgetReport：memory 区超 40 行报超限", async () => {
   assert.ok(report.includes(`memory ${MEMORY_BUDGET_LINES + 7}/${MEMORY_BUDGET_LINES} 行 ⚠ 超限`));
   assert.ok(report.includes("滚动快照非知识库"));
 });
+
+test("renderFullGuide：test-chain 声明注入链块；未声明 N-A 行；链变更可检出", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "doclib-guides-chain-"));
+  await fs.mkdir(path.join(root, "doclib", "50-testing"), { recursive: true });
+  const chainMd = path.join(root, "doclib", "50-testing", "testing.md");
+  await fs.writeFile(chainMd, "---\ntitle: T\ntest-chain-fast: npm test\ntest-chain-full:\n  - npm run typecheck\n  - npm test\n---\n正文\n", "utf8");
+  const withChain = await renderFullGuide(root);
+  assert.ok(withChain.includes("## 测试链（长程开发执法）"));
+  assert.ok(withChain.includes("**fast 档**（提交门禁烘焙）：`npm test`"));
+  assert.ok(withChain.includes("**full 档**（CI 与长程收尾验收）：`npm run typecheck`、`npm test`"));
+  assert.ok(withChain.includes("变更后重跑 `doclib sync` 与 `doclib hook install`"));
+  await fs.writeFile(chainMd, "---\ntitle: T\n---\n正文\n", "utf8");
+  const withoutChain = await renderFullGuide(root);
+  assert.ok(withoutChain.includes("N-A：未声明 test-chain"));
+  assert.ok(!withoutChain.includes("**fast 档**"));
+  await fs.writeFile(chainMd, "---\ntitle: T\ntest-chain-fast: cargo test\n---\n正文\n", "utf8");
+  const targets = AGENT_TARGETS.filter((t) => t.id === "claude");
+  await writeGuides(root, "light", targets);
+  await fs.writeFile(chainMd, "---\ntitle: T\ntest-chain-fast: go test ./...\n---\n正文\n", "utf8");
+  const stale = await managedRegionFresh(root);
+  assert.ok(stale.length > 0);
+  await writeGuides(root, "light", targets);
+  const after = await managedRegionFresh(root);
+  assert.equal(after.length, 0);
+  const final = await renderFullGuide(root);
+  assert.ok(final.includes("`go test ./...`"));
+});

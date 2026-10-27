@@ -37,6 +37,10 @@
 2. 结束前自检五问：**改动归档了吗？feature-map 状态推进了吗？progress.md 补记了吗？引导文件（含记忆快照 `.doclib/guide-memory.md`）需要更新吗？踩坑都处置了吗？**
 3. 新功能开发走 `.plan/<日期>/` 双锚点：规划文档完成 → feature-map 登记 planned；开发完成 → 归档成果（长期价值沉淀 ADR/规格/参考卷）、状态 → implemented、progress 补记、`doclib snapshot` 固化基线
 
+## 测试链（长程开发执法）
+
+%TEST_CHAIN%
+
 ## 纪律底线
 
 - **引导文件与图书馆同为一体**：agent 必须知道的新规则/注意事项，先写进本文件 custom 区（实时）；确认长期普适的，沉淀进图书馆对应卷并提示用户运行 `doclib sync`

@@ -1,4 +1,4 @@
-<!-- doclib-guide cli=0.8.0 structure=3 -->
+<!-- doclib-guide cli=0.9.0 structure=3 -->
 # DocLib 工作流
 
 <!-- doclib:managed-begin -->
@@ -36,6 +36,12 @@
 1. 开始：`doclib status`（看漂移、基线、引导版本）
 2. 结束前自检五问：**改动归档了吗？feature-map 状态推进了吗？progress.md 补记了吗？引导文件（含记忆快照 `.doclib/guide-memory.md`）需要更新吗？踩坑都处置了吗？**
 3. 新功能开发走 `.plan/<日期>/` 双锚点：规划文档完成 → feature-map 登记 planned；开发完成 → 归档成果（长期价值沉淀 ADR/规格/参考卷）、状态 → implemented、progress 补记、`doclib snapshot` 固化基线
+
+## 测试链（长程开发执法）
+
+- **fast 档**（提交门禁烘焙）：`npm run typecheck`
+- **full 档**（CI 与长程收尾验收）：`npm test`
+长程开发回路与阻塞协议见 doclib-dev skill 情形 B；声明事实源：`doclib/50-testing/testing.md` frontmatter（变更后重跑 `doclib sync` 与 `doclib hook install`）
 
 ## 纪律底线
 

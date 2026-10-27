@@ -267,3 +267,19 @@ status: living
 - 解决：测试内显式 `fs.utimes` 把文件 mtime 设定为基线之后 5s，断言与文件系统精度彻底解耦；产品行为未改（软提示漏报仅在「文档与快照同秒创建」时发生，真实使用近乎不可能）；引导开发宪法「测试与验收铁律」同步增补该纪律
 - 规避：凡断言涉及**跨对象时间先后**（mtime vs 快照时刻、文件 A vs 文件 B），一律显式设定时间戳（`fs.utimes` 或注入固定时钟），不得依赖「操作天然按序发生」；CI 红、本地绿时，先查**精度/时区/排序/并发**四类环境差异，再查逻辑；「本地靠 2ms 运气绿」是可识别的坏味道
 - 来源：.plan/2026-10-27/promo-video-hyperframes.md 失败尝试与踩坑节
+
+## 2026-10-27 · frontmatter 扁平解析器不支持嵌套 YAML——schema 设计前先核解析器契约
+
+- 现象：F19 test-chain 最初按嵌套 YAML 设计（`test-chain:` 下 `fast:`/`full:` 子键），实现时发现 `parseFrontmatter` 是扁平键值解析器——缩进键 `  fast:` 不匹配键正则被静默忽略，其下的列表项全部并进父键 `test-chain`，fast/full 两档合并成一个列表，分档语义静默丢失
+- 根因：`core/frontmatter.ts` 的解析契约是「顶层键 + 紧随列表项」，靠 `currentKey` 游标把 `- item` 挂到最近顶层键；嵌套结构里缩进子键既不是键也不是列表项，被静默跳过——解析器**不报错但不语义**，是静默失真而非显式失败
+- 解决：test-chain schema 改扁平键 `test-chain-fast`/`test-chain-full`（与 #37 走查账 volumes-fed/na 的「frontmatter 扁平解析约束」同构）；并对嵌套写法加显式 fail-fast（检测到 `test-chain` 键即抛 DoclibError 指引扁平写法），把静默失真变成显式错误
+- 规避：任何新增 frontmatter 字段的 schema 设计，先读 `parseFrontmatter` 的解析契约再定形状——多层数据用多扁平键编码（或走 JSON 簿记），不假设 YAML 嵌套可用；解析器静默忽略的输入要靠 fail-fast 探测兜底
+- 来源：.plan/2026-10-27/long-horizon-harness.md 失败尝试与踩坑节
+
+## 2026-10-27 · 状态机判定要贴施工时序——开工即全未勾是常态，执法点选在「宣称完成」而非「进行中」
+
+- 现象：skeleton-progress 批准稿判「in-progress/implemented 存在未勾选条目均 strict 违规」，执行推演发现 in-progress=开工（开工时实施清单全部未勾选）→ 开工瞬间 check --strict 即违规、施工全程恒红——为长程回路制造永久噪声，与回路自身的收口流程（勾选→翻 implemented→commit）时序冲突
+- 根因：把 demo 的布尔 passes 直接映射到 doclib 四态时忽略了状态机的**施工语义**——in-progress 是合法的「进行中」态而非「宣称完成」态；执法点选错状态等价于把过程纪律当成了结果门禁
+- 解决：违规只挂 implemented（宣称完成必须清单全勾——反伪造核心）；in-progress 未勾选降为 skeleton-open soft notice（进度可见不阻断）——经用户拍板确认
+- 规避：给状态机加判定前，先枚举每个状态下的**合法现场**（开工时清单长什么样、收口时长什么样），执法点必须落在「该状态的现场不可能合法出现此形态」的状态上；拿不准时推演一次完整施工时序再定稿
+- 来源：.plan/2026-10-27/long-horizon-harness.md 失败尝试与踩坑节

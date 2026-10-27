@@ -1,6 +1,6 @@
 ---
 snapshot: 86
-docs-hash: 2a4a59f33f0aecc3060c73e43cbe7cda2a470fb5abc515f86143f1c9d2230c98
+docs-hash: 4753c2618b257a1863c50021fcf38af28473fce166f730972e0b2b8b7e7adcf0
 volumes-fed: [00-overview, 10-architecture, 20-modules, 30-features, 40-guides, 50-testing, 60-config, 95-lessons]
 volumes-na: [70-deploy, 80-design, 90-reference, 99-archive]
 ---

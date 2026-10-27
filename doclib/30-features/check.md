@@ -30,7 +30,7 @@ status: stable
 
 ## 怎么运转
 
-`doclib check [--strict] [--json]`——无 AI、无网络、可复现。违规分类 17 类（另含非违规状态 3 类与豁免提示 notices）：
+`doclib check [--strict] [--json]`——无 AI、无网络、可复现。违规分类 18 类（另含非违规状态 3 类与豁免提示 notices）：
 
 | 分类 | 判定 | 违规 |
 | --- | --- | --- |
@@ -54,8 +54,9 @@ status: stable
 | 验收锚点缺失 | 已声明规划路径下 frontmatter `type: plan-skeleton` 的**生成物**文档：实施清单条目（`- [ ]` 复选行）缺 AC 引用 token（`AC-<数字>`），或引用的 `规格路径#AC-x` 锚点（规格文档或 AC 编号）在馆内不存在——**仅约束 CLI 生成物，用户自由格式 .plan 不受检**（F9 不解析载体格式的边界；v0.40 #39），拦「实施与验收脱钩的自说自话」 | 是（strict 计入门禁） |
 | 假设残留 | 馆内 narrative 文档正文含未清假设标签词面（带冒号载荷的行内标签；词面规则归 `core/docquality.ts` 实现，规范文档不落词面防自指误报——同注记污染纪律）——对话规划的推断残留毒化事实源（v0.40 #39）；`status: draft` 降级警告不阻断（同文体①②惯例） | 是（strict 计入门禁） |
 | 实施锚点缺失 | feature-map 行 status=in-progress 且「对应文档」列为空、"-" 或 "—"（ASCII 与全角空位同判）——沉淀锚点缺失的镜像对称（in-progress 应有 .plan 实施文档或馆内规格在改；v0.40 #39），拦「开工了却无实施载体」 | 是（strict 计入门禁） |
+| 清单状态失真 | plan-skeleton 载体（复用验收锚点同扫描面 `core/harness.ts`）frontmatter `feature: N` 对应 feature-map 行 status=implemented 且实施清单存在未勾选条目（`- [ ]`，TODO(agent) 占位除外；骨架缺失/planned/in-progress/feature 不存在不判）——F19 长程闭环反伪造核心：宣称完成必须清单全勾（v0.9.0 #43）；in-progress 未勾选走 `skeleton-open` notice 不判违规 | 是（strict 计入门禁；不入五分项） |
 
-分类口径统一（v0.29 修正措辞；v0.32 增文体；v0.6.1 增归档闭环三不变量；v0.6.2 增教训账缺口；v0.6.3 增走查账违规并补列 guide-feed-stale——口径行历史上漏计该类，与 union 对齐；v0.6.4 增教训来源缺失；v0.40 增验收锚点缺失/假设残留/实施锚点缺失；v0.8.0 token 截断字符集覆盖 Markdown 界定符——反引号/星号/ASCII 引号/CJK 直角引号包裹路径不带入界定符，且含相对穿越（..）的 token 直接判违规/提示不 stat（lesson-source 与 memory-pointer 共享词面，REVIEW 轮 R-2/R-3 补全））：**违规 findings 17 类**（unaccounted / uncovered / migration / guide-stale / guide-feed-stale / guide-feed-walk / orphan-doc / doc-quality / genre / carrier-unregistered / ledger-gap / anchor-missing / lesson-gap / lesson-source / acceptance-anchor / assumption-residue / implementation-anchor）＋**非违规状态 3 类**（已对账 / 文档先行 / 已豁免）＋**豁免与提示 notices**（不计门禁、不扣治理分，仅计数可见；v0.6.3 增 `guide-feed-walk-absent` 走查缺席提示；v0.41 增 `memory-pointer` 记忆快照指针警告——快照正文路径 token 存在性核对，soft 不阻断）。归档闭环四不变量**不计入治理健康分五分项**（公式不变），执法面走 strict 门禁与 pre-commit hook；验收锚点/假设残留/实施锚点三新类同不入五分项（v0.40，公式不变）。
+分类口径统一（v0.29 修正措辞；v0.32 增文体；v0.6.1 增归档闭环三不变量；v0.6.2 增教训账缺口；v0.6.3 增走查账违规并补列 guide-feed-stale——口径行历史上漏计该类，与 union 对齐；v0.6.4 增教训来源缺失；v0.40 增验收锚点缺失/假设残留/实施锚点缺失；v0.8.0 token 截断字符集覆盖 Markdown 界定符——反引号/星号/ASCII 引号/CJK 直角引号包裹路径不带入界定符，且含相对穿越（..）的 token 直接判违规/提示不 stat（lesson-source 与 memory-pointer 共享词面，REVIEW 轮 R-2/R-3 补全）；v0.9.0 增清单状态失真）：**违规 findings 18 类**（unaccounted / uncovered / migration / guide-stale / guide-feed-stale / guide-feed-walk / orphan-doc / doc-quality / genre / carrier-unregistered / ledger-gap / anchor-missing / lesson-gap / lesson-source / acceptance-anchor / assumption-residue / implementation-anchor / skeleton-progress）＋**非违规状态 3 类**（已对账 / 文档先行 / 已豁免）＋**豁免与提示 notices**（不计门禁、不扣治理分，仅计数可见；v0.6.3 增 `guide-feed-walk-absent` 走查缺席提示；v0.41 增 `memory-pointer` 记忆快照指针警告——快照正文路径 token 存在性核对，soft 不阻断；v0.9.0 增 `skeleton-open` 施工中未勾选进度提示 / `blocked-residue` 骨架 blocked 标记未清提醒 / `chain-stale` 提交钩子烘焙测试链与馆内声明失配或单侧缺失提醒——foreign 钩子与未传脚本体不判）。归档闭环四不变量**不计入治理健康分五分项**（公式不变），执法面走 strict 门禁与 pre-commit hook；验收锚点/假设残留/实施锚点三新类同不入五分项（v0.40，公式不变）；清单状态失真同不入五分项（v0.9.0，公式不变）。
 
 ## 四态判定与三层防线【v0.29】
 

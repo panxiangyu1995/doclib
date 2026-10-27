@@ -19,7 +19,7 @@ description: 只凭 DocLib 文档图书馆从零复原一个项目。当存在 R
 
 1. **通读**：doclib/README.md → INDEX.md → 00-overview → 10-architecture → 40-guides/rebuild-plan.md
 2. **制定施工计划**：依 rebuild-plan 的阶段划分，写入目标目录 REBUILD-LOG.md（阶段、依据文档、完成标准）
-3. **逐阶段开发**：脚手架 → 数据层 → 核心域 → 接口层 → 次要功能 → 打磨。每阶段完成即对照依据文档自检，并在 REBUILD-LOG.md 记录结果
+3. **逐阶段开发**：脚手架 → 数据层 → 核心域 → 接口层 → 次要功能 → 打磨。每阶段完成即对照依据文档自检，并在 REBUILD-LOG.md 记录结果。每阶段收口的测试链与阻塞纪律遵循 doclib-dev skill 情形 B（馆内 test-chain 为准；受阻即停，禁止假装完成）
 4. **验收**：逐条执行 30-features 的验收标准（Given/When/Then），记录通过/偏差；feature-map 全绿才算完成
 5. **收尾**：在 REBUILD-LOG.md 输出差异清单——文档未覆盖而自行决策的部分、与文档不符被迫偏离的部分。这份清单将反哺图书馆的下一轮更新（回到源项目执行 doclib plan → doclib-update）
 
@@ -41,7 +41,7 @@ description: 只凭 DocLib 文档图书馆从零复原一个项目。当存在 R
 ## 三阶段施工语义【P1→P2→P3 串行】
 
 - **P1 信息零遗漏**：馆内记载的一切信息 100% 复现（面/端点/页面/资产形态/语义），差异清单只允许"馆未覆盖且自行决策"项
-- **P2 质量保证**：行为语义与馆内契约完全一致（形状/参数/边界/错误面），门禁全绿（typecheck/lint/test/build）
+- **P2 质量保证**：行为语义与馆内契约完全一致（形状/参数/边界/错误面），门禁全绿（typecheck/lint/test/build）——测试链以馆内 `50-testing/testing.md` frontmatter `test-chain` 声明为准（doclib-dev 情形 B）
 - **P3 升华超越**：在 P2 基础上产出**升华提案清单**——修复你发现的馆内/源设计缺陷、体验改进、文档增强；逐条记录（改了什么/为什么优于原状），回传主持方评估（部分改进可反哺源项目）
   - 升华挖掘加速器（可选）：源项目已建知识图谱时，`doclib graph draft` 的 unused.md（死代码候选）与 `doclib graph explore` 影响面半径可作提案素材——候选仅线索非结论，采纳前必须核实动态调用误报
 

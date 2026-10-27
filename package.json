@@ -1,6 +1,6 @@
 {
   "name": "@panxiangyu1995/doclib",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "把任意项目蒸馏成可复原的文档图书馆：有索引、有层次、覆盖全，任何 agent 或人只凭这套文档即可从零重建该项目（≥90% 功能复原）。非克隆，是文档驱动的重新开发。",
   "license": "MIT",
   "type": "module",
@@ -33,7 +33,7 @@
   "scripts": {
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.vendor.json && tsc -p tsconfig.json && node scripts/copy-assets.js",
     "typecheck": "tsc -p tsconfig.vendor.json --noEmit && tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node --test dist/core/frontmatter.test.js dist/core/mapping.test.js dist/core/fsutil.test.js dist/core/agents.test.js dist/core/guides.test.js dist/core/assets.test.js dist/core/state.test.js dist/core/ledger.test.js dist/core/check.test.js dist/core/orphan.test.js dist/core/place.test.js dist/core/docquality.test.js dist/core/archival.test.js dist/core/planning.test.js dist/core/surface.test.js dist/core/reconcile.test.js dist/core/implement.test.js dist/core/codegraph/engine.test.js dist/core/codegraph/draft.test.js dist/commands/plan.test.js dist/commands/hook.test.js dist/commands/init.test.js dist/commands/snapshot.test.js dist/commands/diff.test.js dist/commands/status.test.js dist/commands/verify.test.js dist/commands/check.test.js dist/commands/ack.test.js dist/commands/place.test.js dist/commands/graph.test.js dist/commands/implement.test.js dist/commands/sync.test.js dist/commands/reconcile.test.js dist/commands/cli.e2e.test.js dist/commands/stress.test.js",
+    "test": "npm run build && node --test dist/core/frontmatter.test.js dist/core/mapping.test.js dist/core/fsutil.test.js dist/core/agents.test.js dist/core/guides.test.js dist/core/harness.test.js dist/core/assets.test.js dist/core/state.test.js dist/core/ledger.test.js dist/core/check.test.js dist/core/orphan.test.js dist/core/place.test.js dist/core/docquality.test.js dist/core/archival.test.js dist/core/planning.test.js dist/core/surface.test.js dist/core/reconcile.test.js dist/core/implement.test.js dist/core/codegraph/engine.test.js dist/core/codegraph/draft.test.js dist/commands/plan.test.js dist/commands/hook.test.js dist/commands/init.test.js dist/commands/snapshot.test.js dist/commands/diff.test.js dist/commands/status.test.js dist/commands/verify.test.js dist/commands/check.test.js dist/commands/ack.test.js dist/commands/place.test.js dist/commands/graph.test.js dist/commands/implement.test.js dist/commands/sync.test.js dist/commands/reconcile.test.js dist/commands/cli.e2e.test.js dist/commands/stress.test.js",
     "prepublishOnly": "npm run typecheck && npm test",
     "dev": "tsc --watch"
   },

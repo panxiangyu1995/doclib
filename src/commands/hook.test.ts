@@ -150,3 +150,80 @@ test("hook e2e：snapshot 后 commit 放行", async () => {
   const log = await execSh(`git -C "${root}" log --oneline`);
   assert.ok(log.stdout.includes("init"));
 });
+
+async function writeChainDoc(root: string, frontmatter: string): Promise<void> {
+  const p = path.join(root, "doclib", "50-testing", "testing.md");
+  await fs.mkdir(path.dirname(p), { recursive: true });
+  await fs.writeFile(p, `---\ntitle: T\n${frontmatter}---\n正文\n`, "utf8");
+}
+
+test("hook install：test-chain 声明后烘焙 fast 档与指纹", async () => {
+  const root = await tmpGit();
+  await writeChainDoc(root, "test-chain-fast:\n  - npm run typecheck\n  - npm test\ntest-chain-full: npm test\n");
+  const r = await runHook(root, { strict: true });
+  assert.ok(r.text.includes("fast 档 2 条"));
+  const raw = await fs.readFile(path.join(root, ".git", "hooks", "pre-commit"), "utf8");
+  assert.ok(raw.includes("# doclib-chain:"));
+  assert.ok(raw.includes("npm run typecheck || exit 1"));
+  assert.ok(raw.includes("npm test || exit 1"));
+  assert.ok(!raw.includes("npm run lint"));
+});
+
+test("hook install：链变更后重装刷新指纹；链移除后恢复无链形态", async () => {
+  const root = await tmpGit();
+  await writeChainDoc(root, "test-chain-fast: npm run lint\n");
+  await runHook(root, {});
+  const p = path.join(root, ".git", "hooks", "pre-commit");
+  const before = await fs.readFile(p, "utf8");
+  await writeChainDoc(root, "test-chain-fast: npm run typecheck\n");
+  await runHook(root, {});
+  const after = await fs.readFile(p, "utf8");
+  assert.ok(after.includes("npm run typecheck || exit 1"));
+  assert.ok(!after.includes("npm run lint"));
+  const beforeFp = before.match(/# doclib-chain:([0-9a-f]+)/)?.[1] ?? "";
+  const afterFp = after.match(/# doclib-chain:([0-9a-f]+)/)?.[1] ?? "";
+  assert.notEqual(beforeFp, afterFp);
+  await writeChainDoc(root, "note: 无链\n");
+  const r = await runHook(root, {});
+  assert.ok(!r.text.includes("烘焙"));
+  const raw = await fs.readFile(p, "utf8");
+  assert.ok(!raw.includes("# doclib-chain:"));
+  assert.ok(!raw.includes("|| exit 1\nnpm"));
+});
+
+test("hook --ci github：test-chain 声明后烘焙 full 档独立步骤", async () => {
+  const root = await tmpGit();
+  await writeChainDoc(root, "test-chain-full:\n  - npm run typecheck\n  - npm test\n");
+  const r = await runHook(root, { ci: "github" });
+  assert.ok(r.text.includes("full 档 2 条"));
+  const wf = await fs.readFile(path.join(root, ".github", "workflows", "doclib-check.yml"), "utf8");
+  assert.ok(wf.includes("- run: npm run typecheck"));
+  assert.ok(wf.includes("name: test-chain full 2/2"));
+});
+
+test("hook e2e：链命令失败阻断提交，解除后放行", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "doclib-hook-chain-"));
+  await execSh(`git init -q "${root}"`);
+  await execSh(`node "${cliJs}" init`, { cwd: root });
+  const tplPath = path.join(root, "doclib", "50-testing", "testing.md");
+  const tpl = await fs.readFile(tplPath, "utf8");
+  await fs.writeFile(tplPath, tpl.replace("status: draft", "status: draft\ntest-chain-fast: test -f .git/chain-ok"), "utf8");
+  await execSh(`node "${cliJs}" sync`, { cwd: root });
+  await execSh(`node "${cliJs}" snapshot`, { cwd: root });
+  await runHook(root, { strict: true });
+  await execSh(`git -C "${root}" add -A`);
+  let blocked = false;
+  try {
+    await execSh(`git -C "${root}" -c user.email=t@t.io -c user.name=t commit -m chain`);
+  } catch (e) {
+    blocked = true;
+    const out = `${String((e as { stdout?: unknown }).stdout)}${String((e as { stderr?: unknown }).stderr)}`;
+    assert.ok(out.includes("fast 档"));
+  }
+  assert.equal(blocked, true);
+  await fs.writeFile(path.join(root, ".git", "chain-ok"), "1", "utf8");
+  await execSh(`git -C "${root}" add -A`);
+  await execSh(`git -C "${root}" -c user.email=t@t.io -c user.name=t commit -m chain-ok`);
+  const log = await execSh(`git -C "${root}" log --oneline`);
+  assert.ok(log.stdout.includes("chain-ok"));
+});

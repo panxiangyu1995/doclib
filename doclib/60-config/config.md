@@ -41,6 +41,7 @@ status: stable
 | .vscode/ .idea/ .zed/ | 编辑器本机配置【2026-10-22】 | 同属 L1 扫描面：编辑器项目配置与提示词文件不进文档视野（与 .opencode/ 的 agent 安装产物同类） |
 | video/renders/ | 视频渲染产物【2026-10-27】 | 成片 MP4 与关键帧 PNG：二进制产物，不入 git（走 GitHub Release 附件）；不入代码账（与 .codegraph/ 同类——可再生产物） |
 | video/node_modules/ video/.hyperframes/ | 视频工程本机产物【2026-10-27】 | HyperFrames 工程的可再生缓存与依赖目录：非文档资产，不进三账 |
+| 软件著作权申请资料/ | 软著申请生成物【2026-10-27】 | software-copyright-materials skill 的产出目录（申请文档与素材）：生成物不入 git，不进三账 |
 
 ## 豁免语义边界【2026-10-22】
 

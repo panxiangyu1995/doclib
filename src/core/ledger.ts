@@ -59,7 +59,8 @@ export type CheckFindingKind =
   | "lesson-source"
   | "acceptance-anchor"
   | "assumption-residue"
-  | "implementation-anchor";
+  | "implementation-anchor"
+  | "skeleton-progress";
 
 export type CheckFinding = {
   kind: CheckFindingKind;
