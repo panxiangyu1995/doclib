@@ -1,15 +1,15 @@
 # F19 长程开发闭环（long-horizon-harness）
 
 - 日期：2026-10-27
-- 状态：实施中（#43）
+- 状态：已归档（#43 implemented，commit 104ee88 + 0bef399，基线 snap-090/revision 81，测试 372/372）
 - 来源：用户灵感 panxiangyu1995/auto-coding-agent-demo（10 小时全自动编程实验，本人多项目实证过）+ 原话「我的目的不是为了本仓库的开发，而是引入将其作为我们仓库作为一个图书馆工具兼具开发辅助可以帮组开发者们做长程任务规划和开发，playwright mcp不必非是mcp 现在微软也发布了playwright cli（gh cli你自己获取信息）来用作为备选」+「rebuild skill，本质上就是agent的长程开发复现，但是没有明确完善长程开发链路，所以我认为可以少新增一个skill……开发实现的skill可以只做成一个dev skill,只不过skill分为常规开发和长程开发2中情形」+「测试标准，我认为不进再图书馆中落地，也该一样反哺到claude.md和agents.md中」
 - 规划载体：本对话（RIPER-5 RESEARCH → INNOVATE → PLAN → EXECUTE；planstore 纪律落盘）
 - 关联产物：`src/core/harness.ts` · `src/commands/hook.ts` · `src/core/check.ts` · `src/commands/check.ts` · `src/core/guides.ts` · `assets/guides/light.md` · `skills/doclib-dev/SKILL.md` · `skills/doclib-rebuild/SKILL.md` · `.opencode/commands/intest.md` · `doclib/{30-features,40-guides,10-architecture,00-overview,50-testing}` · `package.json`
 
 ## 会话导出登记
 
-- 导出文件名：待收尾登记（long-horizon-harness-20261027-NN.md）
-- 敏感信息自查：待收尾执行
+- 导出文件名：long-horizon-harness-20261027-01.md（提醒用户 /export 后落位 doclib/98-sessions/ 并补 frontmatter 五要素）
+- 敏感信息自查：本会话无密钥/token/凭据（gh api 均匿名公共查询；npm view 公共）；并发实例文件未触碰
 
 ## 跨会话前情
 
@@ -154,3 +154,6 @@ INNOVATE 两轮共 12 项决策点，用户逐项拍板推荐项：
 - 2026-10-27 · 测试夹具极简 testing.md 触发文体违规（card/structure）——hook 中 check 先于链行执行，e2e 夹具必须合文体，否则链阻断语义被文体违规抢先掩盖
 - 2026-10-27 · blocked-residue 与功能状态无关（frontmatter 独立刻度），测试按状态清除断言属预期错误——notice 生命周期=标记存在性
 - 2026-10-27 · python repr 引号替换单字符替换破坏 JS 字符串闭合（TS1002 Unterminated）——生成测试夹具字符串用编辑工具直写更稳
+- 2026-10-27 · 蒸馏 lessons 标题时缩短了措辞 → progress 处置引用「同日期+标题前缀」匹配失败（lesson-gap 命中）——教训条目标题必须与处置引用逐字一致
+- 2026-10-27 · 重演 #40 归档时序坑：snapshot 后才刷新记忆快照/反哺 hash → 引导漂移被迫补第二轮 snapshot+commit——归档正确顺序=check 违规 0 → 记忆/反哺刷新 → snapshot → commit
+- 2026-10-27 · 冒烟脚本自身时序三连坑（双重 init/implement 先于 feature-map/sentinel 命名混淆）——冒烟失败先查夹具与脚本时序再怀疑产品；单测 e2e 与受控复验双层兜底生效

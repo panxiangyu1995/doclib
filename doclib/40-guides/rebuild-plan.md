@@ -55,3 +55,4 @@ status: draft
 ## 总验收
 
 - 逐条执行 30-features/ 的验收标准；feature-map 全部功能有实现且验收通过
+- 门禁全绿以馆内 `50-testing/testing.md` frontmatter `test-chain` 声明为准；每阶段收口与阻塞纪律遵循 doclib-dev skill 情形 B（F19 长程开发闭环，复原即长程开发复现）
