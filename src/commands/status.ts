@@ -3,9 +3,10 @@ import path from "node:path";
 import { collectFiles, hashAll } from "../core/fsutil.js";
 import { detectProject } from "../core/detect.js";
 import { LIBRARY_DIR, STATE_DIR, TASKS_DIR, latestSnapshot, loadState, computeDrift } from "../core/state.js";
-import { guideBudgetReport, guideStampReport, libraryFingerprint, readGuideProject } from "../core/guides.js";
+import { guideBudgetReport, guideStampReport, libraryFingerprint, readGuideMemory, readGuideProject } from "../core/guides.js";
 import { loadPlanningPaths, planningReminderReport, planningIgnores, suggestCarriers } from "../core/planning.js";
 import { runCheckCore } from "../core/check.js";
+import { latestProgressDate } from "../core/archival.js";
 import { LIBRARY_VOLUMES } from "../core/place.js";
 import { readHookState } from "./hook.js";
 import type { CommandResult } from "./init.js";
@@ -57,6 +58,29 @@ export async function runStatus(root: string, opts: { json?: boolean } = {}): Pr
   lines.push(`引导: ${stamp}`);
   lines.push(`引导预算: ${budget}`);
   lines.push(`反哺: ${feedLine}`);
+
+  let memoryLine: string;
+  try {
+    const memory = await readGuideMemory(root);
+    if (memory === null) {
+      memoryLine = "未蒸馏（会话收尾由 agent 蒸馏填充 .doclib/guide-memory.md——近期工作记忆+协作者画像；空状态合法）";
+    } else {
+      let suffix = "";
+      const latestProgress = await latestProgressDate(root);
+      if (latestProgress !== null) {
+        if (memory.workAsOf !== null && memory.workAsOf < latestProgress) {
+          suffix += ` · ⚠ 工作记忆滞后（progress 最新 ${latestProgress}）→ 刷新簿记后 sync`;
+        }
+        if (memory.userAsOf !== null && memory.userAsOf < latestProgress) {
+          suffix += " · ⚠ 画像可刷新";
+        }
+      }
+      memoryLine = `work as-of ${memory.workAsOf ?? "未记"} · user as-of ${memory.userAsOf ?? "未记"}${memory.window !== null ? ` · 窗口 ${memory.window} 天` : ""}${suffix}`;
+    }
+  } catch (e) {
+    memoryLine = `⚠ ${e instanceof Error ? e.message : String(e)}`;
+  }
+  lines.push(`记忆: ${memoryLine}`);
   lines.push(
     latest
       ? `基线: ${latest.id} @ ${latest.at}${latest.note ? `（${latest.note}）` : ""} · 快照链 ${state.snapshots.length} 条 · revision ${state.revision}`
@@ -121,7 +145,7 @@ export async function runStatus(root: string, opts: { json?: boolean } = {}): Pr
       drift,
       health,
       planning: { paths: loadPlanningPaths(state), reminder, carrierSuggestions },
-      guides: { stamp, budget, feed: feedLine },
+      guides: { stamp, budget, feed: feedLine, memory: memoryLine },
       hook: hookState,
       detection: det,
       tasks,

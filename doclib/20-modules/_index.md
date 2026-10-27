@@ -12,7 +12,7 @@ status: stable
 
 | 模块 | 职责一句话 | 卷入口 | covers |
 | --- | --- | --- | --- |
-| skills（10 册手册） | agent 手册源 `skills/` 与分发副本 `.claude/skills/`、`.opencode/skills/`（sync 幂等分发）；doclib-accept 收尾含反哺蒸馏步骤（#32 联动）；doclib-dev 实时同步表/双锚点含教训处置位与归档四不变量事实（#35/#36）；doclib-audit 第 8 项教训完备性抽查（#36） | 30-features/guides.md | skills/ |
+| skills（10 册手册） | agent 手册源 `skills/` 与分发副本 `.claude/skills/`、`.opencode/skills/`（sync 幂等分发）；doclib-accept 收尾含反哺蒸馏步骤（#32 联动）；doclib-dev 实时同步表/双锚点含教训处置位与归档四不变量事实（#35/#36）+ 自检第 4 项含记忆快照刷新（#40 五动作联动）；doclib-audit 第 8 项教训完备性抽查（#36） | 30-features/guides.md | skills/ |
 | cli | 参数解析、命令分发、HELP、统一错误出口 | 待成卷 | src/cli.ts |
 | core/fsutil | 遍历/hash/树渲染/ignore 语义 | 待成卷 | src/core/fsutil.ts |
 | core/frontmatter | Markdown frontmatter（covers）解析 | 待成卷 | src/core/frontmatter.ts |
@@ -23,7 +23,7 @@ status: stable
 | core/assets | 资产定位/目录拷贝/模板渲染 | 待成卷 | src/core/assets.ts |
 | core/agents | agent 适配表与解析 | 待成卷 | src/core/agents.ts |
 | core/prompts | TTY 交互问卷（非 TTY 降级） | 待成卷 | src/core/prompts.ts |
-| core/guides | 引导三区渲染（managed 再生/project 反哺注入/custom 保留）/版本戳/双闸新鲜度与预算/馆内指纹/走查账解析（volumes-fed/volumes-na 三态） | 30-features/guides.md | src/core/guides.ts |
+| core/guides | 引导四区渲染（managed 再生/project 反哺注入/memory 记忆快照注入/custom 保留）/版本戳/双闸新鲜度与三预算/馆内指纹/走查账解析（volumes-fed/volumes-na 三态）/记忆簿记解析（双 as-of + window 与保留标记 fail-fast） | 30-features/guides.md | src/core/guides.ts |
 | commands/init | 骨架落位 + agents/skills/引导安装 | 30-features/init-v2.md | src/commands/init.ts |
 | commands/plan | 任务书生成（BUILD/UPDATE/REBUILD） | 待成卷 | src/commands/plan.ts |
 | commands/diff | 漂移报告与受影响文档映射 | 待成卷 | src/commands/diff.ts |
@@ -38,7 +38,7 @@ status: stable
 | core/orphan | 馆外文档四态判定（工具链闭集 28 项 + 任意层级引导文件 + 归档指针 + 根级门面文件及其多语言变体模式识别）+ 疑似新工具目录识别 | 30-features/check.md | src/core/orphan.ts |
 | core/place | 归位决策与执行（建议归宿/收编/入棺/墓碑/两级索引/归档账还原） | 30-features/place.md | src/core/place.ts |
 | commands/place | 孤儿归位处置命令族（list/collect/archive/ack/restore，干跑默认） | 30-features/place.md | src/commands/place.ts |
-| core/check | 双账本对账引擎（违规分类 + 馆外文档四态判定 + 豁免与提示 notices + 归档闭环三不变量 + 反哺走查账校验 guideWalkVerdict） | 30-features/check.md | src/core/check.ts |
+| core/check | 双账本对账引擎（违规分类 + 馆外文档四态判定 + 豁免与提示 notices + 归档闭环三不变量 + 反哺走查账校验 guideWalkVerdict + 记忆快照指针存在性 memoryPointerNotices） | 30-features/check.md | src/core/check.ts |
 | core/archival | 归档闭环三不变量 + 实施锚点缺失（in-progress 镜像）+ 教训账缺口/教训来源缺失不变量（处置位与来源行存在性 → check strict 执法） | 30-features/check.md | src/core/archival.ts |
 | core/featuremap | feature-map 解析（行/状态/对应文档列切分 + 存在性判定） | 30-features/reconcile.md | src/core/featuremap.ts |
 | core/planning | 规划载体域（声明路径/双轨排除/载体文档枚举/待登记待归档提醒/常见载体检测建议含 _bmad-output/载体形态识别/provenance 源 hash 对账提醒 sourceDrifts） | 待成卷 | src/core/planning.ts |

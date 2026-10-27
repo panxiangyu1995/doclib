@@ -86,7 +86,7 @@ description: DocLib 日常开发会话工作流（★主力）。当进入任何
 1. 改动归档了吗？（馆内文档同步）
 2. feature-map 状态推进了吗？
 3. progress.md 补记了吗？
-4. 引导文件需要更新吗？（新规则入 custom 区；确认普适的提示 `doclib sync`）
+4. 引导文件需要更新吗？（新规则入 custom 区；记忆快照 `.doclib/guide-memory.md` 刷新——`work-as-of` 落今日、画像有新观察则更新 `user-as-of`；确认普适的提示 `doclib sync`——planstore 收尾动作 2）
 5. 踩坑都处置了吗？（.plan 第九节回填齐 + lessons 四段已入档且带真实路径 `来源:` 行 + progress 处置位声明——planstore 收尾核对动作）
 
 ## 纪律底线

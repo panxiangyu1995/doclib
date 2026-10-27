@@ -232,6 +232,46 @@ test("lessonSource：路径 token 失效 → 违规；真实路径与描述性�
 
   await seedLessons(
     root,
+    `导语\n${SRC_EPOCH}\n## 2026-10-26 · A\n- 现象：x\n- 来源：\`.plan/2026-10-26/real.md\` 与 **doclib/50-testing/acc.md**（Markdown 界定符包裹）\n`,
+  );
+  findings = await archivalFindings(root, state());
+  assert.deepEqual(
+    findings.filter((f) => f.kind === "lesson-source"),
+    [],
+    "反引号/星号包裹的真实路径不得带入界定符（字符集根治回归）",
+  );
+
+  await seedLessons(
+    root,
+    `导语\n${SRC_EPOCH}\n## 2026-10-26 · A\n- 现象：x\n- 来源："doclib/50-testing/acc.md" 与 「.plan/2026-10-26/real.md」（引号与直角引号包裹，R-2 回归）\n`,
+  );
+  findings = await archivalFindings(root, state());
+  assert.deepEqual(
+    findings.filter((f) => f.kind === "lesson-source"),
+    [],
+    "引号/直角引号包裹的真实路径不得带入界定符（R-2 回归）",
+  );
+
+  await seedLessons(
+    root,
+    `导语\n${SRC_EPOCH}\n## 2026-10-26 · B\n- 现象：x\n- 来源：\`.plan/2026-10-26/ghost.md\` 反引号内失效路径\n`,
+  );
+  findings = await archivalFindings(root, state());
+  const backtickMiss = findings.filter((f) => f.kind === "lesson-source");
+  assert.equal(backtickMiss.length, 1);
+  assert.equal(backtickMiss[0]!.path, ".plan/2026-10-26/ghost.md");
+
+  await seedLessons(
+    root,
+    `导语\n${SRC_EPOCH}\n## 2026-10-26 · B\n- 现象：x\n- 来源：doclib/../../etc/hosts 相对穿越\n`,
+  );
+  findings = await archivalFindings(root, state());
+  const traversal = findings.filter((f) => f.kind === "lesson-source");
+  assert.equal(traversal.length, 1, "穿越 token 必须判违规且不因根外路径存在而静默（R-3 回归）");
+  assert.match(traversal[0]!.detail ?? "", /相对穿越/);
+
+  await seedLessons(
+    root,
     `导语\n${SRC_EPOCH}\n## 2026-10-26 · B\n- 现象：y\n- 来源：progress 2026-10-26 #32 REVIEW 轮（D-02）\n`,
   );
   findings = await archivalFindings(root, state());

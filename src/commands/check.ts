@@ -95,6 +95,7 @@ export async function runCheck(root: string, opts: { json?: boolean; strict?: bo
     const suspect = count("toolchain-suspect");
     const ignored = count("newly-ignored");
     const assumptionDraft = count("assumption-draft");
+    const memoryPointer = count("memory-pointer");
     const parts: string[] = [];
     if (toolchain > 0) parts.push(`工具链豁免 ${toolchain}`);
     if (guide > 0) parts.push(`引导文件豁免 ${guide}`);
@@ -102,6 +103,7 @@ export async function runCheck(root: string, opts: { json?: boolean; strict?: bo
     if (suspect > 0) parts.push(`疑似新工具目录 ${suspect}`);
     if (ignored > 0) parts.push(`新增忽略退出代码账 ${ignored}`);
     if (assumptionDraft > 0) parts.push(`假设残留(draft 警告) ${assumptionDraft}`);
+    if (memoryPointer > 0) parts.push(`记忆指针警告 ${memoryPointer}`);
     lines.push(`豁免与提示: ${parts.join(" ｜ ")}`);
     const suspectDirs = new Map<string, number>();
     for (const n of notices.filter((x) => x.kind === "toolchain-suspect")) {

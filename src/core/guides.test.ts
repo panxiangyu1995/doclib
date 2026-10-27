@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { CUSTOM_BEGIN, CUSTOM_END, GUIDE_BUDGET_LINES, PROJECT_BEGIN, PROJECT_BUDGET_LINES, PROJECT_END, applyProjectRegion, fingerprintOf, guideBudgetReport, managedRegionFresh, parseGuideStamp, parseVolumesWalk, readGuideProject, renderGuide, renderFullGuide, writeGuides } from "./guides.js";
+import { CUSTOM_BEGIN, CUSTOM_END, GUIDE_BUDGET_LINES, MEMORY_BEGIN, MEMORY_BUDGET_LINES, MEMORY_END, PROJECT_BEGIN, PROJECT_BUDGET_LINES, PROJECT_END, applyMemoryRegion, applyProjectRegion, fingerprintOf, guideBudgetReport, managedRegionFresh, parseGuideStamp, parseVolumesWalk, readGuideMemory, readGuideProject, renderGuide, renderFullGuide, writeGuides } from "./guides.js";
 import { DoclibError } from "./state.js";
 import { AGENT_TARGETS } from "./agents.js";
 
@@ -214,4 +214,130 @@ test("fingerprintOf：馆内路径参与、顺序稳定、非馆路径不参与"
   assert.equal(a, b);
   const c = fingerprintOf({ "doclib/a.md": "h1", "doclib/b.md": "h9" });
   assert.notEqual(a, c);
+});
+
+test("applyMemoryRegion：注入替换占位，null 保持模板", async () => {
+  const tpl = await renderGuide("light");
+  assert.ok(tpl.includes("doclib:memory-begin"));
+  assert.ok(applyMemoryRegion(tpl, null).includes("记忆快照区：由 doclib sync"));
+  const injected = applyMemoryRegion(tpl, "## 近期工作记忆\n- 当前焦点");
+  assert.ok(injected.includes("## 近期工作记忆"));
+  assert.ok(!injected.includes("记忆快照区：由 doclib sync"));
+  assert.ok(injected.indexOf("doclib:memory-begin") < injected.indexOf("## 近期工作记忆"));
+  assert.ok(injected.indexOf("doclib:memory-end") > injected.indexOf("## 近期工作记忆"));
+});
+
+test("readGuideMemory：无文件/空正文 → null；frontmatter 解析双 as-of 与 window", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "doclib-mem-"));
+  assert.equal(await readGuideMemory(root), null);
+  await fs.mkdir(path.join(root, ".doclib"), { recursive: true });
+  const p = path.join(root, ".doclib", "guide-memory.md");
+  await fs.writeFile(p, "---\nwork-as-of: 2026-10-27\nuser-as-of: 2026-10-26\nwindow: 30\n---\n\n## 近期工作记忆\n", "utf8");
+  const mem = await readGuideMemory(root);
+  assert.ok(mem);
+  assert.equal(mem.workAsOf, "2026-10-27");
+  assert.equal(mem.userAsOf, "2026-10-26");
+  assert.equal(mem.window, 30);
+  await fs.writeFile(p, "---\nwork-as-of: 2026-10-27\n---\n\n", "utf8");
+  assert.equal(await readGuideMemory(root), null);
+});
+
+test("readGuideMemory：as-of 日期非法 fail-fast（形状与语义双校验，R-1）；window 非法降为 null 不炸", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "doclib-memdate-"));
+  await fs.mkdir(path.join(root, ".doclib"), { recursive: true });
+  const p = path.join(root, ".doclib", "guide-memory.md");
+  await fs.writeFile(p, "---\nwork-as-of: 2026/10/27\n---\n\n正文\n", "utf8");
+  await assert.rejects(
+    () => readGuideMemory(root),
+    (e: unknown) => e instanceof DoclibError && /work-as-of 日期非法/.test(e.message),
+  );
+  await fs.writeFile(p, "---\nwork-as-of: 2026-13-45\n---\n\n正文\n", "utf8");
+  await assert.rejects(
+    () => readGuideMemory(root),
+    (e: unknown) => e instanceof DoclibError && /work-as-of 日期非法/.test(e.message),
+    "形状合法但语义不可能的日期必须拒绝（R-1 回归）",
+  );
+  await fs.writeFile(p, "---\nwork-as-of: 2026-10-27\nuser-as-of: 前天\n---\n\n正文\n", "utf8");
+  await assert.rejects(
+    () => readGuideMemory(root),
+    (e: unknown) => e instanceof DoclibError && /user-as-of 日期非法/.test(e.message),
+  );
+  await fs.writeFile(p, "---\nwork-as-of: 2026-10-27\nwindow: 很久\n---\n\n正文\n", "utf8");
+  const mem = await readGuideMemory(root);
+  assert.ok(mem);
+  assert.equal(mem.window, null);
+});
+
+test("readGuideMemory：正文含区域保留标记 → DoclibError（与 guide-project 同款防注入）", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "doclib-memguard-"));
+  await fs.mkdir(path.join(root, ".doclib"), { recursive: true });
+  const p = path.join(root, ".doclib", "guide-memory.md");
+  for (const marker of [MEMORY_BEGIN, MEMORY_END, PROJECT_BEGIN, CUSTOM_BEGIN, "<!-- doclib:managed-end -->"]) {
+    await fs.writeFile(p, `---\nwork-as-of: 2026-10-27\n---\n\n正文 ${marker} 尾\n`, "utf8");
+    await assert.rejects(
+      () => readGuideMemory(root),
+      (e: unknown) => e instanceof DoclibError && /区域保留标记/.test(e.message),
+    );
+  }
+});
+
+test("renderFullGuide + writeGuides：guide-memory 存在时注入 memory 区，两份一致且位置在 project 后 custom 前", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "doclib-meminject-"));
+  const targets = AGENT_TARGETS.filter((t) => t.id === "claude" || t.id === "opencode");
+  await writeGuides(root, "light", targets);
+  const before = await fs.readFile(path.join(root, "CLAUDE.md"), "utf8");
+  assert.ok(before.includes("记忆快照区：由 doclib sync"));
+
+  await fs.mkdir(path.join(root, ".doclib"), { recursive: true });
+  await fs.writeFile(
+    path.join(root, ".doclib", "guide-memory.md"),
+    "---\nwork-as-of: 2026-10-27\nuser-as-of: 2026-10-27\n---\n\n## 近期工作记忆\n- #40 记忆快照\n\n## 协作者画像\n- 拍板偏好一步到位\n",
+    "utf8",
+  );
+  await writeGuides(root, "light", targets);
+  for (const rel of ["CLAUDE.md", "AGENTS.md"]) {
+    const after = await fs.readFile(path.join(root, rel), "utf8");
+    assert.ok(after.includes("#40 记忆快照"));
+    assert.ok(after.includes("拍板偏好一步到位"));
+    assert.ok(!after.includes("记忆快照区：由 doclib sync"));
+    assert.ok(after.indexOf("doclib:project-end") < after.indexOf("doclib:memory-begin"));
+    assert.ok(after.indexOf("doclib:memory-end") < after.indexOf("doclib:custom-begin"));
+  }
+  const a = await fs.readFile(path.join(root, "CLAUDE.md"), "utf8");
+  const b = await fs.readFile(path.join(root, "AGENTS.md"), "utf8");
+  const region = (c: string): string => c.slice(c.indexOf("doclib:memory-begin"), c.indexOf("doclib:memory-end"));
+  assert.equal(region(a), region(b));
+});
+
+test("managedRegionFresh：memory 区被直改可检出，sync 后归零", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "doclib-memfresh-"));
+  const targets = AGENT_TARGETS.filter((t) => t.id === "claude");
+  await fs.mkdir(path.join(root, ".doclib"), { recursive: true });
+  await fs.writeFile(
+    path.join(root, ".doclib", "guide-memory.md"),
+    "---\nwork-as-of: 2026-10-27\n---\n\n## 近期工作记忆\n- 当前焦点测试条目\n",
+    "utf8",
+  );
+  await writeGuides(root, "light", targets);
+  assert.deepEqual(await managedRegionFresh(root), []);
+  const p = path.join(root, "CLAUDE.md");
+  const raw = await fs.readFile(p, "utf8");
+  await fs.writeFile(p, raw.replace("当前焦点测试条目", "被直改的记忆条目"), "utf8");
+  assert.deepEqual(await managedRegionFresh(root), ["CLAUDE.md"]);
+});
+
+test("guideBudgetReport：memory 区超 40 行报超限", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "doclib-membudget-"));
+  const targets = AGENT_TARGETS.filter((t) => t.id === "claude");
+  await fs.mkdir(path.join(root, ".doclib"), { recursive: true });
+  const filler = Array.from({ length: MEMORY_BUDGET_LINES + 5 }, () => "- 记忆条目").join("\n");
+  await fs.writeFile(
+    path.join(root, ".doclib", "guide-memory.md"),
+    `---\nwork-as-of: 2026-10-27\n---\n\n${filler}\n`,
+    "utf8",
+  );
+  await writeGuides(root, "light", targets);
+  const report = await guideBudgetReport(root);
+  assert.ok(report.includes(`memory ${MEMORY_BUDGET_LINES + 7}/${MEMORY_BUDGET_LINES} 行 ⚠ 超限`));
+  assert.ok(report.includes("滚动快照非知识库"));
 });

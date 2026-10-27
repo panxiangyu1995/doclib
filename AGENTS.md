@@ -1,4 +1,4 @@
-<!-- doclib-guide cli=0.7.0 structure=3 -->
+<!-- doclib-guide cli=0.8.0 structure=3 -->
 # DocLib 工作流
 
 <!-- doclib:managed-begin -->
@@ -29,12 +29,12 @@
 | 功能移除 | **六步规程**：影响面预查→残留扫描→执行移除→馆内联动（retired/removed+墓碑）→`doclib check` 执法→留痕 |
 | 任何进度变化 | feature-map 状态推进 + `00-overview/progress.md` 补记 |
 | 载体规划文档新增 | feature-map 登记 planned（check「载体未登记」拦截）+ progress.md 补记（check「进度账缺口」拦截） |
-| 引导文件（本文件）的维护 | 三区分工：规则区（managed）由 `doclib sync` 再生；反哺区（project）由 agent 蒸馏写入 `.doclib/guide-project.md` 后经 sync 注入，**禁止直接编辑**；定制区（custom）实时维护——项目工作流/注意事项/教训产生的新 agent 规则，当场写入 custom 区 |
+| 引导文件（本文件）的维护 | 四区分工：规则区（managed）由 `doclib sync` 再生；反哺区（project）由 agent 蒸馏写入 `.doclib/guide-project.md` 后经 sync 注入，**禁止直接编辑**；记忆区（memory）由 agent 会话收尾蒸馏写入 `.doclib/guide-memory.md` 后经 sync 注入（近期工作记忆+协作者画像，禁止直接编辑）；定制区（custom）实时维护——项目工作流/注意事项/教训产生的新 agent 规则，当场写入 custom 区 |
 
 ## 会话纪律（每个开发会话）
 
 1. 开始：`doclib status`（看漂移、基线、引导版本）
-2. 结束前自检四问：**改动归档了吗？feature-map 状态推进了吗？progress.md 补记了吗？引导文件（CLAUDE.md/AGENTS.md）需要更新吗？**
+2. 结束前自检五问：**改动归档了吗？feature-map 状态推进了吗？progress.md 补记了吗？引导文件（含记忆快照 `.doclib/guide-memory.md`）需要更新吗？踩坑都处置了吗？**
 3. 新功能开发走 `.plan/<日期>/` 双锚点：规划文档完成 → feature-map 登记 planned；开发完成 → 归档成果（长期价值沉淀 ADR/规格/参考卷）、状态 → implemented、progress 补记、`doclib snapshot` 固化基线
 
 ## 纪律底线
@@ -90,6 +90,32 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
 
 - `npm run build`（tsc vendor 岛 + 主工程 + copy-assets）｜`npm run typecheck`｜`npm test`｜CLI 试运行 `node dist/cli.js <命令>`（`60-config/config.md`）
 <!-- doclib:project-end -->
+
+<!-- doclib:memory-begin -->
+## 近期工作记忆（窗口 30 天）
+
+- 当前焦点：#40 记忆快照与协作者画像反哺（F18，v0.8.0）执行中——规划载体 .plan/2026-10-27/guide-memory-snapshot.md；引导四区契约（memory 区）落地中
+- 近期完成：
+  - 10-27 #39 规划直通车 v0.7.0：doclib implement 拆单 + 门禁三件套 + bootstrap 五阶段（.plan/2026-10-27/planning-express.md）
+  - 10-26 #32/#37 引导反哺三区契约与开发宪法六篇 + 12 卷走查账 v0.6.0-0.6.3（.plan/2026-10-26/guide-feed.md + .plan/2026-10-26/guide-constitution.md）
+  - 10-26 #35/#36/#38 归档闭环三不变量 + 教训账缺口 + 教训实时性（一行制/来源行执法）v0.6.1-0.6.4（.plan/2026-10-26/archival-loop-enforcement.md 等）
+  - 10-26 #33 会话档案区 98-sessions 立项与 M1 落地（.plan/2026-10-26/transcript-archive.md）
+  - 10-23 #28 文体学全链路（三类文体+门禁四检查）与 #29 旗标面对账落地
+  - 10-22 #26/#27 README 门面重写（中英双语）+ 门面多语言变体模式豁免
+  - 10-23 #23 基准扩容：四基准馆建成（aspnetcore/fd/csvkit/memos 均 100 A，doclib/50-testing/benchmark/）
+- 活跃注意：
+  - #34 transcript 批量回捞 planned——本功能（#40）v2 素材升级依赖它（OpenCode DB 285 会话/2.5 万消息待接入）
+  - #23 复原侧闭环待排程（四馆建馆侧已建成，隔离复原未启动）
+  - #19 ast-grep 阶段 1 planned（扫描器阶段 0 已由六步规程+引导四纪律取代）
+  - 产品级建议（本轮留档）：SOURCE_PATH_TOKEN_RE 截断字符集不含反引号/星号——反引号包裹路径尾部带入界定符致指针 stat 失配（memory-pointer 与 lesson-source 共享词面同源缺陷），根治需扩字符集+回归测试
+  - 反哺区当前状态：走查 12/12（.doclib/guide-project.md）——基线版本号等自引用易腐数字不入快照（写了必滞后一位）；快照路径可用反引号/星号包裹（token 字符集已覆盖 Markdown 界定符，95-lessons 2026-10-27）
+
+## 协作者画像
+
+- 决策风格：偏好「一步到位」全链路（#28 三拍板、#38「α+β+γ+δ 一步到位」原话）；习惯提问工具成批拍板（单轮 8-14 项）；偏离推荐必须给理由（Q44 矛盾澄清、「固定 8+ 方法」偏离推荐 6）；产品级缺陷要求根治而非兜底（Q42 模式识别取代闭集）
+- 沟通偏好：中文交流；以 RIPER-5 模式协议管控会话（研究→创新→计划→执行→审查，模式切换须显式指令）；研究阶段要求「确切的肯定的研究结果，不包含任何的猜测」——实证优先（context7/gh/实测交叉验证）；方案呈现给推荐+理由由其拍板
+- 工作流习惯：新功能必走 .plan 载体双锚点（规划文档先行，按文档实施）；REVIEW 轮独立进行（「全方位漏洞审查」「严格代码审查查找漏洞」）；常要求真实仓库扩展验收（「在 test 目录下的克隆项目中测试」）；对「遗漏入馆」高度敏感（曾实证手动补录 → 拍板 hook 执法路线 #35）
+<!-- doclib:memory-end -->
 
 <!-- doclib:custom-begin -->
 ## 本项目定制（DocLib 仓库）

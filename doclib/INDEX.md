@@ -30,13 +30,13 @@ status: living
 | [30-features/place.md](30-features/place.md) | 孤儿归位与处置规格（place 五子命令 + 干跑契约 + 入棺三护栏 + 载体形态识别建议） | living |
 | [30-features/graph.md](30-features/graph.md) | 代码知识图谱规格（graph 命令族 + 草稿候选管道 + vendor CJS 岛与降级） | living |
 | [30-features/reconcile.md](30-features/reconcile.md) | 进度对账规格（reconcile 三段报告 + 对应文档混合引用判定 + 库内/载体证据分流） | stable |
-| [30-features/guides.md](30-features/guides.md) | 引导文件体系规格（三区契约 + 图书馆反哺注入 + 开发宪法六篇 + 12 卷走查账 + 双闸检测 + 双预算） | stable |
+| [30-features/guides.md](30-features/guides.md) | 引导文件体系规格（四区契约 + 图书馆反哺注入 + 开发宪法六篇 + 12 卷走查账 + 记忆快照双层快照 + 双闸检测 + 三预算） | stable |
 | [30-features/040-planning-express.md](30-features/040-planning-express.md) | F17 规划直通车规格（bootstrap v2 五阶段对话协议 + 工具兼容层快照式收编 + implement 拆单器 + 门禁三件套 + AC 编号规范） | stable |
 | [40-guides/010-tool-adoption.md](40-guides/010-tool-adoption.md) | 外部规划工具收编指南（BMAD/spec-kit/OpenSpec/Kiro 语义映射表 + 快照式收编纪律 + provenance 规范） | stable |
 | [40-guides/rebuild-plan.md](40-guides/rebuild-plan.md) | 复原路线图（更名 roadmap 待迁移） | draft |
 | [40-guides/conventions.md](40-guides/conventions.md) | 编码约定 | draft |
 | [40-guides/benchmark.md](40-guides/benchmark.md) | 复原基准测试指南（F14 方法论操作沉淀） | living |
-| [40-guides/transcripts.md](40-guides/transcripts.md) | 对话导出工作流（98-sessions 档案区 + 双向关联 + 收尾三动作） | living |
+| [40-guides/transcripts.md](40-guides/transcripts.md) | 对话导出工作流（98-sessions 档案区 + 双向关联 + 收尾五动作） | living |
 | [50-testing/testing.md](50-testing/testing.md) | 测试策略（node:test + 冒烟闭环） | stable |
 | [60-config/config.md](60-config/config.md) | 工程设置全集（含构建链/files 字段） | stable |
 | [70-deploy/deploy.md](70-deploy/deploy.md) | 部署（npm 包配置已就绪，发布待阶段 5） | stable |

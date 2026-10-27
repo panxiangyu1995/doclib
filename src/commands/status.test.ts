@@ -206,6 +206,37 @@ test("status：guide-project 含非法区域标记 → 降级提示行（不炸 
   assert.match(j.guides.feed, /区域保留标记/);
 });
 
+test("status：记忆行三态（未蒸馏/正常双 as-of/滞后后缀）", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, { agents: "claude", noHook: true });
+  let r = await runStatus(root, {});
+  assert.match(r.text, /记忆: 未蒸馏/);
+  await put(root, ".doclib/guide-memory.md", "---\nwork-as-of: 2026-10-27\nuser-as-of: 2026-10-27\nwindow: 30\n---\n\n## 近期工作记忆\n- 当前焦点\n");
+  r = await runStatus(root, {});
+  assert.match(r.text, /记忆: work as-of 2026-10-27 · user as-of 2026-10-27 · 窗口 30 天/);
+  assert.ok(!r.text.includes("工作记忆滞后"));
+  await put(root, "doclib/00-overview/progress.md", "- **2026-10-28** · 测试条目\n  - 教训: 无（测试占位）\n");
+  r = await runStatus(root, {});
+  assert.match(r.text, /记忆: work as-of 2026-10-27 .*⚠ 工作记忆滞后（progress 最新 2026-10-28）→ 刷新簿记后 sync/);
+  await put(root, ".doclib/guide-memory.md", "---\nwork-as-of: 2026-10-28\nuser-as-of: 2026-10-01\n---\n\n## 近期工作记忆\n- 当前焦点\n");
+  r = await runStatus(root, {});
+  assert.match(r.text, /记忆: work as-of 2026-10-28 · user as-of 2026-10-01 · ⚠ 画像可刷新/);
+  assert.ok(!r.text.includes("工作记忆滞后"));
+});
+
+test("status：guide-memory 含非法区域标记 → 记忆行降级 ⚠（不炸 status），as-of 日期非法同降级", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, { agents: "claude", noHook: true });
+  await put(root, ".doclib/guide-memory.md", "---\nwork-as-of: 2026-10-27\n---\n\n正文 <!-- doclib:custom-begin --> 尾\n");
+  let r = await runStatus(root, {});
+  assert.match(r.text, /记忆: ⚠ .*区域保留标记/);
+  const j = JSON.parse((await runStatus(root, { json: true })).text) as { guides: { memory: string } };
+  assert.match(j.guides.memory, /区域保留标记/);
+  await put(root, ".doclib/guide-memory.md", "---\nwork-as-of: 明天\n---\n\n正文\n");
+  r = await runStatus(root, {});
+  assert.match(r.text, /记忆: ⚠ .*work-as-of 日期非法/);
+});
+
 test("status：反哺行走查覆盖度三态（12/12、未留账、非法）", async () => {
   const root = await tmpRoot("doclib-acc-status-");
   await runInit(root, { agents: "claude", noHook: true });

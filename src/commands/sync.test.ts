@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { runSync } from "./sync.js";
 import { runInit } from "./init.js";
 import { DoclibError, loadState } from "../core/state.js";
-import { renderGuide, MANAGED_BEGIN, MANAGED_END, CUSTOM_BEGIN, CUSTOM_END, PROJECT_BEGIN, PROJECT_END } from "../core/guides.js";
+import { renderGuide, MANAGED_BEGIN, MANAGED_END, CUSTOM_BEGIN, CUSTOM_END, MEMORY_BEGIN, MEMORY_END, PROJECT_BEGIN, PROJECT_END } from "../core/guides.js";
 import { get, put, tmpRoot } from "./testkit.js";
 
 function regionOf(content: string, begin: string, end: string): string {
@@ -173,4 +173,27 @@ test("sync：guide-project 变更 → 引导文件随之更新", async () => {
   assert.match(r.text, /引导: 写入 CLAUDE\.md/);
   assert.match(await get(root, "CLAUDE.md"), /v2 反哺/);
   assert.ok(!(await get(root, "CLAUDE.md")).includes("v1 反哺"));
+});
+
+test("sync：guide-memory 注入 memory 区，两份一致且幂等", async () => {
+  const root = await tmpRoot("doclib-acc-sync-");
+  await runInit(root, { agents: "claude,opencode" });
+  await put(
+    root,
+    ".doclib/guide-memory.md",
+    "---\nwork-as-of: 2026-10-27\nuser-as-of: 2026-10-27\nwindow: 30\n---\n\n## 近期工作记忆\n- 当前焦点 #40\n\n## 协作者画像\n- 拍板偏好一步到位\n",
+  );
+  await runSync(root, {});
+  const a = await get(root, "CLAUDE.md");
+  const b = await get(root, "AGENTS.md");
+  for (const c of [a, b]) {
+    assert.ok(c.includes("#40"));
+    assert.ok(c.includes("拍板偏好一步到位"));
+    assert.ok(!c.includes("记忆快照区：由 doclib sync"));
+    assert.ok(c.indexOf("doclib:project-end") < c.indexOf("doclib:memory-begin"));
+    assert.ok(c.indexOf("doclib:memory-end") < c.indexOf("doclib:custom-begin"));
+  }
+  assert.equal(regionOf(a, MEMORY_BEGIN, MEMORY_END), regionOf(b, MEMORY_BEGIN, MEMORY_END));
+  const r2 = await runSync(root, {});
+  assert.match(r2.text, /无变化 CLAUDE\.md, AGENTS\.md/);
 });

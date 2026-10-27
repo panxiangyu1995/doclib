@@ -29,12 +29,12 @@
 | 功能移除 | **六步规程**：影响面预查→残留扫描→执行移除→馆内联动（retired/removed+墓碑）→`doclib check` 执法→留痕 |
 | 任何进度变化 | feature-map 状态推进 + `00-overview/progress.md` 补记 |
 | 载体规划文档新增 | feature-map 登记 planned（check「载体未登记」拦截）+ progress.md 补记（check「进度账缺口」拦截） |
-| 引导文件（本文件）的维护 | 三区分工：规则区（managed）由 `doclib sync` 再生；反哺区（project）由 agent 蒸馏写入 `.doclib/guide-project.md` 后经 sync 注入，**禁止直接编辑**；定制区（custom）实时维护——项目工作流/注意事项/教训产生的新 agent 规则，当场写入 custom 区 |
+| 引导文件（本文件）的维护 | 四区分工：规则区（managed）由 `doclib sync` 再生；反哺区（project）由 agent 蒸馏写入 `.doclib/guide-project.md` 后经 sync 注入，**禁止直接编辑**；记忆区（memory）由 agent 会话收尾蒸馏写入 `.doclib/guide-memory.md` 后经 sync 注入（近期工作记忆+协作者画像，禁止直接编辑）；定制区（custom）实时维护——项目工作流/注意事项/教训产生的新 agent 规则，当场写入 custom 区 |
 
 ## 会话纪律（每个开发会话）
 
 1. 开始：`doclib status`（看漂移、基线、引导版本）
-2. 结束前自检四问：**改动归档了吗？feature-map 状态推进了吗？progress.md 补记了吗？引导文件（CLAUDE.md/AGENTS.md）需要更新吗？**
+2. 结束前自检五问：**改动归档了吗？feature-map 状态推进了吗？progress.md 补记了吗？引导文件（含记忆快照 `.doclib/guide-memory.md`）需要更新吗？踩坑都处置了吗？**
 3. 新功能开发走 `.plan/<日期>/` 双锚点：规划文档完成 → feature-map 登记 planned；开发完成 → 归档成果（长期价值沉淀 ADR/规格/参考卷）、状态 → implemented、progress 补记、`doclib snapshot` 固化基线
 
 ## 纪律底线
@@ -62,6 +62,11 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
 <!-- 图书馆反哺区：由 doclib sync 从 .doclib/guide-project.md 注入，禁止直接编辑本区（改内容请改簿记后重新 sync）。
 建馆完成后由 doclib-build / doclib-accept 蒸馏填充五段：项目定位 / 架构速览 / 模块地图 / 硬规则 / 命令速查，每条附馆内路径引用。 -->
 <!-- doclib:project-end -->
+
+<!-- doclib:memory-begin -->
+<!-- 记忆快照区：由 doclib sync 从 .doclib/guide-memory.md 注入，禁止直接编辑本区（改内容请改簿记后重新 sync）。
+会话收尾由 agent 蒸馏填充两段（预算 ≤40 行）：近期工作记忆 ≤25 行（当前焦点 / 近期完成 / 活跃注意，窗口默认 30 天）+ 协作者画像 ≤12 行（决策风格 / 沟通偏好 / 工作流习惯），每条附真实路径指针（.plan 或 doclib 路径）。 -->
+<!-- doclib:memory-end -->
 
 <!-- doclib:custom-begin -->
 <!-- 本区由本项目 agent/用户维护：项目定制说明与注意事项。doclib sync 更新时保留本区内容 -->

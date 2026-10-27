@@ -17,7 +17,7 @@ status: stable
 
 ## 是什么
 
-`doclib hook [--strict]` 安装 pre-commit 钩子（提交时运行 `doclib check [--strict]`）；`doclib hook remove` 移除；`doclib hook --ci github` 生成 GitHub Actions 门禁模板。钩子脚本带 `# doclib-hook` 标记，非 doclib 管理的既有钩子拒改。`doclib status` 以「提交门禁」行展示四态（未安装 / 已安装 / 已安装(--strict)），`--json` 载荷含 `hook` 字段；v0.6.1 起 status 另输出「载体建议」行（常见规划载体未声明软提示，`.specify/`、`openspec/`、`specs/`、`.kiro/specs/`）与 `--json` `planning.carrierSuggestions` 字段；v0.6.3 起「反哺」行输出走查覆盖度（`走查 N/12`｜`未留账 ⚠`｜`非法 ⚠`，N 按覆盖集去重——REVIEW R-3，规格见 [guides.md](guides.md)）（check/init 相关规格见 [check.md](check.md) / [init-v2.md](init-v2.md)）。
+`doclib hook [--strict]` 安装 pre-commit 钩子（提交时运行 `doclib check [--strict]`）；`doclib hook remove` 移除；`doclib hook --ci github` 生成 GitHub Actions 门禁模板。钩子脚本带 `# doclib-hook` 标记，非 doclib 管理的既有钩子拒改。`doclib status` 以「提交门禁」行展示四态（未安装 / 已安装 / 已安装(--strict)），`--json` 载荷含 `hook` 字段；v0.6.1 起 status 另输出「载体建议」行（常见规划载体未声明软提示，`.specify/`、`openspec/`、`specs/`、`.kiro/specs/`）与 `--json` `planning.carrierSuggestions` 字段；v0.6.3 起「反哺」行输出走查覆盖度（`走查 N/12`｜`未留账 ⚠`｜`非法 ⚠`，N 按覆盖集去重——REVIEW R-3，规格见 [guides.md](guides.md)）；v0.8.0 起「记忆」行输出记忆快照双 as-of 与滞后提醒（`⚠ 工作记忆滞后`｜`⚠ 画像可刷新`，规格见 [guides.md](guides.md) AC-17）（check/init 相关规格见 [check.md](check.md) / [init-v2.md](init-v2.md)）。
 
 **自动安装入口（v0.5.1）**：`doclib init` 默认即装 `--strict` 档门禁（根除"忘记安装"风险）——git 仓库自动落位、既有非 doclib 钩子警告跳过（init 不失败）、非 git 目录提示后置安装、`--no-hook` 显式退出；`doclib sync` 幂等补装缺失钩子（在岗不动、档位不越权变更）。显式 `doclib hook` 命令保留全部能力（foreign 抛错语义仅在此生效）。
 

@@ -1,6 +1,6 @@
 {
   "name": "@panxiangyu1995/doclib",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "把任意项目蒸馏成可复原的文档图书馆：有索引、有层次、覆盖全，任何 agent 或人只凭这套文档即可从零重建该项目（≥90% 功能复原）。非克隆，是文档驱动的重新开发。",
   "license": "MIT",
   "type": "module",

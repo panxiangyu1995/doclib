@@ -33,6 +33,9 @@ status: stable
 > 2026-10-27 增量（#39 规划直通车）：新建 `src/core/implement.test.ts`（7：候选/readiness 四态/slugify/骨架契约/验收锚点正反例与 F9 豁免）+ `src/commands/implement.test.ts`（5：候选清单/readiness 拒绝不落盘/干跑/apply 落盘/未知功能号）+ archival 实施锚点镜像 2 + docquality 假设残留 1 + planning provenance 1；`commands/plan.test.ts` BOOTSTRAP 断言随新五阶段模板更新（2）——**全套 332/332 绿（35 测试文件）**。
 
 > 2026-10-27 REVIEW 轮增量（#39）：archival ASCII "-" 同判 1 例 + implement 标量 anchors 校验 1 例——**全套 334/334 绿（35 测试文件）**。
+> 2026-10-27 增量（#40 记忆快照 v0.8.0）：`core/guides.test.ts` +7（applyMemoryRegion/readGuideMemory 三态与双 as-of 解析/日期非法 fail-fast/区域标记防注入/renderFullGuide 四区注入/managedRegionFresh memory 直改/预算超限）、`commands/check.test.ts` +4（memory-pointer soft notice 三态/标记污染 fail-fast）、`commands/status.test.ts` +2（记忆行三态/降级 ⚠）、`commands/sync.test.ts` +1（guide-memory 注入幂等两份一致）——**全套 348/348 绿（35 测试文件）**；冒烟 9 场景全过（init 四区占位/注入一致/直改检出/修复归零/滞后 ⚠/指针 soft strict 不阻断/标记 sync exit 1 不污染/status 降级/无簿记零报错）。
+> 2026-10-27 字符集根治增量（#40 同轮，用户拍板「顺手根治」）：`commands/check.test.ts` +1（反引号/星号包裹路径界定符不进 token）；`core/archival.test.ts` 既有 token 用例内扩 2 场景块（包裹真实路径零误报/反引号内失效路径干净）——**全套 349/349 绿（35 测试文件）**。
+> 2026-10-27 REVIEW 轮增量（#40 R-1..R-4 全修）：`commands/check.test.ts` +1（相对穿越 token → memory-pointer notice 且不 stat 根外路径）+ 界定符用例补引号/「」形态；`core/archival.test.ts` 既有用例内扩（引号/直角引号零误报 + 穿越 token 判违规）；`core/guides.test.ts` 日期用例补 2026-13-45 语义校验回归（形状合法但不可能的日期 fail-fast）——**全套 350/350 绿（35 测试文件）**。
 > 2026-10-22 增量（#25 codegraph 克隆集成）：新增 `src/core/codegraph/engine.test.ts`（9）、`src/core/codegraph/draft.test.ts`（6）、`src/commands/graph.test.ts`（4），扩写 `commands/cli.e2e.test.ts`（+1 全流程）、`core/fsutil.test.ts`（+1）、`core/orphan.test.ts`（+1）——**全套 240/240 绿**（31 测试文件）；graph 测试带 Node<22.5 自动 skip 守卫；验收标准 AC1–AC10 见 [30-features/graph.md](../30-features/graph.md)；真实仓库五仓实测见 [acceptance-graph-v0.5.0.md](acceptance-graph-v0.5.0.md)。
 
 ## 为什么
@@ -56,11 +59,11 @@ status: stable
 | `plan.test.ts` | 13 | 五类任务书 + 互斥 + 编号 + 漂移段 + 载体提醒 |
 | `snapshot.test.ts` | 13 | 基线账本 + 快照链上限 + pad3 边界 + 忽略规则 + 损坏防护 |
 | `diff.test.ts` | 10 | 三类漂移 + covers 精确/目录级优先 + 截断 + gitignore 语义 |
-| `status.test.ts` | 13 | 概览文本/json 全载荷 + 双锚点提醒 + 引导戳/预算 + 提交门禁四态 |
+| `status.test.ts` | 18 | 概览文本/json 全载荷 + 双锚点提醒 + 引导戳/预算 + 提交门禁四态 + 记忆行三态与降级 |
 | `verify.test.ts` | 12 | 覆盖度 + 失效/无锚点 + INDEX 双向 + 卷级索引 + 分组截断 |
-| `check.test.ts` | 14 | 违规分类逐一构造 + strict 退出码 + 豁免联动 + 治理分组件 |
+| `check.test.ts` | 23 | 违规分类逐一构造 + strict 退出码 + 豁免联动 + 治理分组件 + 记忆快照指针与标记污染 + 界定符包裹路径回归 |
 | `ack.test.ts` | 7 | once/standing/remove/note 缺值边界 |
-| `sync.test.ts` | 10 | 幂等/定制区/managed 再生/legacy/无戳跳过/check 闭环 |
+| `sync.test.ts` | 13 | 幂等/定制区/managed 再生/legacy/无戳跳过/check 闭环/memory 注入两份一致 |
 | `reconcile.test.ts` | 5 | 三段报告文本与 json + 进度不符判定 |
 | `cli.e2e.test.ts` | 11 | spawn 真实二进制：help/version/退出码/错误前缀/全生命周期闭环 |
 | `stress.test.ts` | 6 | 2000 文件/25 连续快照/40 层深嵌套/unicode/4MB 大文件/60 文件截断 |

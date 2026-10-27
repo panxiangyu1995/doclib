@@ -15,19 +15,25 @@ export const MANAGED_BEGIN = "<!-- doclib:managed-begin -->";
 export const MANAGED_END = "<!-- doclib:managed-end -->";
 export const PROJECT_BEGIN = "<!-- doclib:project-begin -->";
 export const PROJECT_END = "<!-- doclib:project-end -->";
+export const MEMORY_BEGIN = "<!-- doclib:memory-begin -->";
+export const MEMORY_END = "<!-- doclib:memory-end -->";
 export const CUSTOM_BEGIN = "<!-- doclib:custom-begin -->";
 export const CUSTOM_END = "<!-- doclib:custom-end -->";
 export const PROJECT_BUDGET_LINES = 50;
+export const MEMORY_BUDGET_LINES = 40;
 export const GUIDE_PROJECT_PATH = `${STATE_DIR}/guide-project.md`;
+export const GUIDE_MEMORY_PATH = `${STATE_DIR}/guide-memory.md`;
 
 export type GuideProject = { snapshot: number | null; docsHash: string | null; body: string; walk: VolumesWalk };
+export type GuideMemory = { workAsOf: string | null; userAsOf: string | null; window: number | null; body: string };
 
 export type WalkAccount = { fed: string[]; na: string[] };
 export type VolumesWalk = WalkAccount | "invalid" | null;
 export const WALK_FED_KEY = "volumes-fed";
 export const WALK_NA_KEY = "volumes-na";
 
-const REGION_MARKERS = [MANAGED_BEGIN, MANAGED_END, PROJECT_BEGIN, PROJECT_END, CUSTOM_BEGIN, CUSTOM_END];
+const REGION_MARKERS = [MANAGED_BEGIN, MANAGED_END, PROJECT_BEGIN, PROJECT_END, MEMORY_BEGIN, MEMORY_END, CUSTOM_BEGIN, CUSTOM_END];
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export function parseVolumesWalk(data: Record<string, string | string[]>): VolumesWalk {
   const fed = data[WALK_FED_KEY];
@@ -68,10 +74,51 @@ export function applyProjectRegion(template: string, body: string | null): strin
   return template.slice(0, i + PROJECT_BEGIN.length) + `\n${body}\n` + template.slice(j);
 }
 
+export async function readGuideMemory(root: string): Promise<GuideMemory | null> {
+  const raw = await readFileOrNull(path.join(root, GUIDE_MEMORY_PATH));
+  if (raw === null) return null;
+  const { data, body } = parseFrontmatter(raw);
+  const trimmed = body.trim();
+  if (trimmed === "") return null;
+  const hit = REGION_MARKERS.find((m) => trimmed.includes(m));
+  if (hit !== undefined) {
+    throw new DoclibError(
+      `${GUIDE_MEMORY_PATH} 正文含引导区域保留标记（${hit}）——标记字符串仅 doclib 内部使用，注入会破坏四区契约与 custom 保留语义，请改写该行后重试`,
+    );
+  }
+  const workAsOf = typeof data["work-as-of"] === "string" ? data["work-as-of"] : null;
+  const userAsOf = typeof data["user-as-of"] === "string" ? data["user-as-of"] : null;
+  if (workAsOf !== null && (Number.isNaN(Date.parse(workAsOf)) || !ISO_DATE_RE.test(workAsOf))) {
+    throw new DoclibError(`${GUIDE_MEMORY_PATH} work-as-of 日期非法（需 YYYY-MM-DD 真实日期）`);
+  }
+  if (userAsOf !== null && (Number.isNaN(Date.parse(userAsOf)) || !ISO_DATE_RE.test(userAsOf))) {
+    throw new DoclibError(`${GUIDE_MEMORY_PATH} user-as-of 日期非法（需 YYYY-MM-DD 真实日期）`);
+  }
+  const windowRaw = typeof data.window === "string" ? Number(data.window) : NaN;
+  return {
+    workAsOf,
+    userAsOf,
+    window: Number.isFinite(windowRaw) && windowRaw > 0 ? windowRaw : null,
+    body: trimmed,
+  };
+}
+
+export function applyMemoryRegion(template: string, body: string | null): string {
+  if (body === null) return template;
+  const i = template.indexOf(MEMORY_BEGIN);
+  const j = template.indexOf(MEMORY_END);
+  if (i === -1 || j === -1 || j < i) return template;
+  return template.slice(0, i + MEMORY_BEGIN.length) + `\n${body}\n` + template.slice(j);
+}
+
 export async function renderFullGuide(root: string, tier: GuideTier = "light"): Promise<string> {
   const template = await renderGuide(tier);
   const project = await readGuideProject(root);
-  return applyProjectRegion(template, project === null ? null : project.body);
+  const memory = await readGuideMemory(root);
+  return applyMemoryRegion(
+    applyProjectRegion(template, project === null ? null : project.body),
+    memory === null ? null : memory.body,
+  );
 }
 
 export function fingerprintOf(docs: Record<string, string>): string {
@@ -163,6 +210,7 @@ export async function managedRegionFresh(root: string): Promise<string[]> {
   const template = await renderFullGuide(root);
   const tplManaged = regionOf(template, MANAGED_BEGIN, MANAGED_END);
   const tplProject = regionOf(template, PROJECT_BEGIN, PROJECT_END);
+  const tplMemory = regionOf(template, MEMORY_BEGIN, MEMORY_END);
   if (tplManaged === null) return [];
   const stale: string[] = [];
   for (const rel of ["CLAUDE.md", "AGENTS.md"]) {
@@ -175,6 +223,8 @@ export async function managedRegionFresh(root: string): Promise<string[]> {
     }
     const project = regionOf(raw, PROJECT_BEGIN, PROJECT_END);
     if (tplProject !== null && project !== null && project !== tplProject) stale.push(rel);
+    const memory = regionOf(raw, MEMORY_BEGIN, MEMORY_END);
+    if (tplMemory !== null && memory !== null && memory !== tplMemory) stale.push(rel);
   }
   return stale;
 }
@@ -217,6 +267,15 @@ export async function guideBudgetReport(root: string): Promise<string> {
         lines > PROJECT_BUDGET_LINES
           ? `${rel} project ${lines}/${PROJECT_BUDGET_LINES} 行 ⚠ 超限 → 摘要瘦身（判据：会话冷启动真的每天都要知道吗）`
           : `${rel} project ${lines}/${PROJECT_BUDGET_LINES} 行`,
+      );
+    }
+    const memory = regionOf(raw, MEMORY_BEGIN, MEMORY_END);
+    if (memory !== null) {
+      const lines = memory.split(/\r?\n/).length;
+      parts.push(
+        lines > MEMORY_BUDGET_LINES
+          ? `${rel} memory ${lines}/${MEMORY_BUDGET_LINES} 行 ⚠ 超限 → 瘦身（判据：新会话不刷新就会犯错吗——滚动快照非知识库，过期条目删不补）`
+          : `${rel} memory ${lines}/${MEMORY_BUDGET_LINES} 行`,
       );
     }
   }

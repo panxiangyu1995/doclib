@@ -40,5 +40,6 @@ type: index
 | 文档 | 摘要 | 状态 |
 | --- | --- | --- |
 | [transcript-archive-20261026-01.md](transcript-archive-20261026-01.md) | 对话档案区立项与 M1 会话记录（session-id 待 /export 回填） | archived-session |
+| [guide-memory-snapshot-20261027-01.md](guide-memory-snapshot-20261027-01.md) | 记忆快照与协作者画像反哺会话记录（RIPER-5 全模式 + 字符集根治 + REVIEW R-1..R-4 全修） | archived-session |
 | [guide-constitution-20261026-02.md](guide-constitution-20261026-02.md) | 宪法反哺（#37）与教训实时性（#38）会话记录（ses_e88a…） | archived-session |
 | [planning-express-20261027-01.md](planning-express-20261027-01.md) | 规划直通车（#39）会话记录：调研→拍板→落地→审查全程（ses_e850…） | archived-session |

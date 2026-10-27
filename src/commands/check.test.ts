@@ -165,6 +165,85 @@ test("check：project 区直改报引导过期，sync 修复归零", async () =>
   assert.doesNotMatch(r.text, /引导过期/);
 });
 
+test("check：记忆快照指针路径不存在 → memory-pointer soft notice，不进 findings", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await put(
+    root,
+    ".doclib/guide-memory.md",
+    "---\nwork-as-of: 2026-10-27\nuser-as-of: 2026-10-27\n---\n\n## 近期工作记忆\n- 当前焦点 .plan/2099-01-01/ghost-plan.md 编造载体\n",
+  );
+  const r = await runCheck(root, {});
+  assert.match(r.text, /记忆指针警告 1/);
+  const j = r.json as { notices: Array<{ kind: string; path?: string }>; findings: Array<{ kind: string }> };
+  const notice = j.notices.find((n) => n.kind === "memory-pointer");
+  assert.ok(notice);
+  assert.equal(notice.path, ".plan/2099-01-01/ghost-plan.md");
+  assert.ok(j.findings.every((f) => f.kind !== "memory-pointer"));
+});
+
+test("check：记忆快照指针全部命中 → 无 memory-pointer notice", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await put(
+    root,
+    ".doclib/guide-memory.md",
+    "---\nwork-as-of: 2026-10-27\n---\n\n## 近期工作记忆\n- 近期完成 doclib/30-features/a.md 已对账\n",
+  );
+  const r = await runCheck(root, {});
+  const j = r.json as { notices: Array<{ kind: string }> };
+  assert.ok(j.notices.every((n) => n.kind !== "memory-pointer"));
+});
+
+test("check：记忆快照反引号/星号/引号包裹路径 → 界定符不进 token（字符集根治回归）", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await put(
+    root,
+    ".doclib/guide-memory.md",
+    "---\nwork-as-of: 2026-10-27\n---\n\n## 近期工作记忆\n- 焦点见 `doclib/30-features/a.md`、**doclib/30-features/a.md**、\"doclib/30-features/a.md\" 与 「doclib/30-features/a.md」 描述\n",
+  );
+  const r = await runCheck(root, {});
+  const j = r.json as { notices: Array<{ kind: string; path?: string }> };
+  assert.ok(j.notices.every((n) => n.kind !== "memory-pointer"));
+});
+
+test("check：记忆快照相对穿越 token → memory-pointer notice 且不 stat 根外路径（R-3 回归）", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await put(
+    root,
+    ".doclib/guide-memory.md",
+    "---\nwork-as-of: 2026-10-27\n---\n\n## 近期工作记忆\n- 指针 doclib/../../etc/hosts 穿越\n",
+  );
+  const r = await runCheck(root, {});
+  assert.match(r.text, /记忆指针警告 1/);
+  const j = r.json as { notices: Array<{ kind: string; detail?: string }>; findings: Array<{ kind: string }> };
+  const notice = j.notices.find((n) => n.kind === "memory-pointer");
+  assert.ok(notice);
+  assert.match(notice.detail ?? "", /相对穿越/);
+  assert.ok(j.findings.every((f) => f.kind !== "memory-pointer"));
+});
+
+test("check：无记忆簿记 → 零 memory-pointer 输出（空状态合法）", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  const r = await runCheck(root, {});
+  const j = r.json as { notices: Array<{ kind: string }> };
+  assert.ok(j.notices.every((n) => n.kind !== "memory-pointer"));
+  assert.ok(!r.text.includes("记忆指针警告"));
+});
+
+test("check：记忆簿记含区域保留标记 → 执法面 fail-fast（DoclibError 传播）", async () => {
+  const root = await tmpRoot("doclib-acc-check-");
+  await seedBase(root);
+  await put(root, ".doclib/guide-memory.md", "---\nwork-as-of: 2026-10-27\n---\n\n正文 <!-- doclib:memory-end --> 尾\n");
+  await assert.rejects(
+    () => runCheck(root, {}),
+    (e: unknown) => e instanceof DoclibError && /区域保留标记/.test(e.message),
+  );
+});
+
 test("check：走查账缺卷报违规，补齐归零；旧簿记缺席仅 soft notice", async () => {
   const root = await tmpRoot("doclib-acc-check-");
   await seedBase(root);

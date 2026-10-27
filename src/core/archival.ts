@@ -10,13 +10,25 @@ const LESSONS_RELPATH = `${LIBRARY_DIR}/95-lessons/lessons.md`;
 const LESSON_EPOCH_RE = /<!--\s*doclib:lesson-epoch:\s*(\d{4}-\d{2}-\d{2})\s*-->/;
 const LESSON_SOURCE_EPOCH_RE = /<!--\s*doclib:lesson-source-epoch:\s*(\d{4}-\d{2}-\d{2})\s*-->/;
 const LESSON_ENTRY_SPLIT_RE = /(?=^## \d{4}-\d{2}-\d{2} · )/m;
-const SOURCE_PATH_TOKEN_RE = /(?:doclib|\.plan|\.doclib|src|skills|assets|dist|migrations|test)\/[^\s；;，,。）)】（(【\[]*/g;
 const ENTRY_SPLIT_RE = /(?=-\s*\*\*\d{4}-\d{2}-\d{2}\*\*)/;
 const ENTRY_DATE_RE = /\*\*(\d{4}-\d{2}-\d{2})\*\*/;
 const LESSON_REF_RE = /^95-lessons(?:@(\S+))?\s+(\d{4}-\d{2}-\d{2})\s*·\s*(.+)$/;
+export const SOURCE_PATH_TOKEN_RE = /(?:doclib|\.plan|\.doclib|src|skills|assets|dist|migrations|test)\/[^\s；;，,。）)】（(【\[`*"「」']*/g;
 
 async function progressRaw(root: string): Promise<string> {
   return fs.readFile(path.join(root, PROGRESS_RELPATH), "utf8").catch(() => "");
+}
+
+export async function latestProgressDate(root: string): Promise<string | null> {
+  const raw = await progressRaw(root);
+  let latest: string | null = null;
+  for (const seg of raw.split(ENTRY_SPLIT_RE)) {
+    const dm = ENTRY_DATE_RE.exec(seg);
+    if (dm === null) continue;
+    const d = dm[1]!;
+    if (latest === null || d > latest) latest = d;
+  }
+  return latest;
 }
 
 async function lessonRefResolves(root: string, repoDir: string | undefined, date: string, title: string): Promise<boolean> {
@@ -181,6 +193,14 @@ export async function lessonSourceFindings(root: string): Promise<CheckFinding[]
     }
     const tokens = [...new Set((srcLine.match(SOURCE_PATH_TOKEN_RE) ?? []).map((t) => t.replace(/[.,;、]+$/, "")))];
     for (const token of tokens) {
+      if (token.includes("..")) {
+        findings.push({
+          kind: "lesson-source",
+          path: token,
+          detail: "来源行路径含相对穿越（..）→ 改写为仓库相对真实路径",
+        });
+        continue;
+      }
       const ok = await fs
         .stat(path.join(root, token))
         .then(() => true)

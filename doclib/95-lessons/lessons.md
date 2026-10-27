@@ -171,3 +171,19 @@ status: living
 - 解决：同步更新 plan.test 断言为新模板措辞（五阶段对话协议 + doclib implement 指引），全量复测
 - 规避：凡改模板/文案/固定措辞，先 `grep -rn "<旧措辞>" src/` 找出断言与引用面，变更与断言同步落地；新断言锚定行为语义而非易变措辞
 - 来源：.plan/2026-10-27/planning-express.md 第九节
+
+## 2026-10-27 · 为既有常量补导出必须原行改造而非另起声明——双声明即编译失败
+
+- 现象：memoryPointerNotices 复用 lesson-source 的 token 词面，为 SOURCE_PATH_TOKEN_RE 补导出时另起一行写 `export const`，原 `const` 声明未删 → TS2451 Cannot redeclare block-scoped variable，build/typecheck 双拦
+- 根因：「加导出」被当成「追加语句」而非「改造既有语句」——同文件内同名词面两处声明，编辑时只看检索命中的第一处
+- 解决：删除原 const 行、保留唯一 export 声明（词面本体不变），typecheck 归零
+- 规避：为既有标识符补可见性（const→export const、私有→公开）一律原行 in-place 改造；改完立即 grep 确认同名声明全局唯一
+- 来源：.plan/2026-10-27/guide-memory-snapshot.md 失败尝试与踩坑节
+
+## 2026-10-27 · token 截断字符集必须覆盖 Markdown 界定符——反引号/星号包裹路径带入界定符
+
+- 现象：memory 快照以反引号包裹路径（` .plan/.../x.md ` 形态），SOURCE_PATH_TOKEN_RE 截断字符集不含反引号 → token 尾部带入 `，stat 失配 8 项全报「路径不存在」；星号（粗体包裹）同病；REVIEW 轮再实证 ASCII 引号与 CJK 直角引号「」同病（「」还吞尾随文本）
+- 根因：字符集演进只按「当次踩到的标点」打补丁（#38 补 CJK 圆括号、本轮补反引号/星号、REVIEW 轮补引号/直角引号）——Markdown 行内界定符（反引号/星号/引号族）与 CJK 括号族是路径书写的高频包裹符，枚举时未按「书写形态族」通盘考虑
+- 解决：排除集补反引号、星号、ASCII 双/单引号、CJK 直角引号「」（REVIEW 轮 R-2 补全）；回归覆盖反引号/星号/引号/「」四形态（archival + check 双面）；同轮补相对穿越防御——含 `..` 的 token 直接判违规/提示不 stat（R-3，防根外路径探测与检测盲区）
+- 规避：定义 token 边界字符类时，除标点对称性外再过一遍「目标语体的书写形态族」（Markdown 界定符/引号族/括号族），新增语体（如 memory 快照）接入共享词面前先做包裹形态实测；路径类 token 一律拒绝相对穿越序列
+- 来源：.plan/2026-10-27/guide-memory-snapshot.md 失败尝试与踩坑节

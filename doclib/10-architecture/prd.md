@@ -122,6 +122,9 @@ status: living
 | AC 锚点 | 验收标准的编号引用单元【v0.40】：30-features 验收标准编号 `AC-1..N`，以 `规格路径#AC-x` 形式被 .plan 骨架/实施清单/accept 答卷/同题共答答卷引用——验收标准写一次，全生命周期五处消费（规划/拆单/施工/验收/双跑） |
 | 语义件 | 外部规划工具产出物的语义分类【v0.40】：愿景定位/术语/功能规格+验收/技术方案/UI-UX/任务拆单/编码宪法/深度材料八类——四工具兼容映射表的组织轴（40-guides/010-tool-adoption.md） |
 | 规划直通车 | F17 总名【v0.40】：对话规划引擎（bootstrap v2）+ 工具兼容层（快照式收编）+ 拆单器（implement）+ 门禁三件套；双入口一管道——对话规划与工具转化殊途同归于「馆 + feature-map planned（AC 锚点）」，共用拆单与门禁 |
+| 记忆快照 | 近期工作轨迹的引导冷启动蒸馏物【v0.41】：当前焦点/近期完成/活跃注意三段（≤25 行，窗口默认 30 天）；簿记单源 `.doclib/guide-memory.md` 经 sync 注入引导 memory 区；是 progress/feature-map 的投影非事实源，每条附真实路径指针（F18） |
+| 协作者画像 | 用户协作风格的引导冷启动蒸馏物【v0.41】：决策风格/沟通偏好/工作流习惯三类（≤12 行）；只沉淀协作风格不写私人化评价；素材=.plan 拍板记录（原话保留）为主，DB 回捞留 v2（F18） |
+| 记忆区 | 引导文件第四保留区【v0.41】：`<!-- doclib:memory-begin/end -->` 标记，位于 project 与 custom 之间；由 doclib sync 从 `.doclib/guide-memory.md` 注入，禁止直接编辑；预算 ≤40 行（F18/F5 区域契约四区定稿） |
 
 ## 5. 目标与非目标
 
@@ -242,7 +245,7 @@ status: living
 
 生成方式【已确认：CLI 模板 + agent 补充；v0.14 完善为区域契约】：
 
-- **区域契约【v0.6.0 三区定稿；v0.6.3 宪法升格】**：引导文件分三区——`managed` 规则区（实时同步映射表/会话纪律/纪律底线/速查，CLI 全权管理）、`project` 图书馆反哺区（真相单源在簿记 `.doclib/guide-project.md`，五段蒸馏注入两份引导，含开发宪法六篇 + 12 卷走查账）、`custom` 定制区（项目专属内容，agent/用户维护；归属判据：真相在馆进 project 区，真相只在引导进 custom 区）
+- **区域契约【v0.6.0 三区定稿；v0.6.3 宪法升格；v0.41 四区+记忆区】**：引导文件分四区——`managed` 规则区（实时同步映射表/会话纪律/纪律底线/速查，CLI 全权管理）、`project` 图书馆反哺区（真相单源在簿记 `.doclib/guide-project.md`，五段蒸馏注入两份引导，含开发宪法六篇 + 12 卷走查账）、`memory` 记忆快照区【v0.41】（真相单源在簿记 `.doclib/guide-memory.md`，双层快照注入两份引导：近期工作记忆 + 协作者画像，双 as-of 新鲜度 + 指针存在性 soft 执法，详见 F18）、`custom` 定制区（项目专属内容，agent/用户维护；归属判据：真相在馆进 project 区，滚动状态与协作画像进 memory 区，真相只在引导进 custom 区）
 - **三层分流【v0.21，防引导膨胀】**：引导文件只放**会话必守的少数硬规则**（映射表 + 纪律底线）；操作方法论进 skills；完整知识进馆——新增引导规则前先问"能否入 skill / 入馆"；预算意识见 Q37
 - **引导裁剪纪律【v0.22，官方最佳实践制度化；v0.23 硬预算定稿 Q37/38】**：新增引导规则前自问"**删掉这条 agent 会犯错吗**"——不会则入 skill / 入馆，绝不进引导；详细 API 知识用链接指向馆，禁止内联；关键规则**单点强调**（官方实验：多处 IMPORTANT 全部失效）；**硬预算：managed 区 ≤150 行**，`status` 报告行数、超限提示瘦身（只显示不阻断）
 - **`doclib sync`（可重入更新）**：把最新 skills 与引导规则区同步到已安装 agent；幂等（无变化不写）；旧版有戳无区文件整体再生并提示；无戳文件永远跳过
@@ -673,6 +676,25 @@ doclib/
 - **双入口一管道**：对话规划（17a）与工具转化（17b）殊途同归——馆内各卷 + feature-map planned 条目（带 AC 锚点）；此后共用拆单器（17c）→ doclib-dev 开发循环 → 门禁（17d）
 - **既有机制红利**：implement 生成的 .plan 文档须登记回 feature-map，否则触发「载体未登记」违规——闭环自洽，零新执法范式
 
+### F18 记忆快照与协作者画像反哺（P1）【v0.41 立项，Q49–Q53】
+
+**定位**：消除新会话冷启动记忆丢失——近 10-30 天工作轨迹与协作者画像以双层快照常驻引导文件，新会话零动作即得；快照是蒸馏物不是事实源，每条附真实路径指针可回溯，软执法防「记忆编造」。
+
+**双层快照（memory 保留区，位于 project 与 custom 之间）**：
+
+- **近期工作记忆（≤25 行，窗口默认 30 天【Q52】）**：当前焦点（feature-map in-progress #N + .plan 载体路径 + 一句话进度）/ 近期完成（窗口内 implemented 一行一条：日期 + slug + 一句话 + progress 指针）/ 活跃注意（progress 条目中未闭合的观察项/遗留建议）
+- **协作者画像（≤12 行，不设硬窗口）**：决策风格（拍板偏好、典型否决理由模式）/ 沟通偏好（语言、详略倾向、协议习惯）/ 工作流习惯（会话节奏、高频指令、验收口径倾向）——沉淀**协作风格**不写私人化评价【Q53】
+
+**机制（与 guide-project 注入管线同构）**：
+
+- **落位【Q49】**：簿记单源 `.doclib/guide-memory.md`（frontmatter 携 `work-as-of`/`user-as-of` ISO 日期 + `window` 默认 30；非法 fail-fast；正文空=未蒸馏空状态合法；正文含区域保留标记 → 注入面 fail-fast/观测面降级 ⚠/执法面 fail-fast 三面分层）
+- **注入【Q50】**：`renderFullGuide` 二段注入（project 后注 memory）；`mergeGuide` 不改（memory 区随模板整体再生）；`managedRegionFresh` 扩 memory 比对（直改 → guide-stale → sync 修复）
+- **新鲜度（soft，仅 status）**：`work-as-of` 落后 progress 最新条目日期 → 「⚠ 工作记忆滞后 → 刷新簿记后 sync」；`user-as-of` 同法「⚠ 画像可刷新」；**不进 check 违规、不进治理分**——服务新鲜度≠事实源失真（反哺过期 strict 的正当性在于馆与引导失配）
+- **反幻觉执法（soft）**：快照正文路径 token 逐个存在性核对（复用 lesson-source `SOURCE_PATH_TOKEN_RE` 词面范式）→ `memory-pointer` notice，不进 strict/治理分
+- **预算【Q51】**：memory 区 ≤40 行独立预算（managed 150/project 50 不变），status 预算报告增报
+- **素材边界【Q53】**：v1 只用馆内/簿记已蒸馏层——progress.md 时间线（骨架）+ feature-map 状态（焦点）+ in-progress .plan 载体（细节，agent 读，CLI 不解析——F9 合规）+ .plan 拍板记录节（画像主素材，原话保留）+ 98-sessions 现有导出件（旁证）；OpenCode DB 回捞（285 会话/2.5 万消息级）留 v2 联动 #34 `doclib transcript`
+- **蒸馏执行者**：agent（会话收尾，planstore 四动作→五动作 + doclib-dev 自检第 4 问扩义）；CLI 只做检测/注入/软执法——「机器出候选不代写」哲学
+
 ## 10. 路线图【提案，待 PRD 稳定后重排】
 
 - v0.2：F10 落地——npm 发布、npx init、agent 适配表与 skills 安装；F5 引导文件注入落地；§7 基线分类法模板重做；git 感知基线
@@ -733,8 +755,13 @@ doclib/
 | Q46 | F17 组件四：外部工具兼容语义——X 一次性迁移 / Y 持续同步 / Z 快照式收编？ | ✅ 已拍板（2026-10-27）：**Z 快照式收编**——转化时刻内容入馆即唯一事实源；源文档原位保留（F9 双轨）；源侧再改动 = 新规划信号 → 增量再转化（provenance hash 对账触发）；否决 Y（馆永远滞后于工具产出，agent 读旧规格，双事实源漂移危险）与 X（打断 BMAD 用户习惯） |
 | Q47 | F17 组件四：首批兼容工具范围？映射表落点？转化执行归谁？ | ✅ 已拍板（2026-10-27）：**四工具全上**（BMAD 54.6k★/spec-kit 143k★/OpenSpec 73k★/Kiro EARS——产物全为纯 Markdown，映射表驱动边际成本低；非 Markdown 工具如 task-master 后批观察）；映射表入**馆内 40-guides/010-tool-adoption.md**（先馆后码；否决 skill 内嵌/CLI 常量）；**转化执行并入 doclib-bootstrap**（用户选择，偏离推荐新 skill doclib-adopt）；provenance **hash 对账进 soft 提醒**（否决仅留痕不对账）；planned **自动提取+人工确认**（机器出候选不代写） |
 | Q48 | F17 组件三：门禁力度？acceptance-anchor 的执法边界（用户自由格式 .plan 是否受检）？ | ✅ 已拍板（2026-10-27）：**三件全上**（acceptance-anchor/assumption-residue/implementation-anchor，同 Q17「三层全上」先例；全部存在性/词面判定零语义猜测，ADR #20 同范式）；**acceptance-anchor 仅约束 CLI 生成物**（frontmatter `type: plan-skeleton`）——用户自由格式 .plan 不受检，F9 不解析载体格式的边界守住；in-progress 镜像扩展与沉淀锚点缺失对称 |
+| Q49 | F18 记忆快照落位——簿记新文件 / 并入现有反哺区 / 馆内新分区 / 仓库根独立 MEMORY.md？ | ✅ 已拍板（2026-10-27，按推荐）：**M1 簿记新文件 `.doclib/guide-memory.md`**——与 guide-project 同构（真相单源在簿记、sync 注入）；并入反哺区余量不足（18 行）且混排违 Cline/官方分置先例；馆内分区=与 progress.md 双写漂移；独立 MEMORY.md 不进冷启动自动加载 |
+| Q50 | F18 注入面——引导第四保留区 / managed 一行指针 / Claude Code @import？ | ✅ 已拍板（2026-10-27，按推荐）：**E1 第四保留区 `<!-- doclib:memory-begin/end -->` sync 注入**——工具无关冷启动零动作；指针行依赖 agent 服从性；@import 已验证仅 Claude Code 支持（opencode 无此机制），双工具行为分裂 |
+| Q51 | F18 记忆区预算与结构？ | ✅ 已拍板（2026-10-27，按推荐）：**≤40 行独立预算**——近期工作记忆 ≤25 行（当前焦点/近期完成/活跃注意）+ 协作者画像 ≤12 行（决策风格/沟通偏好/工作流习惯）；managed 150/project 50 不变 |
+| Q52 | F18 新鲜度机制与窗口——双 as-of soft / docs-hash 指纹 / check strict？窗口多大？ | ✅ 已拍板（2026-10-27，按推荐）：**F1 双 as-of（work-as-of/user-as-of）+ status soft 提醒**（落后 progress 最新条目日期 → ⚠）；不进 check 不进治理分——服务新鲜度≠事实源失真；**窗口 30 天**（frontmatter 可调）；指纹机制语义不匹配（图书馆没变但工作推进时记忆也该刷） |
+| Q53 | F18 素材边界与画像口径——v1 馆内素材 / 直接读 OpenCode DB？画像写什么？ | ✅ 已拍板（2026-10-27，按推荐）：**v1 只用馆内/簿记已蒸馏层**（progress 时间线+feature-map 焦点+in-progress .plan 细节+.plan 拍板记录原话+98-sessions 旁证），DB 回捞（285 会话/2.5 万消息）留 v2 联动 #34；**画像沉淀协作风格三类**（决策风格/沟通偏好/工作流习惯），不写私人化评价 |
 
-> v0.12 时开放问题曾全部清零；v0.17–v0.22 历次立项新增 Q20–Q40；**v0.23 批量拍板 Q20–Q39（Q30/Q32 同步执行实体操作），Q40 留待 F14 实测；Q41 v0.29 拍板；Q42 为 v0.31 门面多语言变体立项新增；Q43–Q48 为 v0.40 规划直通车立项新增（2026-10-27 拍板）**。
+> v0.12 时开放问题曾全部清零；v0.17–v0.22 历次立项新增 Q20–Q40；**v0.23 批量拍板 Q20–Q39（Q30/Q32 同步执行实体操作），Q40 留待 F14 实测；Q41 v0.29 拍板；Q42 为 v0.31 门面多语言变体立项新增；Q43–Q48 为 v0.40 规划直通车立项新增（2026-10-27 拍板）；Q49–Q53 为 v0.41 记忆快照立项新增（2026-10-27 按推荐拍板）**。
 | v0.34 | 2026-10-26 | **进度账对账修复与三项裁决**（规划 .plan/2026-10-26/reconcile-path-resolution.md；用户裁决「全都做了」）：①**reconcile 判定修正**（F11 最底层兜底）——「对应文档」列改按**存在性**判定（多候选「 + 」拆分 + 库内/仓库根双解析 + 库内锚点与载体证据分流），修正旧实现（只取首 token 且一律按 `doclib/` 前缀解析）导致本仓 **15 条 implemented 全数误报**、真失真被淹没的缺陷；②**补建库内规格** `30-features/reconcile.md`——v0.25 以来首份 reconcile 规格（此前 `src/core/reconcile.ts` 无任何馆内 covers 锚点，规格欠账由「改代码即触发无归属」暴露）+ 两级索引登记；③**进度账三项裁决**——#17 文档治理全周期+双层图书馆 → **implemented**（九项子能力逐项取证落地）；#19 收窄为 **ast-grep 阶段 1**（规程与引导四纪律另立 #30 implemented、codegraph 阶段 2 = #25）；#23 描述更新（四馆建馆侧已建成，复原侧闭环与档案入馆待做）；④新条目 #30 / #31；ADR #17 |
 | v0.35 | 2026-10-26 | **对话原始记录档案区（98-sessions）与导出纪律**（规划 .plan/2026-10-26/transcript-archive.md；用户担忧 .plan 蒸馏层关键信息遗漏 + 会话记录 30 天自动清理实证——Claude Code `cleanupPeriodDays` / Gemini CLI `sessionRetention` 均默认 30d）：F9 双轨边界增设**唯一白名案例外**——agent 对话原始记录（transcript）入馆新分区 `98-sessions/`（98=档案但未失效，与 99-archive 失效棺材对偶；不入 LIBRARY_VOLUMES，place collect 闭集不变）；命名 `<slug>-<yyyymmdd>-<NN>.md` + frontmatter 五要素（type: transcript/tool/session-id/date/plan-slug）与 .plan 双向关联；planstore 指令升级（七栏目 + 反遗漏自检 + 会话收尾三动作，.opencode/.claude 双侧一致）；文体门禁全豁免（docquality `DEFAULT_GENRE` + check 循环双重）；M2 批量回捞 `doclib transcript`（OpenCode SQLite 渲染器起步；首个读用户主目录的能力面，只读 + 保真优先 + --redact 可选）登记 planned；M3 生态路线（Gemini CLI 开源 PR 候选 / Cursor 闭源仅人工）入 40-guides/transcripts.md；六项决策点按 INNOVATE 推荐代定；ADR #19；feature-map #33/#34 |
 | v0.36 | 2026-10-26 | **归档闭环强验证与载体检测建议**（规划 .plan/2026-10-26/archival-loop-enforcement.md；用户实证「特别容易遗漏更新进馆，还是手动更新了一次」+ 追问「怎么设计才不会发生漏录入馆内的情况，达到100%进馆？」）：①**归档闭环三不变量进 check strict**（F13 扩充，core/archival.ts）——载体未登记（已声明载体 .md 未被 feature-map 引用且无 ack，存在性判定）/进度账缺口（feature-map 行引用载体但 progress.md 无补记，交叉引用判定）/沉淀锚点缺失（implemented 行对应文档列为空，机械子集），经 pre-commit hook 自动执法；与 Q23 分层调和（mtime 提醒 soft 不变）；治理健康分公式不变 ②**常见载体检测建议落地**（兑现 F1 v0.17 悬空承诺）——init/status 检测 .specify//openspec//specs//.kiro/specs/ 未声明含 .md → 软提示声明；place list 载体形态识别（OpenSpec/spec-kit/Kiro）首建议声明而非收编，消除 .kiro/specs 静默豁免盲区 ③**featuremap.ts 抽取**（feature-map 解析去 reconcile 单点，供 archival/planning 复用）；测试 269→291；ADR #20；feature-map #35 |
@@ -742,3 +769,4 @@ doclib/
 | v0.38 | 2026-10-26 | **开发宪法反哺升格 + 12 卷走查执法**（规划 .plan/2026-10-26/guide-constitution.md；RIPER-5 四段；用户研究指令：架构/UI/SQL 等开发性规则应反哺两份引导作宪法铁律，防切换 agent/模型/换人产生规则分歧；拍板五段重组/γ 一步到位/custom 去重随轮/N-A 显式一行 + 追加两矛盾预案）：F5 增第 9 条**开发宪法反哺**——反哺「硬规则」升格「开发宪法」六篇（每条附馆内路径指针 + 不适用显式 N-A 行 + 规则唯一事实源指针句）；**实况-规范分离三原则**（应然非实然/裁决必留痕/无法裁决显式豁免）+ 项目原有规则文档**双向裁决**（描述性实况优先/规定性文档声称优先）；簿记 frontmatter 12 卷走查账（volumes-fed/volumes-na 齐备契约）——check 新违规类 `guide-feed-walk` strict 三面校验（未知卷/未全覆盖/重叠），缺席 soft 存量零破坏（ADR #21 先例）；语义裁决不入确定性检测（skills 裁决三问 + audit 抽查兜底）；F5 区域契约欠账修正（两区→三区，#32 时未同步）；custom 区双写去重；ADR #22；feature-map #37 |
 | v0.39 | 2026-10-26 | **教训实时性：一行制+收尾核对+来源行执法**（规划 .plan/2026-10-26/lesson-realtime.md；用户研究指令源于 #37 会话实测观察「教训为什么没记录进 lessons.md」——研究结论两条在馆引用命中，实质缺口 .plan 第九节承诺空置+轮末批量+「何时记」零执法；纯强调第三次实证无效）：F5 增第 10 条教训实时性纪律——β 踩坑一行制（当下记一行防中断丢失）+ α planstore 收尾四动作（踩坑回填与教训入档核对）+ γ audit 第 10 项上游完整性抽查 + δ lessons 来源行执法（`lesson-source-epoch` 标记与 lesson-epoch 同构，epoch 后条目必带来源行+路径 token 存在性核对——新违规类 `lesson-source` 第 14 类；F9 合规不解析 .plan 内容）；init 模板携标记 init 落当日；本仓违约回填（.plan 第九节 3 坑）+ 存量补来源（POSIX sh 条）；ADR #23；feature-map #38 |
 | v0.40 | 2026-10-27 | **F17 规划直通车立项**（规划 .plan/2026-10-27/planning-express.md；RIPER-5 四模式；BMAD 调研 context7+gh+官方文档四篇 + 外部工具调研 spec-kit/OpenSpec/Kiro；用户提问工具两批 13+1 项拍板）：F17 四组件（双入口一管道）——17a 对话规划引擎 bootstrap v2（五阶段协议：brain dump→定位术语 Glossary 锚定→功能规格 AC 化+ASSUMPTION 标签→架构 spine 判据→UI/UX 按需；Fast/Coaching 双模式；深化菜单 9 方法 HALT+Apply/Reject 门控）+ 17b 工具兼容层（BMAD/spec-kit/OpenSpec/Kiro 快照式收编 Z；统一语义映射表入 40-guides；转化执行并入 bootstrap；provenance source-tool/path/hash + 源 hash 对账 soft 提醒；planned 自动提取+人工确认）+ 17c 拆单器（`doclib implement [--feature N] [--apply]` readiness 校验+骨架生成 type: plan-skeleton+AC 锚点预填+TODO(agent) 契约位；新 skill doclib-implement 对话填实）+ 17d 门禁三件套（acceptance-anchor/assumption-residue/implementation-anchor，违规类 14→17，全部存在性/词面判定）；AC 编号化（Q45：30-features 验收标准 AC-1..N，新增强制存量不追溯）；**F9/Q11 文字不动**，implement 定位为用户显式请求的服务、F17 条款登记边界（Q44）；Q43–Q48 |
+| v0.41 | 2026-10-27 | **F18 记忆快照与协作者画像反哺立项**（规划 .plan/2026-10-27/guide-memory-snapshot.md；RIPER-5 四模式；外部调研 context7 Claude Code auto memory/Cline Memory Bank + gh 同类实现矩阵；用户输入：近 10-30 天工作按 .plan 规划文档实施，应总结成记忆快照进 CLAUDE.md/AGENTS.md 防新会话记忆丢失 + 总结对话语气与用户习惯做画像；INNOVATE 8 项拍板「按推荐」）：F5 区域契约三区→四区（+memory 保留区，位于 project 与 custom 之间）；双层快照（近期工作记忆 ≤25 行：当前焦点/近期完成/活跃注意 + 协作者画像 ≤12 行：决策风格/沟通偏好/工作流习惯，不写私人化评价）；簿记单源 `.doclib/guide-memory.md`（双 as-of + window 默认 30）经 sync 注入，注入管线/保留标记 fail-fast 三面分层与 guide-project 同构；新鲜度 soft（work-as-of 落后 progress 最新条目日期 → status ⚠ 工作记忆滞后；服务新鲜度≠事实源失真，不进 check 不进治理分）；反幻觉 soft 执法（快照指针 token 存在性核对，memory-pointer notice 复用 lesson-source 范式）；memory 区预算 ≤40 行独立；素材 v1=馆内/簿记已蒸馏层（progress+feature-map+in-progress .plan+拍板记录+98-sessions 旁证），DB 回捞留 v2 联动 #34；蒸馏执行者=agent 会话收尾（planstore 四动作→五动作）；Q49–Q53 |

@@ -3,11 +3,11 @@ import { collectFiles, fileExists, hashAll } from "./fsutil.js";
 import { computeDrift, DoclibError, latestSnapshot, LIBRARY_DIR, loadState } from "./state.js";
 import { buildCoverIndex, docsForPath } from "./mapping.js";
 import { hashDocs, validateMigrations, type CheckFinding } from "./ledger.js";
-import { fingerprintOf, managedRegionFresh, readGuideProject, GUIDE_PROJECT_PATH, type VolumesWalk } from "./guides.js";
+import { fingerprintOf, managedRegionFresh, readGuideMemory, readGuideProject, GUIDE_PROJECT_PATH, type VolumesWalk } from "./guides.js";
 import { detectSuspectedToolchainDirs, scanExternalDocs } from "./orphan.js";
 import { scanBrokenLinks, checkGenreCompliance, assumptionFindings } from "./docquality.js";
 import { loadPlanningPaths, planningIgnores } from "./planning.js";
-import { archivalFindings } from "./archival.js";
+import { archivalFindings, SOURCE_PATH_TOKEN_RE } from "./archival.js";
 import { acceptanceAnchorFindings } from "./implement.js";
 import { LIBRARY_VOLUMES } from "./place.js";
 
@@ -20,7 +20,8 @@ export type CheckNoticeKind =
   | "toolchain-suspect"
   | "newly-ignored"
   | "guide-feed-walk-absent"
-  | "assumption-draft";
+  | "assumption-draft"
+  | "memory-pointer";
 
 export type CheckNotice = {
   kind: CheckNoticeKind;
@@ -95,6 +96,30 @@ export type CheckResult = {
 };
 
 export type GuideWalkVerdict = { findings: CheckFinding[]; absent: boolean };
+
+export async function memoryPointerNotices(root: string, body: string): Promise<CheckNotice[]> {
+  const notices: CheckNotice[] = [];
+  const tokens = [...new Set((body.match(SOURCE_PATH_TOKEN_RE) ?? []).map((t) => t.replace(/[.,;、]+$/, "")))];
+  for (const token of tokens) {
+    if (token.includes("..")) {
+      notices.push({
+        kind: "memory-pointer",
+        path: token,
+        detail: "记忆快照指针含相对穿越（..）→ 改写为仓库相对真实路径",
+      });
+      continue;
+    }
+    const ok = await fileExists(root, token);
+    if (!ok) {
+      notices.push({
+        kind: "memory-pointer",
+        path: token,
+        detail: "记忆快照指针路径不存在（防幻觉）→ 核对路径或删除该条后重蒸馏",
+      });
+    }
+  }
+  return notices;
+}
 
 export function guideWalkVerdict(walk: VolumesWalk): GuideWalkVerdict {
   if (walk === null) return { findings: [], absent: true };
@@ -234,6 +259,11 @@ export async function runCheckCore(root: string): Promise<CheckResult> {
         detail: "反哺簿记未留 12 卷走查账（volumes-fed/volumes-na）——soft 提示不判违规；重新蒸馏时补逐卷裁决",
       });
     }
+  }
+
+  const memory = await readGuideMemory(root);
+  if (memory !== null) {
+    notices.push(...(await memoryPointerNotices(root, memory.body)));
   }
 
   const planningDirs = loadPlanningPaths(state).map((p) => p.replace(/\/$/, ""));
