@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="stylesheet" href="assets/styles/base.css" />
+    <link rel="stylesheet" href="assets/styles/terminal.css" />
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      .mt-wrap {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 40px;
+        padding-bottom: 210px;
+      }
+      .mt-cards {
+        display: flex;
+        gap: 26px;
+      }
+      .mt-card {
+        width: 330px;
+        padding: 30px 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        opacity: 0;
+      }
+      .mt-card-tag {
+        font-family: var(--mono);
+        font-size: 28px;
+        color: var(--brand);
+        font-weight: 700;
+      }
+      .mt-card-name {
+        font-size: 40px;
+        font-weight: 700;
+      }
+      .mt-card-desc {
+        font-size: 28px;
+        color: var(--ink-3);
+        line-height: 1.4;
+      }
+      .mt-term {
+        width: 1180px;
+        margin-top: 6px;
+      }
+      .mt-term-line {
+        opacity: 0;
+      }
+      .mt-sign {
+        font-family: var(--mono);
+        font-size: 28px;
+        color: var(--ink-3);
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="scene-07-meta"
+      data-start="0"
+      data-duration="20"
+      data-width="1920"
+      data-height="1080"
+      data-fps="30"
+    >
+      <div class="mt-wrap">
+        <div class="kicker">this film is a doclib artifact</div>
+        <div class="hero">这段视频自己就在图书馆里</div>
+        <div class="mt-cards">
+          <div class="card mt-card">
+            <span class="mt-card-tag">storyboard.md</span>
+            <span class="mt-card-name">分镜表</span>
+            <span class="mt-card-desc">8 幕 · 每幕时间轴 · 素材出处</span>
+          </div>
+          <div class="card mt-card">
+            <span class="mt-card-tag">script.md</span>
+            <span class="mt-card-name">字幕文案</span>
+            <span class="mt-card-desc">逐句可执行 · 随数字校对</span>
+          </div>
+          <div class="card mt-card">
+            <span class="mt-card-tag">acceptance-*.md</span>
+            <span class="mt-card-name">验收报告</span>
+            <span class="mt-card-desc">逐条留痕 · 可复跑</span>
+          </div>
+          <div class="card mt-card">
+            <span class="mt-card-tag">95-lessons</span>
+            <span class="mt-card-name">教训档案</span>
+            <span class="mt-card-desc">踩坑当场记 · 收尾蒸馏</span>
+          </div>
+        </div>
+        <div class="term mt-term">
+          <div class="term-chrome">
+            <span class="term-dot"></span>
+            <span class="term-title">install</span>
+          </div>
+          <div class="term-body">
+            <div class="term-line mt-term-line"><span class="cmd">$</span> <span class="path">npx</span> @panxiangyu1995/doclib init --agents claude,opencode</div>
+            <div class="term-line mt-term-line"><span class="cmd">$</span> <span class="path">doclib</span> plan</div>
+            <div class="term-line mt-term-line"><span class="dimc"># 图书馆就绪 —— agent 从此只读文档就能开发</span></div>
+          </div>
+        </div>
+        <div class="mt-sign" id="mt-sign">github.com/panxiangyu1995/doclib</div>
+      </div>
+      <div class="caption-layer">
+        <div class="caption-safe">
+          <div class="caption-line" id="cap-07">只凭文档，从零重建你的项目</div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo('.mt-wrap .hero', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0.3);
+      tl.fromTo('.mt-card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.55, stagger: 0.22, ease: 'power2.out' }, 1.4);
+      tl.fromTo('.mt-term-line', { opacity: 0, x: -18 }, { opacity: 1, x: 0, duration: 0.35, stagger: 0.55, ease: 'power2.out' }, 3.4);
+      tl.fromTo('#mt-sign', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 6.6);
+      tl.fromTo('#cap-07', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 7.6);
+      window.__timelines['scene-07-meta'] = tl;
+    </script>
+  </body>
+</html>

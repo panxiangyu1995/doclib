@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="stylesheet" href="assets/styles/base.css" />
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      .checkup-wrap {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 54px;
+      }
+      .checkup-title {
+        text-align: center;
+      }
+      .gauges {
+        display: flex;
+        gap: 52px;
+      }
+      .gauge-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 240px;
+      }
+      .badge {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        padding: 24px 44px;
+      }
+      .badge-num {
+        font-size: 84px;
+        font-weight: 700;
+        color: var(--brand-2);
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="scene-00-checkup"
+      data-start="0"
+      data-duration="15"
+      data-width="1920"
+      data-height="1080"
+      data-fps="30"
+    >
+      <div class="checkup-wrap">
+        <div class="kicker">doclib check · governance health</div>
+        <div class="hero checkup-title">你的项目文档健康度</div>
+        <div class="gauges">
+          <div class="gauge-box">
+            <svg class="gauge" viewBox="0 0 240 240">
+              <circle class="gauge-track" cx="120" cy="120" r="104"></circle>
+              <circle class="gauge-arc" id="g0-arc" cx="120" cy="120" r="104"></circle>
+              <text class="gauge-num" id="g0-num" x="120" y="133">0</text>
+            </svg>
+            <div class="gauge-label">对账</div>
+          </div>
+          <div class="gauge-box">
+            <svg class="gauge" viewBox="0 0 240 240">
+              <circle class="gauge-track" cx="120" cy="120" r="104"></circle>
+              <circle class="gauge-arc" id="g1-arc" cx="120" cy="120" r="104"></circle>
+              <text class="gauge-num" id="g1-num" x="120" y="133">0</text>
+            </svg>
+            <div class="gauge-label">迁移</div>
+          </div>
+          <div class="gauge-box">
+            <svg class="gauge" viewBox="0 0 240 240">
+              <circle class="gauge-track" cx="120" cy="120" r="104"></circle>
+              <circle class="gauge-arc" id="g2-arc" cx="120" cy="120" r="104"></circle>
+              <text class="gauge-num" id="g2-num" x="120" y="133">0</text>
+            </svg>
+            <div class="gauge-label">归位</div>
+          </div>
+          <div class="gauge-box">
+            <svg class="gauge" viewBox="0 0 240 240">
+              <circle class="gauge-track" cx="120" cy="120" r="104"></circle>
+              <circle class="gauge-arc" id="g3-arc" cx="120" cy="120" r="104"></circle>
+              <text class="gauge-num" id="g3-num" x="120" y="133">0</text>
+            </svg>
+            <div class="gauge-label">引导</div>
+          </div>
+          <div class="gauge-box">
+            <svg class="gauge" viewBox="0 0 240 240">
+              <circle class="gauge-track" cx="120" cy="120" r="104"></circle>
+              <circle class="gauge-arc" id="g4-arc" cx="120" cy="120" r="104"></circle>
+              <text class="gauge-num" id="g4-num" x="120" y="133">0</text>
+            </svg>
+            <div class="gauge-label">质量</div>
+          </div>
+        </div>
+        <div class="badge panel">
+          <span class="badge-num">100/100 (A)</span>
+          <span class="cap">违规 0 · 门禁在岗</span>
+        </div>
+      </div>
+      <div class="caption-layer">
+        <div class="caption-safe">
+          <div class="caption-line" id="cap-00">文档不是写完就完 —— 它得是活的</div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const LEN = 2 * Math.PI * 104;
+      const GAUGES = [
+        { arc: '#g0-arc', num: '#g0-num' },
+        { arc: '#g1-arc', num: '#g1-num' },
+        { arc: '#g2-arc', num: '#g2-num' },
+        { arc: '#g3-arc', num: '#g3-num' },
+        { arc: '#g4-arc', num: '#g4-num' }
+      ];
+      GAUGES.forEach(function (g) {
+        const el = document.querySelector(g.arc);
+        el.style.strokeDasharray = LEN;
+        el.style.strokeDashoffset = LEN;
+      });
+      tl.fromTo('.checkup-title', { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0.3);
+      tl.fromTo('.gauge-box', { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.12, ease: 'power2.out' }, 1.1);
+      GAUGES.forEach(function (g, i) {
+        const at = 1.9 + i * 0.12;
+        tl.to(g.arc, { strokeDashoffset: 0, duration: 1.5, ease: 'power2.inOut' }, at);
+        const c = { v: 0 };
+        tl.to(c, {
+          v: 100,
+          duration: 1.5,
+          ease: 'power2.inOut',
+          onUpdate: function () {
+            document.querySelector(g.num).textContent = String(Math.round(c.v));
+          }
+        }, at);
+      });
+      tl.fromTo('.badge', { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: 0.7, ease: 'back.out(1.6)' }, 4.6);
+      tl.fromTo('#cap-00', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 5.4);
+      window.__timelines['scene-00-checkup'] = tl;
+    </script>
+  </body>
+</html>

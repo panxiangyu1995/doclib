@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="stylesheet" href="assets/styles/base.css" />
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      .ab-wrap {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr 460px;
+        gap: 70px;
+        padding: 120px 140px 0 140px;
+      }
+      .ab-col {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .ab-col-head {
+        font-size: 34px;
+        color: var(--ink-2);
+        font-weight: 700;
+      }
+      .ab-col-sub {
+        font-size: 28px;
+        color: var(--ink-3);
+      }
+      .ab-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 18px;
+        text-align: right;
+      }
+      .ab-num {
+        font-size: 150px;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--brand-2);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.03em;
+      }
+      .ab-num-label {
+        font-size: 34px;
+        color: var(--ink-2);
+      }
+      .ab-note {
+        font-size: 28px;
+        color: var(--ink-3);
+        line-height: 1.4;
+      }
+      .ab-regression {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="scene-03-twoanswers"
+      data-start="0"
+      data-duration="50"
+      data-width="1920"
+      data-height="1080"
+      data-fps="30"
+    >
+      <div class="ab-wrap">
+        <div class="ab-col">
+          <div class="ab-col-head">71 条验收标准</div>
+          <div class="ab-col-sub">AC 全集 · 复原侧自验 71/71</div>
+          <div class="cells" id="ac-cells"></div>
+        </div>
+        <div class="ab-col">
+          <div class="ab-col-head">55 题同题共答</div>
+          <div class="ab-col-sub">原仓库侧与复原侧逐题对比</div>
+          <div class="cells" id="ab-cells"></div>
+        </div>
+        <div class="ab-right">
+          <div class="ab-num" id="ab-num">0%</div>
+          <div class="ab-num-label" id="ab-frac">0 / 55</div>
+          <div class="ab-regression" id="ab-reg">
+            <span class="chip chip--ok">回归 71/71</span>
+            <span class="ab-note">首轮 96.4% → 回归 100%</span>
+          </div>
+        </div>
+      </div>
+      <div class="caption-layer">
+        <div class="caption-safe">
+          <div class="caption-line" id="cap-03">同一个问题问两次 —— 只读文档 vs 只读源码</div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const AC = document.querySelector('#ac-cells');
+      const AB = document.querySelector('#ab-cells');
+      for (let i = 0; i < 71; i += 1) {
+        const d = document.createElement('div');
+        d.className = 'cell';
+        AC.appendChild(d);
+      }
+      for (let i = 0; i < 55; i += 1) {
+        const d = document.createElement('div');
+        d.className = 'cell';
+        AB.appendChild(d);
+      }
+      const acCells = AC.querySelectorAll('.cell');
+      const abCells = AB.querySelectorAll('.cell');
+      const numEl = document.querySelector('#ab-num');
+      const fracEl = document.querySelector('#ab-frac');
+
+      tl.fromTo('.ab-col-head', { opacity: 0, y: -18 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.15, ease: 'power2.out' }, 0.3);
+      tl.fromTo('.ab-col-sub', { opacity: 0 }, { opacity: 1, duration: 0.5, stagger: 0.15 }, 0.6);
+      gsap.set(acCells, { opacity: 0, scale: 0.6 });
+      gsap.set(abCells, { opacity: 0, scale: 0.6 });
+      tl.fromTo(
+        acCells,
+        { opacity: 0, scale: 0.6 },
+        { opacity: 1, scale: 1, duration: 0.3, stagger: 0.045, ease: 'power2.out', immediateRender: false },
+        1.4
+      );
+      tl.fromTo(
+        abCells,
+        { opacity: 0, scale: 0.6 },
+        { opacity: 1, scale: 1, duration: 0.3, stagger: 0.05, ease: 'power2.out', immediateRender: false },
+        10.5
+      );
+
+      const agree = { v: 0 };
+      tl.to(
+        agree,
+        {
+          v: 53,
+          duration: 5.4,
+          ease: 'none',
+          onUpdate: function () {
+            const n = Math.round(agree.v);
+            numEl.textContent = ((n / 55) * 100).toFixed(1) + '%';
+            fracEl.textContent = n + ' / 55 同题共答';
+          }
+        },
+        13
+      );
+      tl.to(abCells, { backgroundColor: '#3dd68c', borderColor: '#3dd68c', duration: 0.2, stagger: 0.05 }, 13);
+      tl.to(abCells[53], { backgroundColor: '#ffb020', borderColor: '#ffb020', duration: 0.3 }, 18.4);
+      tl.to(abCells[54], { backgroundColor: '#ffb020', borderColor: '#ffb020', duration: 0.3 }, 18.7);
+
+      tl.fromTo('#ab-reg', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 24);
+      tl.to(acCells, { backgroundColor: '#3dd68c', borderColor: '#3dd68c', duration: 0.2, stagger: 0.045 }, 25.5);
+      const reg = { v: 53 };
+      tl.to(
+        reg,
+        {
+          v: 71,
+          duration: 4,
+          ease: 'power2.inOut',
+          onUpdate: function () {
+            const n = Math.round(reg.v);
+            numEl.textContent = ((n / 71) * 100).toFixed(1) + '%';
+            fracEl.textContent = n + ' / 71 回归';
+          }
+        },
+        25.5
+      );
+      tl.fromTo('#cap-03', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 1.2);
+      window.__timelines['scene-03-twoanswers'] = tl;
+    </script>
+  </body>
+</html>

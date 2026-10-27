@@ -5,3 +5,6 @@ dist/
 .opencode*.tgz
 .opencode/
 test/
+video/renders/
+video/node_modules/
+video/.hyperframes/

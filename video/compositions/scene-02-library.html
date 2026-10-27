@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="stylesheet" href="assets/styles/base.css" />
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      .lib-wrap {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: 880px 1fr;
+        gap: 90px;
+        padding: 96px 140px 0 140px;
+      }
+      .lib-head {
+        margin-bottom: 26px;
+      }
+      .lib-tree {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.5;
+      }
+      .lib-tree .tree-row {
+        opacity: 0;
+      }
+      .lib-rules {
+        display: flex;
+        flex-direction: column;
+        gap: 26px;
+        padding-top: 96px;
+      }
+      .rule {
+        display: flex;
+        align-items: flex-start;
+        gap: 26px;
+        opacity: 0;
+      }
+      .rule-no {
+        font-family: var(--mono);
+        font-size: 30px;
+        font-weight: 700;
+        color: var(--brand);
+        line-height: 1.5;
+      }
+      .rule-name {
+        font-size: 52px;
+        font-weight: 700;
+        line-height: 1.25;
+      }
+      .rule-desc {
+        font-size: 30px;
+        color: var(--ink-2);
+        line-height: 1.4;
+        margin-top: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="scene-02-library"
+      data-start="0"
+      data-duration="30"
+      data-width="1920"
+      data-height="1080"
+      data-fps="30"
+    >
+      <div class="lib-wrap">
+        <div>
+          <div class="lib-head">
+            <div class="kicker">the library · 12 volumes</div>
+            <div class="big">一座活的图书馆</div>
+          </div>
+          <div class="lib-tree tree" id="lib-tree">
+            <div class="tree-row"><span class="tree-dir">00-overview/</span><span class="tree-file">feature-map.md</span></div>
+            <div class="tree-row"><span class="tree-dir">10-architecture/</span><span class="tree-file">prd.md · design.md · decisions.md</span></div>
+            <div class="tree-row"><span class="tree-dir">20-modules/</span><span class="tree-file">_index.md</span></div>
+            <div class="tree-row"><span class="tree-dir">30-features/</span><span class="tree-file">行为规格 + 验收标准</span></div>
+            <div class="tree-row"><span class="tree-dir">40-guides/</span><span class="tree-file">workflow · benchmark</span></div>
+            <div class="tree-row"><span class="tree-dir">50-testing/</span><span class="tree-file">testing.md</span></div>
+            <div class="tree-row"><span class="tree-dir">60-config/</span><span class="tree-file">config.md</span></div>
+            <div class="tree-row"><span class="tree-dir">70-deploy/</span><span class="tree-file">deploy.md</span></div>
+            <div class="tree-row"><span class="tree-dir">80-design/</span><span class="tree-file">N-A · 显式不适用</span></div>
+            <div class="tree-row"><span class="tree-dir">90-reference/</span><span class="tree-file">登记簿族</span></div>
+            <div class="tree-row"><span class="tree-dir">95-lessons/</span><span class="tree-file">经验教训</span></div>
+            <div class="tree-row"><span class="tree-dir">98-sessions/</span><span class="tree-file">对话原始记录</span></div>
+            <div class="tree-row"><span class="tree-dir">99-archive/</span><span class="tree-file">墓碑 · 只进不出</span></div>
+          </div>
+        </div>
+        <div class="lib-rules">
+          <div class="rule">
+            <div class="rule-no">01</div>
+            <div>
+              <div class="rule-name">非克隆</div>
+              <div class="rule-desc">文档承载行为、契约、设计意图与验收标准，不搬运源码</div>
+            </div>
+          </div>
+          <div class="rule">
+            <div class="rule-no">02</div>
+            <div>
+              <div class="rule-name">先馆后码</div>
+              <div class="rule-desc">实体问题从登记簿直达；查码所得回填建账</div>
+            </div>
+          </div>
+          <div class="rule">
+            <div class="rule-no">03</div>
+            <div>
+              <div class="rule-name">馆随码走</div>
+              <div class="rule-desc">实时层 + 流程层 + 兜底层，三层保活</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="caption-layer">
+        <div class="caption-safe">
+          <div class="caption-line" id="cap-02">叙述层 12 卷 + 实体登记簿 = 唯一事实源</div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo('.lib-head .big', { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0.3);
+      tl.fromTo('#lib-tree .tree-row', { opacity: 0, x: -26 }, { opacity: 1, x: 0, duration: 0.4, stagger: 0.18, ease: 'power2.out' }, 1.1);
+      tl.fromTo('.rule', { opacity: 0, x: 34 }, { opacity: 1, x: 0, duration: 0.7, stagger: 0.9, ease: 'power2.out' }, 3.6);
+      tl.fromTo('#cap-02', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 6.4);
+      window.__timelines['scene-02-library'] = tl;
+    </script>
+  </body>
+</html>

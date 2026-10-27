@@ -1,0 +1,12 @@
+{
+  "name": "doclib-promo-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.8.206 preview",
+    "check": "npx --yes hyperframes@0.8.206 check",
+    "render": "npx --yes hyperframes@0.8.206 render",
+    "publish": "npx --yes hyperframes@0.8.206 publish"
+  },
+  "description": "DocLib 推广视频（HyperFrames composition）——16:9 / 4 分钟 / 纯字幕动效"
+}

@@ -124,4 +124,6 @@ MVP 首轮已闭环：umami 建馆（97% 覆盖/治理 A）→ 隔离复原（op
 - 方法论：已立项（PRD F14，v0.19；ADR #7）；**MVP 首轮闭环完成（umami 96.4%）**
 - 首个基准项目【Q31】：colinhacks/zod——**另一环境并行进行中**（用户启动，待回收档案）
 - 第二基准项目（本环境）：umami——首轮闭环（档案见 doclib/50-testing/benchmark/）
-- 待办：回归切片抽查（B 类 13 条对齐后重跑受影响 AC）｜ zod 档案回收 ｜ S3-02 后 S3 全闭环 ｜ 扩容至 3–5 领域样本（memos/fd/csvkit/aspnetcore 候选，MVP 复盘后立项）
+- 四领域样本（memos/fd/csvkit/aspnetcore）：**建馆侧四馆已建成**（feature-map #23）——待做：复原侧闭环（隔离复原 / 同题共答 / 缺陷四分类 / 回灌 / 回归）与档案入馆（`50-testing/benchmark/` 现仅 umami 010~090）
+- 第三梯队（更复杂样本 + UI/UX 专项）：**规划中**——9 个候选已完成本机实测并分层标注（主推荐 rqlite / syncthing / headscale / yt-dlp / docmost / plausible + 挑战档 meilisearch / zellij + UI/UX 专项 excalidraw / documenso / formbricks），切片边界逐仓已定；建馆侧与复原侧待排期（`.plan/2026-10-27/benchmark-tier2.md`，feature-map #42）
+- 待办：回归切片抽查（B 类 13 条对齐后重跑受影响 AC）｜ zod 档案回收 ｜ S3-02 后 S3 全闭环

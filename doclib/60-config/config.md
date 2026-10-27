@@ -39,6 +39,8 @@ status: stable
 | vendor/ vendors/ third_party/ third-party/ thirdparty/ 3rdparty/ deps/ extern/ external/ .changeset/ | 第三方与工具产物【2026-10-22】 | CLI 内置 L1 扫描面（非文档资产）：不进代码账、不判孤儿——他人写的代码与机器生成的产物不该被文档体系看见；本仓库 vendor/codegraph subtree 亦在此列（构建源，非知识） |
 | .codegraph/ | 知识图谱索引【v0.30】 | vendored 引擎产物（SQLite/锁/wal）：L1 扫描面 + 工具链闭集双保险——可再生缓存，非文档资产，不入快照/漂移/孤儿三账 |
 | .vscode/ .idea/ .zed/ | 编辑器本机配置【2026-10-22】 | 同属 L1 扫描面：编辑器项目配置与提示词文件不进文档视野（与 .opencode/ 的 agent 安装产物同类） |
+| video/renders/ | 视频渲染产物【2026-10-27】 | 成片 MP4 与关键帧 PNG：二进制产物，不入 git（走 GitHub Release 附件）；不入代码账（与 .codegraph/ 同类——可再生产物） |
+| video/node_modules/ video/.hyperframes/ | 视频工程本机产物【2026-10-27】 | HyperFrames 工程的可再生缓存与依赖目录：非文档资产，不进三账 |
 
 ## 豁免语义边界【2026-10-22】
 

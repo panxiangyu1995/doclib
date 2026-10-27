@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="stylesheet" href="assets/styles/base.css" />
+    <link rel="stylesheet" href="assets/styles/terminal.css" />
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      .cs-wrap {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: 1fr 620px;
+        gap: 70px;
+        padding: 90px 140px 0 140px;
+      }
+      .cs-term {
+        margin-top: 26px;
+      }
+      .cs-notes {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 26px;
+      }
+      .cs-note {
+        opacity: 0;
+      }
+      .cs-term-line {
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="scene-05-coldstart"
+      data-start="0"
+      data-duration="25"
+      data-width="1920"
+      data-height="1080"
+      data-fps="30"
+    >
+      <div class="cs-wrap">
+        <div>
+          <div class="kicker">cold start · agent session</div>
+          <div class="big" style="margin-top: 14px">新会话，零动作即得</div>
+          <div class="term cs-term">
+            <div class="term-chrome">
+              <span class="term-dot"></span>
+              <span class="term-title">doclib — new session</span>
+            </div>
+            <div class="term-body">
+              <div class="term-line cs-term-line"><span class="cmd">$</span> <span class="path">cat</span> AGENTS.md</div>
+              <div class="term-line cs-term-line"><span class="hl">&lt;!-- doclib:managed-begin --&gt;</span></div>
+              <div class="term-line cs-term-line">&nbsp;&nbsp;live-sync rules · 12-volume baseline</div>
+              <div class="term-line cs-term-line"><span class="hl">&lt;!-- doclib:project-begin --&gt;</span></div>
+              <div class="term-line cs-term-line">&nbsp;&nbsp;positioning · architecture · modules · constitution</div>
+              <div class="term-line cs-term-line"><span class="hl">&lt;!-- doclib:memory-begin --&gt;</span></div>
+              <div class="term-line cs-term-line">&nbsp;&nbsp;focus #41 · recent 7 · active notes 5</div>
+              <div class="term-line cs-term-line"><span class="hl">&lt;!-- doclib:custom-begin --&gt;</span></div>
+              <div class="term-line cs-term-line">&nbsp;&nbsp;project rules · forbidden zones · commands</div>
+              <div class="term-line cs-term-line">&nbsp;</div>
+              <div class="term-line cs-term-line"><span class="ok">&gt;</span> session ready in 0.4s <span class="term-cursor" id="cs-cursor"></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="cs-notes">
+          <div class="cs-note">
+            <div class="note-row">
+              <span class="note-tag">managed</span>
+              <span class="note-text">规则区：模板再生，规则唯一事实源</span>
+            </div>
+          </div>
+          <div class="cs-note">
+            <div class="note-row">
+              <span class="note-tag">project</span>
+              <span class="note-text">反哺区：图书馆蒸馏注入，含开发宪法</span>
+            </div>
+          </div>
+          <div class="cs-note">
+            <div class="note-row">
+              <span class="note-tag">memory</span>
+              <span class="note-text">记忆区：近期工作轨迹 + 协作者画像</span>
+            </div>
+          </div>
+          <div class="cs-note">
+            <div class="note-row">
+              <span class="note-tag">custom</span>
+              <span class="note-text">定制区：项目自维护，sync 永不覆盖</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="caption-layer">
+        <div class="caption-safe">
+          <div class="caption-line" id="cap-05">agent 不读源码，它读图书馆</div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const LINES = document.querySelectorAll('.cs-term-line');
+      tl.fromTo('.cs-wrap .big', { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0.3);
+      tl.fromTo(LINES, { opacity: 0, x: -18 }, { opacity: 1, x: 0, duration: 0.32, stagger: 0.22, ease: 'power2.out' }, 1.3);
+      tl.fromTo('.cs-note', { opacity: 0, x: 30 }, { opacity: 1, x: 0, duration: 0.6, stagger: 0.8, ease: 'power2.out' }, 3.6);
+      tl.fromTo('#cap-05', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 8.4);
+      window.__timelines['scene-05-coldstart'] = tl;
+    </script>
+  </body>
+</html>

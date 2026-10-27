@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="stylesheet" href="assets/styles/base.css" />
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      .df-wrap {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: 1fr 560px;
+        gap: 70px;
+        padding: 110px 140px 0 140px;
+      }
+      .df-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 34px;
+      }
+      .df-item {
+        display: grid;
+        grid-template-columns: 92px 1fr;
+        align-items: baseline;
+        gap: 22px;
+        padding: 18px 24px;
+        border-radius: 14px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        opacity: 0;
+      }
+      .df-no {
+        font-family: var(--mono);
+        font-size: 30px;
+        font-weight: 700;
+        color: var(--warn);
+      }
+      .df-text {
+        font-size: 33px;
+        line-height: 1.35;
+        color: var(--ink-2);
+      }
+      .df-text b {
+        color: var(--ink);
+        font-weight: 700;
+      }
+      .df-stats {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 34px;
+        text-align: right;
+      }
+      .df-stat {
+        opacity: 0;
+      }
+      .df-stat-num {
+        font-size: 110px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        font-variant-numeric: tabular-nums;
+      }
+      .df-stat-label {
+        font-size: 30px;
+        color: var(--ink-2);
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="scene-06-defects"
+      data-start="0"
+      data-duration="30"
+      data-width="1920"
+      data-height="1080"
+      data-fps="30"
+    >
+      <div class="df-wrap">
+        <div>
+          <div class="kicker">our own defect ledger</div>
+          <div class="big" style="margin-top: 14px">我们也报自己的缺陷</div>
+          <div class="df-list" id="df-list">
+            <div class="df-item">
+              <span class="df-no">D-01</span>
+              <span class="df-text">短链跳转状态码：AC 写 302，登记簿写 307 —— <b>取 307</b></span>
+            </div>
+            <div class="df-item">
+              <span class="df-no">D-04</span>
+              <span class="df-text">bot 判定细则：isbot v5 全量模式把 <b>curl 误杀</b> —— 收窄为爬虫语义标记</span>
+            </div>
+            <div class="df-item">
+              <span class="df-no">D-05</span>
+              <span class="df-text">内网 IP 过滤作用域过宽 —— <b>自托管调用不再被丢包</b></span>
+            </div>
+            <div class="df-item">
+              <span class="df-no">D-08</span>
+              <span class="df-text">pnpm 12 已不读 package.json 的 pnpm 字段 —— <b>改用 allowBuilds</b></span>
+            </div>
+            <div class="df-item">
+              <span class="df-no">D-11</span>
+              <span class="df-text">验收期望缺可观测断言 —— <b>回灌后逐条校正</b></span>
+            </div>
+          </div>
+        </div>
+        <div class="df-stats">
+          <div class="df-stat">
+            <div class="df-stat-num" id="df-repos">0</div>
+            <div class="df-stat-label">仓库样本</div>
+          </div>
+          <div class="df-stat">
+            <div class="df-stat-num warn" id="df-false">0</div>
+            <div class="df-stat-label">工具链类误报</div>
+          </div>
+          <div class="df-stat">
+            <div class="df-stat-num ok" id="df-fixed">0</div>
+            <div class="df-stat-label">修正后误报</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption-layer">
+        <div class="caption-safe">
+          <div class="caption-line" id="cap-06">能说清自己哪里不对的文档，才值得被相信</div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo('.df-wrap .big', { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0.3);
+      tl.fromTo('.df-item', { opacity: 0, x: -26 }, { opacity: 1, x: 0, duration: 0.5, stagger: 0.62, ease: 'power2.out' }, 1.5);
+      tl.fromTo('.df-stat', { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.55, ease: 'power2.out' }, 2.4);
+
+      const repos = { v: 0 };
+      tl.to(
+        repos,
+        {
+          v: 43,
+          duration: 2,
+          ease: 'power2.out',
+          onUpdate: function () {
+            document.querySelector('#df-repos').textContent = String(Math.round(repos.v));
+          }
+        },
+        2.6
+      );
+      const falsePos = { v: 0 };
+      tl.to(
+        falsePos,
+        {
+          v: 2052,
+          duration: 2.6,
+          ease: 'power2.out',
+          onUpdate: function () {
+            document.querySelector('#df-false').textContent = Math.round(falsePos.v).toLocaleString('en-US');
+          }
+        },
+        4.2
+      );
+      const fixed = { v: 2052 };
+      tl.to(
+        fixed,
+        {
+          v: 0,
+          duration: 1.6,
+          ease: 'power2.inOut',
+          onUpdate: function () {
+            document.querySelector('#df-fixed').textContent = String(Math.round(fixed.v));
+          }
+        },
+        16.4
+      );
+      tl.fromTo('#cap-06', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 18.4);
+      window.__timelines['scene-06-defects'] = tl;
+    </script>
+  </body>
+</html>

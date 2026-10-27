@@ -130,6 +130,10 @@ test("plan：载体规划文档晚于基线 → 待登记提醒（无漂移时�
   await put(root, "src/a.ts", "v1");
   await runSnapshot(root, {});
   await put(root, ".plan/idea.md", "新功能构想");
+  // mtime 必须明确晚于基线时刻：基线快照与写文件可能落在同一毫秒（本地实测差 1.96ms），
+  // 且 CI 的 overlayfs mtime 精度为整秒 → 「晚于」比较会翻转（v0.8.0 发版 CI 349/350 即此因）
+  const later = new Date(Date.now() + 5000);
+  await fs.utimes(path.join(root, ".plan/idea.md"), later, later);
   const r = await runPlan(root, {});
   assert.match(r.text, /待登记（锚点一）: 1 份载体规划文档晚于最新基线/);
   assert.match(r.text, /\.plan\/idea\.md/);

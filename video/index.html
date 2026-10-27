@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="stylesheet" href="assets/styles/base.css" />
+    <link rel="stylesheet" href="assets/styles/terminal.css" />
+    <script src="vendor/gsap.min.js"></script>
+    <title>DocLib — 只凭文档，从零重建你的项目</title>
+  </head>
+  <body>
+    <!--
+      根编排：8 幕时间轴（合计 240s = 4:00）
+      根不注册 timeline（仅编排）→ data-no-timeline 跳过子时间轴就绪等待（渲染 54s → 6.3s）
+      每幕自注册 window.__timelines[scene-id]，由渲染器逐帧 seek
+    -->
+    <div
+      id="root"
+      data-composition-id="doclib-promo"
+      data-no-timeline
+      data-start="0"
+      data-duration="240"
+      data-width="1920"
+      data-height="1080"
+      data-fps="30"
+    >
+      <!-- 幕 0 · 治理体检 0:00-0:15 -->
+      <div
+        id="host-scene-00-checkup"
+        data-composition-id="scene-00-checkup"
+        data-composition-src="compositions/scene-00-checkup.html"
+        data-start="0"
+        data-duration="15"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- 幕 1 · 文档为什么总会烂 0:15-0:45 -->
+      <div
+        id="host-scene-01-rotted"
+        data-composition-id="scene-01-rotted"
+        data-composition-src="compositions/scene-01-rotted.html"
+        data-start="15"
+        data-duration="30"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- 幕 2 · 一座活的图书馆 0:45-1:15 -->
+      <div
+        id="host-scene-02-library"
+        data-composition-id="scene-02-library"
+        data-composition-src="compositions/scene-02-library.html"
+        data-start="45"
+        data-duration="30"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- 幕 3 · 同一个问题，两次回答 1:15-2:05 -->
+      <div
+        id="host-scene-03-twoanswers"
+        data-composition-id="scene-03-twoanswers"
+        data-composition-src="compositions/scene-03-twoanswers.html"
+        data-start="75"
+        data-duration="50"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- 幕 4 · 从空目录长出 124 个路由 2:05-2:45 -->
+      <div
+        id="host-scene-04-growth"
+        data-composition-id="scene-04-growth"
+        data-composition-src="compositions/scene-04-growth.html"
+        data-start="125"
+        data-duration="40"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- 幕 5 · agent 冷启动 2:45-3:10 -->
+      <div
+        id="host-scene-05-coldstart"
+        data-composition-id="scene-05-coldstart"
+        data-composition-src="compositions/scene-05-coldstart.html"
+        data-start="165"
+        data-duration="25"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- 幕 6 · 我们也报自己的缺陷 3:10-3:40 -->
+      <div
+        id="host-scene-06-defects"
+        data-composition-id="scene-06-defects"
+        data-composition-src="compositions/scene-06-defects.html"
+        data-start="190"
+        data-duration="30"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- 幕 7 · 这段视频自己就是产物 3:40-4:00 -->
+      <div
+        id="host-scene-07-meta"
+        data-composition-id="scene-07-meta"
+        data-composition-src="compositions/scene-07-meta.html"
+        data-start="220"
+        data-duration="20"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+    </div>
+  </body>
+</html>

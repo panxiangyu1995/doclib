@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="stylesheet" href="assets/styles/base.css" />
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      .rotted-wrap {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        padding: 0 150px;
+      }
+      .rotted-card {
+        position: absolute;
+        left: 150px;
+        top: 260px;
+        width: 1250px;
+        display: flex;
+        flex-direction: column;
+        gap: 26px;
+        opacity: 0;
+      }
+      .rotted-title {
+        font-size: 88px;
+        font-weight: 700;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+      }
+      .rotted-symptom {
+        font-size: 44px;
+        color: var(--ink-2);
+        line-height: 1.45;
+      }
+      .rotted-index {
+        position: absolute;
+        right: 170px;
+        top: 240px;
+        font-family: var(--mono);
+        font-size: 320px;
+        font-weight: 700;
+        line-height: 1;
+        color: rgba(91, 140, 255, 0.16);
+        letter-spacing: -0.04em;
+      }
+      .rotted-head {
+        position: absolute;
+        left: 150px;
+        top: 120px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="scene-01-rotted"
+      data-start="0"
+      data-duration="30"
+      data-width="1920"
+      data-height="1080"
+      data-fps="30"
+    >
+      <div class="rotted-wrap">
+        <div class="rotted-head">
+          <div class="kicker">the six failures</div>
+        </div>
+        <div class="rotted-index" id="rotted-index" data-layout-ignore>01</div>
+
+        <div class="rotted-card" data-idx="01">
+          <div class="card-index">SYMPTOM 01</div>
+          <div class="rotted-title">靠通读源码拼全貌</div>
+          <div class="rotted-symptom">新人 / 新 agent 上手，几天也拼不全</div>
+        </div>
+        <div class="rotted-card" data-idx="02">
+          <div class="card-index">SYMPTOM 02</div>
+          <div class="rotted-title">代码改了，文档没改</div>
+          <div class="rotted-symptom">半年之后，没人敢信那份文档</div>
+        </div>
+        <div class="rotted-card" data-idx="03">
+          <div class="card-index">SYMPTOM 03</div>
+          <div class="rotted-title">文档散落在各处</div>
+          <div class="rotted-symptom">README · docs · spec · 对话导出，迁移编号无权威</div>
+        </div>
+        <div class="rotted-card" data-idx="04">
+          <div class="card-index">SYMPTOM 04</div>
+          <div class="rotted-title">过程知识干完即散</div>
+          <div class="rotted-symptom">规划、踩坑、决策理由随对话蒸发</div>
+        </div>
+        <div class="rotted-card" data-idx="05">
+          <div class="card-index">SYMPTOM 05</div>
+          <div class="rotted-title">「做完了」却证明不了</div>
+          <div class="rotted-symptom">验收靠人肉点，没有可执行标准</div>
+        </div>
+        <div class="rotted-card" data-idx="06">
+          <div class="card-index">SYMPTOM 06</div>
+          <div class="rotted-title">规格只在聊天记录里</div>
+          <div class="rotted-symptom">新项目 / 半成品项目，没有载体</div>
+        </div>
+      </div>
+      <div class="caption-layer">
+        <div class="caption-safe">
+          <div class="caption-line" id="cap-01">不是写得不够多，是没有治理</div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const CARDS = document.querySelectorAll('.rotted-card');
+      const INDEX = document.querySelector('#rotted-index');
+      tl.fromTo('.rotted-head', { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0.2);
+      tl.fromTo('#cap-01', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0.9);
+      CARDS.forEach(function (card, i) {
+        const at = i * 5;
+        tl.fromTo(card, { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }, at);
+        tl.to(card, { opacity: 0, duration: 0.45, ease: 'power1.in' }, at + 4.4);
+      });
+      const idx = { v: 0 };
+      tl.to(
+        idx,
+        {
+          v: 6,
+          duration: 30,
+          ease: 'none',
+          onUpdate: function () {
+            const n = Math.min(6, Math.floor(idx.v) + 1);
+            INDEX.textContent = n < 10 ? '0' + n : String(n);
+          }
+        },
+        0
+      );
+      window.__timelines['scene-01-rotted'] = tl;
+    </script>
+  </body>
+</html>

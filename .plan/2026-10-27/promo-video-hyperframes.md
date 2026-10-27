@@ -333,3 +333,23 @@ video/                           ← 工程源（不入馆，covers 锚定）
 - 2026-10-27 · 研究期基线被并发实例中途改写（snap-079→snap-081、revision 70→72、35 处未提交改动被他人提交）——期间基于旧基线的结论一度失真（「check strict FAIL 5 项」已被他人解除），故计划必须设第 0 步并发前置门
 - 2026-10-27 · zsh 无 `timeout` 命令（GNU coreutils 未装）——`timeout 300 npx ...` 报 command not found，改用工具自带 timeout 参数
 - 2026-10-27 · `npx hyperframes-localize-fonts@0.8.206` 报 404——该 bin 属 `hyperframes` 包内（`bin/hyperframes-localize-fonts.mjs`），不是独立包，npx 直呼需 `-p hyperframes` 形式
+- 2026-10-27 · 终端面板行距暴涨 3 倍、溢出画布并压住字幕——`white-space: pre` 挂在**容器**上，HTML 源码缩进/换行被渲染成额外行盒；`pre` 只挂行级元素
+- 2026-10-27 · `tl.call()` 驱动的文本在回退 seek 时不重放（巨型序号可能与画面错位）——改时间函数驱动（proxy + onUpdate 读时间）
+- 2026-10-27 · 根 composition 未注册 timeline 又缺 `data-no-timeline` → 每次渲染多等 45s 超时（54.2s → 6.3s，setup 49.5s → 2.2s）
+- 2026-10-27 · 研究期只查了 AGENTS.md 与 `.doclib/guide-project.md` 的悬空指针，**漏扫** `10-architecture/data-flow.md` 第三处——悬空指针必须全库扫
+- 2026-10-27 · 锚点自证首测写成空操作（storyboard.md 里并无待改那句，那句在 script.md）→ 验证「覆盖文档生效」必须先确认被测文件真的变了
+- 2026-10-27 · `hyperframes render --docker` 镜像构建触发 CLI 自身 10 分钟上限（层已缓存，重跑即续建）
+- 2026-10-27 · v0.8.0 首次发版 CI 349/350（本地 350/350 全绿）——`plan.test.ts` 用「刚写完就比基线晚」构造前提，实测仅差 1.96ms；CI 的 overlayfs mtime 精度为整秒 → 比较必然翻转
+- 2026-10-27 · 发版提交撞上并发实例在飞状态（另一实例正写 feature-map #42 与 40-guides/benchmark.md）——部分提交必使「已提交态 / 工作区」其一 check 不干净（引导 docs-hash 与库变更强耦合），经用户拍板改为全部提交后发版
+
+## 十二、执行偏差留痕（偏离计划之处 + 理由）
+
+| # | 计划 | 实际 | 理由 |
+| --- | --- | --- | --- |
+| P-1 | 组件为 paste-in 片段文件（`compositions/components/caption-cjk.html`、`gauge-ring.html`） | 改为**共享 CSS 类 + 每幕独立 composition**，无片段文件 | 避免 8 份 CSS 重复；探针已证 root-relative `<link>` 在 standalone 与 nested 两种形态均生效；片段文件在嵌套时语义未验证 |
+| P-2 | 采用 catalog 积木 `terminal-simulator` | **评估后被否**，自建终端主题 | 该积木为 760px 固定宽、自带 Inter/Menlo 配色、装饰性占位内容（index.html/style.css/timeline.js）、无内容注入口——与「终端呈现真实命令输出」的诉求不符 |
+| P-3 | 「多画幅零额外工程量：同一 composition 导出 16:9 + 9:16」 | **9:16 未做** | 计划判断有误：各幕为 16:9 专用栅格布局（固定列宽/绝对定位），改竖版需重排而非改参数；不做缩放充数，单独立项 |
+| P-4 | 步骤 11（发版）在步骤 12（提交）之前 | **改为先提交再发版** | tag 触发发版要求被标记的提交已在远端；原顺序会让 Actions checkout 到不存在的 commit。发版仍为不可逆闸口，需用户确认 |
+| P-5 | 幕 5 终端 13 行 / 行高 1.75 | 压至 11 行 / 行高 1.55 | 原布局溢出画布并压住字幕层（check 判 `content_overlap` + `canvas_overflow`） |
+| P-6 | 字体子集化 | 未做（chinese-simplified 全量 1.1MB/档，共 2.2MB） | 本机无 fonttools，子集化需额外装 Python 依赖；全量子集确定性强、无豆腐块风险，子集化列为后续优化 |
+

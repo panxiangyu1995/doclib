@@ -1,0 +1,336 @@
+/*
+ * DocLib 推广视频 · 基础设计系统
+ * 单一事实源：色板 / 字号阶 / 间距 / 共享组件类（字幕层 / 面板 / 环形仪表 / 目录树 / 卡片 / 芯片）
+ * 字体：Noto Sans SC（OFL-1.1，本地 woff2，root-relative）
+ * 约定：全部资产路径以项目根为基准（assets/... 与 vendor/...）
+ */
+
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('../fonts/noto-sans-sc/noto-sans-sc-chinese-simplified-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url('../fonts/noto-sans-sc/noto-sans-sc-chinese-simplified-700-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('../fonts/noto-sans-sc/noto-sans-sc-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url('../fonts/noto-sans-sc/noto-sans-sc-latin-700-normal.woff2') format('woff2');
+}
+
+:root {
+  --ground: #0b0e14;
+  --panel: #141a28;
+  --panel-2: #1b2334;
+  --line: #26314a;
+  --ink: #e9edf7;
+  --ink-2: #9aa6bd;
+  --ink-3: #66738c;
+  --brand: #5b8cff;
+  --brand-2: #35d0ba;
+  --warn: #ffb020;
+  --danger: #ff5f56;
+  --ok: #3dd68c;
+
+  --fs-hero: 132px;
+  --fs-big: 104px;
+  --fs-mid: 72px;
+  --fs-num: 208px;
+  --fs-body: 54px;
+  --fs-cap: 38px;
+  --fs-tag: 28px;
+  --fs-term: 28px;
+
+  --mono: ui-monospace, 'SF Mono', Menlo, 'Noto Sans SC', monospace;
+  --sans: 'Noto Sans SC', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 子 composition 的根：必须以 #root 造型（scoper 特殊处理该形状） */
+#root {
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+}
+
+.kicker {
+  font-size: var(--fs-tag);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+}
+
+.hero {
+  font-size: var(--fs-hero);
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+}
+
+.big {
+  font-size: var(--fs-big);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+}
+
+.mid {
+  font-size: var(--fs-mid);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.body-text {
+  font-size: var(--fs-body);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.cap {
+  font-size: var(--fs-cap);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.dim {
+  color: var(--ink-3);
+}
+
+.brand {
+  color: var(--brand);
+}
+.brand-2 {
+  color: var(--brand-2);
+}
+.warn {
+  color: var(--warn);
+}
+.danger {
+  color: var(--danger);
+}
+.ok {
+  color: var(--ok);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+
+.chip {
+  display: inline-block;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  font-size: var(--fs-tag);
+  font-weight: 700;
+  color: var(--ink-2);
+  letter-spacing: 0.04em;
+}
+
+.chip--brand {
+  border-color: rgba(91, 140, 255, 0.55);
+  background: rgba(91, 140, 255, 0.12);
+  color: var(--brand);
+}
+
+.chip--ok {
+  border-color: rgba(61, 214, 140, 0.5);
+  background: rgba(61, 214, 140, 0.1);
+  color: var(--ok);
+}
+
+/* 字幕层：safe-zone 1400 居中，底 100（catalog 惯例） */
+.caption-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.caption-safe {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.caption-line {
+  font-size: 46px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--ink);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.65);
+}
+
+/* 环形仪表 */
+.gauge {
+  width: 240px;
+  height: 240px;
+  display: block;
+}
+
+.gauge circle {
+  fill: none;
+  stroke-width: 16;
+}
+
+.gauge-track {
+  stroke: var(--line);
+}
+
+.gauge-arc {
+  stroke: var(--brand);
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 120px 120px;
+}
+
+.gauge-num {
+  fill: var(--ink);
+  font-family: var(--sans);
+  font-size: 58px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.gauge-label {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 30px;
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+/* 目录树 */
+.tree {
+  font-family: var(--mono);
+  font-size: 30px;
+  line-height: 1.85;
+  color: var(--ink-2);
+}
+
+.tree-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  white-space: pre;
+}
+
+.tree-dir {
+  color: var(--brand);
+  font-weight: 700;
+}
+
+.tree-file {
+  color: var(--ink-2);
+}
+
+.tree-hl {
+  color: var(--brand-2);
+}
+
+/* 卡片 */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 44px 48px;
+}
+
+.card-index {
+  font-family: var(--mono);
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--brand);
+  letter-spacing: 0.08em;
+}
+
+/* 数字块 */
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stat-num {
+  font-size: 116px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  font-size: 32px;
+  color: var(--ink-2);
+}
+
+/* 小格矩阵（幕 3 用） */
+.cells {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cell {
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+}
+
+.cell--on {
+  background: var(--ok);
+  border-color: var(--ok);
+}
+
+.cell--split {
+  background: var(--warn);
+  border-color: var(--warn);
+}

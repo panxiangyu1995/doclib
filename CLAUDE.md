@@ -82,9 +82,9 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
 - 编码铁律：TypeScript ESM 导入带 `.js` 后缀｜strict + noUncheckedIndexedAccess（数组访问判空是常态）｜源码不写注释（设计解释进 ADR）｜用户可见错误一律抛 DoclibError｜文件 kebab-case/导出动宾/常量全大写（`40-guides/conventions.md`）
 - 数据与迁移：N-A（无数据库；引入持久化时先在 `10-architecture/migrations.md` 账本取号，forward-only、applied 不可变）
 - UI/UX：N-A（CLI 无图形界面，`80-design/README.md` 显式声明；CLI 文案体验归 30-features 行为规格）
-- 测试与验收铁律：node:test + assert/strict 零依赖，测试与被测同目录 `*.test.ts`，新测试文件必须登记 package.json test script（漏登记=静默退出门禁）｜typecheck + 全量测试绿后，命令行为改动须临时目录冒烟（`50-testing/testing.md`）
-- 禁区：禁直改引导 project 区（改簿记后 sync）｜禁引入重运行时依赖（先过零重依赖审视，ADR #13）｜禁无账回答实体问题（先馆后码，查询即建账）｜馆与记忆冲突以馆为准（`40-guides/workflow.md`）
-- 规则唯一事实源指针：架构/编码/迁移/UI/测试规则一律以馆为准；馆无规则→提案入 ADR/规格，禁止即兴发明；外部规则文档以馆内收编版本为准（`40-guides/workflow.md`）
+- 测试与验收铁律：node:test + assert/strict 零依赖，测试与被测同目录 `*.test.ts`，新测试文件必须登记 package.json test script（漏登记=静默退出门禁）｜typecheck + 全量测试绿后，命令行为改动须临时目录冒烟（`50-testing/testing.md`）｜**时间比较类断言必须显式设定时间戳**（文件系统 mtime 精度跨环境不一致：本地 ns、CI overlayfs 整秒；依赖「刚写完就比基线晚」的断言是亚毫秒级竞态——本地靠 2ms 运气绿、CI 必红）
+- 禁区：禁直改引导 project 区（改簿记后 sync）｜禁引入重运行时依赖（先过零重依赖审视，ADR #13）｜禁无账回答实体问题（先馆后码，查询即建账）｜馆与记忆冲突以馆为准（`10-architecture/overview.md`·`30-features/guides.md`）
+- 规则唯一事实源指针：架构/编码/迁移/UI/测试规则一律以馆为准；馆无规则→提案入 ADR/规格，禁止即兴发明；外部规则文档以馆内收编版本为准（`10-architecture/overview.md`）
 
 ## 命令速查
 
@@ -94,8 +94,10 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
 <!-- doclib:memory-begin -->
 ## 近期工作记忆（窗口 30 天）
 
-- 当前焦点：#41 推广视频制作（HyperFrames）规划完成待执行——载体 .plan/2026-10-27/promo-video-hyperframes.md（57 步清单 + 8 幕分镜 + 落位②馆内子目录 + covers 兜底），EXECUTE 待用户显式授权
+- 当前焦点：#42 复原基准第三梯队扩容（复杂样本 + UI/UX 专项）规划完成待执行——载体 .plan/2026-10-27/benchmark-tier2.md（9 候选本机实测 + 切片边界 + UI/UX 根因实证），EXECUTE 待用户授权
 - 近期完成：
+  - 10-27 #42 规划完成：第三梯队 9 候选（rqlite/syncthing/headscale/yt-dlp/docmost/plausible + meilisearch/zellij + excalidraw/documenso/formbricks）本机实测并分层标注
+  - 10-27 #41 推广视频落地归档：8.5MB 成片 7200 帧位级一致 + 质检三绿 + 知识层 5 篇入馆（另一实例执行）
   - 10-27 #41 规划完成：HyperFrames 选型四路实证成立；落位②定案；发布链修正清单就绪（npm 0.4.0→0.8.0）
   - 10-27 #40 记忆快照与协作者画像反哺 v0.8.0 落地（F18，commit ee0023c，基线 snap-081 / revision 72）
   - 10-27 #39 规划直通车 v0.7.0：doclib implement 拆单 + 门禁三件套 + bootstrap 五阶段（.plan/2026-10-27/planning-express.md）
@@ -106,12 +108,12 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
   - 10-22 #26/#27 README 门面重写（中英双语）+ 门面多语言变体模式豁免
   - 10-23 #23 基准扩容：四基准馆建成（aspnetcore/fd/csvkit/memos 均 100 A，doclib/50-testing/benchmark/）
 - 活跃注意：
-  - **npm latest 仍 0.4.0**（仓库 0.8.0 未发布）——推广视频内容与 npx 安装均受此阻塞；release.yml node 20 与 engines >=22.5<25 不自洽待改
-  - **本仓存在并发写入实例**（研究期实测：另一实例提交 ee0023c 改写基线）——执行前须重核基线/工作区
-  - #41 视频执行待 EXECUTE 授权（ffmpeg 待装，仓外迭代 + 终态落库，两个不可逆闸口需确认）
+  - **npm latest 仍 0.4.0**（仓库 0.8.0 未发布）——推广视频发布与 npx 安装均受此阻塞；release.yml node 20 与 engines >=22.5<25 不自洽待改
+  - **本仓存在并发写入实例**（实测：另一实例提交 ee0023c 改写基线；本会话又见其占 3000 端口与 ffmpeg 抢带宽）——执行前须重核基线/工作区/端口
+  - #42 第三梯队待授权执行；plausible/meilisearch/zellij 三仓**标「未实测」**（Elixir/Rust 钉版工具链下载受阻），宁可缺证不虚报
   - #34 transcript 批量回捞 planned——素材升级依赖它（OpenCode DB 285 会话/2.5 万消息待接入）
   - #23 复原侧闭环待排程（四馆建馆侧已建成，隔离复原未启动）；#19 ast-grep 阶段 1 planned
-  - 既有失真待处置：`40-guides/workflow.md` 指针悬空（AGENTS.md 与 .doclib/guide-project.md 均引用，文件不存在）
+  - 既有失真已处置：`40-guides/workflow.md` 悬空指针（AGENTS.md / .doclib/guide-project.md / 10-architecture/data-flow.md 三处）已改指真实承载点（`10-architecture/overview.md`·`30-features/guides.md`）
   - 产品级建议留档：SOURCE_PATH_TOKEN_RE 截断字符集已含反引号/星号（#40 根治），后续关注 lesson-source 与 memory-pointer 共享词面的同源缺陷
   - 反哺区当前状态：走查 12/12（.doclib/guide-project.md）——基线版本号等自引用易腐数字不入快照
 
@@ -121,6 +123,8 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
 - 决策风格（新观察）：**先验判断会主动要求「确认」而非直接采纳**（原话「HyperFrames 效果好又省心，你帮我确认一下」）——研究阶段须实证优先、给结论而非附和；选项批量给出且**连续两次选推荐项**（落位/ffmpeg 时机）→ 推荐项的论证质量直接决定决策效率
 - 沟通偏好：中文交流；以 RIPER-5 模式协议管控会话（研究→创新→计划→执行→审查，模式切换须显式指令）；研究阶段要求「确切的肯定的研究结果，不包含任何的猜测」——实证优先（context7/gh/实测交叉验证）；方案呈现给推荐+理由由其拍板
 - 工作流习惯：新功能必走 .plan 载体双锚点（规划文档先行，按文档实施）；REVIEW 轮独立进行（「全方位漏洞审查」「严格代码审查查找漏洞」）；常要求真实仓库扩展验收（「在 test 目录下的克隆项目中测试」）；对「遗漏入馆」高度敏感（曾实证手动补录 → 拍板 hook 执法路线 #35）；会直接下发 planstore 纪律指令要求规划文档补齐反遗漏自检五项
+- 证据偏好（新观察）：**要求「实测」但排斥实测膨胀**——原话「你推荐的都做实测」「有必要搞半天么」「为什么不用 context7 mcp 或者 gh cli」→ 仓库事实走 gh API、SDK 文档走 context7，本机只做编译/测试/运行与 UI 交互探针；报告须分层标注「已实测/未实测」，缺证即标缺证
+- UI/UX 痛点（新观察）：原话「我在使用 agent 开发中实际感受就是 ui/ux 最难复现」→ 关心可断言的交互契约（元素 × 状态 × 手势 × 反馈），而不只是界面描述
 <!-- doclib:memory-end -->
 
 <!-- doclib:custom-begin -->

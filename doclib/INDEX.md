@@ -37,6 +37,11 @@ status: living
 | [40-guides/conventions.md](40-guides/conventions.md) | 编码约定 | draft |
 | [40-guides/benchmark.md](40-guides/benchmark.md) | 复原基准测试指南（F14 方法论操作沉淀） | living |
 | [40-guides/transcripts.md](40-guides/transcripts.md) | 对话导出工作流（98-sessions 档案区 + 双向关联 + 收尾五动作） | living |
+| [40-guides/video/_index.md](40-guides/video/_index.md) | 推广视频分区索引（分镜/字幕/复现/发布四件套 + 生命周期） | living |
+| [40-guides/video/storyboard.md](40-guides/video/storyboard.md) | 推广视频分镜表（8 幕 240s 时间轴 + 画面 + 数字来源表） | living |
+| [40-guides/video/script.md](40-guides/video/script.md) | 推广视频字幕文案（逐幕原文 + 字幕规范 + ASCII-only 终端约束） | living |
+| [40-guides/video/production.md](40-guides/video/production.md) | 推广视频生产复现指南（HyperFrames 工程结构 + 三条硬约束 + 已知坑） | living |
+| [40-guides/video/publishing.md](40-guides/video/publishing.md) | 推广视频发布规格（B 站规格 + 数值核对表 + 发布 checklist + 风险取舍） | draft |
 | [50-testing/testing.md](50-testing/testing.md) | 测试策略（node:test + 冒烟闭环） | stable |
 | [60-config/config.md](60-config/config.md) | 工程设置全集（含构建链/files 字段） | stable |
 | [70-deploy/deploy.md](70-deploy/deploy.md) | 部署（npm 包配置已就绪，发布待阶段 5） | stable |
@@ -49,6 +54,7 @@ status: living
 | [50-testing/acceptance-place-v0.5.0.md](50-testing/acceptance-place-v0.5.0.md) | 孤儿归位与处置闭环验收报告（v0.5.0：四态判定/place 五子命令/实施 5 缺陷 + 审查 10 项修复） | stable |
 | [50-testing/acceptance-graph-v0.5.0.md](50-testing/acceptance-graph-v0.5.0.md) | doclib graph 真实仓库验收报告（五仓实测：四语言建图/路由绑定/agent 工作流/Q40 首轮数据） | living |
 | [50-testing/acceptance-lesson-gap-v0.6.2.md](50-testing/acceptance-lesson-gap-v0.6.2.md) | 教训账缺口不变量真实仓库验收（五仓：存量零破坏/退化形态/噪声隔离） | stable |
+| [50-testing/acceptance-promo-video-v0.8.0.md](50-testing/acceptance-promo-video-v0.8.0.md) | 推广视频成片验收报告（HyperFrames 工程：lint/check/validate 三绿 + 12 条 AC + 5 项制作期缺陷闭环 + 5 个探针实验） | stable |
 | [50-testing/benchmark/_index.md](50-testing/benchmark/_index.md) | benchmark 分区索引（复原基准档案） | living |
 | [50-testing/benchmark/010-umami.md](50-testing/benchmark/010-umami.md) | umami 复原档案主册（准入/基线/缺陷分类账 D-01~D-14） | living |
 | [50-testing/benchmark/020-umami-answer-src.md](50-testing/benchmark/020-umami-answer-src.md) | umami 基准答卷·原仓库卷（71 AC 实测留痕） | stable |

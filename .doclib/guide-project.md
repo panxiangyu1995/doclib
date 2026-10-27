@@ -1,6 +1,6 @@
 ---
-snapshot: 74
-docs-hash: 2958e3acc604b76560b7c30e837b9543b435e666aafe0ab2c34c1eb5f196bd80
+snapshot: 86
+docs-hash: 5dabed02acd6a1627920b1f73a389a50e283aa71209cb10cb6faafe96881d7bf
 volumes-fed: [00-overview, 10-architecture, 20-modules, 30-features, 40-guides, 50-testing, 60-config, 95-lessons]
 volumes-na: [70-deploy, 80-design, 90-reference, 99-archive]
 ---
@@ -28,9 +28,9 @@ volumes-na: [70-deploy, 80-design, 90-reference, 99-archive]
 - 编码铁律：TypeScript ESM 导入带 `.js` 后缀｜strict + noUncheckedIndexedAccess（数组访问判空是常态）｜源码不写注释（设计解释进 ADR）｜用户可见错误一律抛 DoclibError｜文件 kebab-case/导出动宾/常量全大写（`40-guides/conventions.md`）
 - 数据与迁移：N-A（无数据库；引入持久化时先在 `10-architecture/migrations.md` 账本取号，forward-only、applied 不可变）
 - UI/UX：N-A（CLI 无图形界面，`80-design/README.md` 显式声明；CLI 文案体验归 30-features 行为规格）
-- 测试与验收铁律：node:test + assert/strict 零依赖，测试与被测同目录 `*.test.ts`，新测试文件必须登记 package.json test script（漏登记=静默退出门禁）｜typecheck + 全量测试绿后，命令行为改动须临时目录冒烟（`50-testing/testing.md`）
-- 禁区：禁直改引导 project 区（改簿记后 sync）｜禁引入重运行时依赖（先过零重依赖审视，ADR #13）｜禁无账回答实体问题（先馆后码，查询即建账）｜馆与记忆冲突以馆为准（`40-guides/workflow.md`）
-- 规则唯一事实源指针：架构/编码/迁移/UI/测试规则一律以馆为准；馆无规则→提案入 ADR/规格，禁止即兴发明；外部规则文档以馆内收编版本为准（`40-guides/workflow.md`）
+- 测试与验收铁律：node:test + assert/strict 零依赖，测试与被测同目录 `*.test.ts`，新测试文件必须登记 package.json test script（漏登记=静默退出门禁）｜typecheck + 全量测试绿后，命令行为改动须临时目录冒烟（`50-testing/testing.md`）｜**时间比较类断言必须显式设定时间戳**（文件系统 mtime 精度跨环境不一致：本地 ns、CI overlayfs 整秒；依赖「刚写完就比基线晚」的断言是亚毫秒级竞态——本地靠 2ms 运气绿、CI 必红）
+- 禁区：禁直改引导 project 区（改簿记后 sync）｜禁引入重运行时依赖（先过零重依赖审视，ADR #13）｜禁无账回答实体问题（先馆后码，查询即建账）｜馆与记忆冲突以馆为准（`10-architecture/overview.md`·`30-features/guides.md`）
+- 规则唯一事实源指针：架构/编码/迁移/UI/测试规则一律以馆为准；馆无规则→提案入 ADR/规格，禁止即兴发明；外部规则文档以馆内收编版本为准（`10-architecture/overview.md`）
 
 ## 命令速查
 

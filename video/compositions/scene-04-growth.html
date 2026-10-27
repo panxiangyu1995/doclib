@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="stylesheet" href="assets/styles/base.css" />
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      .gr-wrap {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: 1fr 620px;
+        gap: 80px;
+        padding: 120px 140px 0 140px;
+      }
+      .gr-tree {
+        display: flex;
+        flex-direction: column;
+        margin-top: 30px;
+      }
+      .gr-tree .tree-row {
+        opacity: 0;
+      }
+      .gr-stats {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 44px;
+        padding-bottom: 60px;
+      }
+      .gr-stat {
+        opacity: 0;
+      }
+      .gr-stat-num {
+        font-size: 118px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        font-variant-numeric: tabular-nums;
+      }
+      .gr-stat-label {
+        font-size: 32px;
+        color: var(--ink-2);
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="scene-04-growth"
+      data-start="0"
+      data-duration="40"
+      data-width="1920"
+      data-height="1080"
+      data-fps="30"
+    >
+      <div class="gr-wrap">
+        <div>
+          <div class="kicker">from an empty directory</div>
+          <div class="big" style="margin-top: 14px">从空目录长出一个 umami</div>
+          <div class="gr-tree tree" id="gr-tree">
+            <div class="tree-row"><span class="tree-dir">REBUILD-001.md</span><span class="tree-file">task book</span></div>
+            <div class="tree-row"><span class="tree-dir">packages/</span><span class="tree-file">api · web · tracker</span></div>
+            <div class="tree-row"><span class="tree-dir">prisma/</span><span class="tree-file">schema · migrations</span></div>
+            <div class="tree-row"><span class="tree-dir">public/</span><span class="tree-file">static assets</span></div>
+            <div class="tree-row"><span class="tree-dir">ACCEPTANCE-ANSWER.md</span><span class="tree-file">71 AC answered</span></div>
+            <div class="tree-row"><span class="tree-dir">REGRESSION-RESULTS.json</span><span class="tree-file">re-run</span></div>
+            <div class="tree-row"><span class="tree-dir">DIFFS.md</span><span class="tree-file">gap ledger</span></div>
+            <div class="tree-row"><span class="tree-dir">ALIGNMENT-LOG.md</span><span class="tree-file">alignment</span></div>
+          </div>
+        </div>
+        <div class="gr-stats">
+          <div class="gr-stat">
+            <div class="gr-stat-num brand" id="st-routes">0</div>
+            <div class="gr-stat-label">API 路由（168 操作）</div>
+          </div>
+          <div class="gr-stat">
+            <div class="gr-stat-num brand-2" id="st-migrations">0</div>
+            <div class="gr-stat-label">数据库迁移（26 模型）</div>
+          </div>
+          <div class="gr-stat">
+            <div class="gr-stat-num ok" id="st-loc">0</div>
+            <div class="gr-stat-label">源码行数</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption-layer">
+        <div class="caption-safe">
+          <div class="caption-line" id="cap-04">只凭 doclib/ 里的规格，从零复原一个真实项目</div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo('.gr-wrap .big', { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0.3);
+      tl.fromTo('#gr-tree .tree-row', { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.4, stagger: 0.22, ease: 'power2.out' }, 1.4);
+      tl.fromTo('.gr-stat', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.5, ease: 'power2.out' }, 4.2);
+
+      const routes = { v: 0 };
+      tl.to(
+        routes,
+        {
+          v: 124,
+          duration: 3.2,
+          ease: 'power2.out',
+          onUpdate: function () {
+            document.querySelector('#st-routes').textContent = String(Math.round(routes.v));
+          }
+        },
+        4.4
+      );
+      const migrations = { v: 0 };
+      tl.to(
+        migrations,
+        {
+          v: 26,
+          duration: 2.4,
+          ease: 'power2.out',
+          onUpdate: function () {
+            document.querySelector('#st-migrations').textContent = String(Math.round(migrations.v));
+          }
+        },
+        5.6
+      );
+      const loc = { v: 0 };
+      tl.to(
+        loc,
+        {
+          v: 6.7,
+          duration: 3,
+          ease: 'power2.out',
+          onUpdate: function () {
+            document.querySelector('#st-loc').textContent = loc.v.toFixed(1) + ' 万';
+          }
+        },
+        6.8
+      );
+      tl.fromTo('#cap-04', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 10.2);
+      window.__timelines['scene-04-growth'] = tl;
+    </script>
+  </body>
+</html>

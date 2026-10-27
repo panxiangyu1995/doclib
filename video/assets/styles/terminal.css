@@ -1,0 +1,114 @@
+/*
+ * DocLib 推广视频 · 终端面板主题
+ * 硬约束：终端画面只呈现 ASCII —— 本机无 CJK 等宽字体（Menlo/SFNSMono 仅拉丁，
+ * Hiragino Sans GB / STHeiti 为比例字体），中文入框必错位。
+ * 中文解释一律移到字幕层 / 侧栏标签。
+ */
+
+.term {
+  width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #0f172a;
+  border: 1px solid var(--line);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+  font-family: var(--mono);
+}
+
+.term-chrome {
+  height: 54px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 22px;
+  background: #121a2b;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-3);
+  font-size: 28px;
+  font-family: var(--mono);
+}
+
+.term-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: #ef4444;
+  box-shadow: 18px 0 #f59e0b, 36px 0 #22c55e;
+}
+
+.term-title {
+  margin-left: 12px;
+}
+
+.term-body {
+  padding: 24px 30px 26px;
+  font-size: var(--fs-term);
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+/* 行级 pre：换行保留在行内，容器不 pre —— 否则 HTML 源码缩进会被渲染成额外行盒 */
+.term-line {
+  white-space: pre;
+  line-height: 1.55;
+}
+
+.cmd {
+  color: var(--ok);
+}
+
+.path {
+  color: var(--brand);
+}
+
+.hl {
+  color: var(--brand-2);
+}
+
+.warnc {
+  color: var(--warn);
+}
+
+.dangerf {
+  color: var(--danger);
+}
+
+.dimc {
+  color: var(--ink-3);
+}
+
+.term-cursor {
+  display: inline-block;
+  width: 14px;
+  height: 26px;
+  vertical-align: -4px;
+  background: var(--brand-2);
+}
+
+/* 终端侧栏标签（中文，说明该行含义） */
+.term-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.note-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.note-tag {
+  flex: 0 0 auto;
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--brand);
+  min-width: 150px;
+}
+
+.note-text {
+  font-size: 34px;
+  line-height: 1.35;
+  color: var(--ink-2);
+}
