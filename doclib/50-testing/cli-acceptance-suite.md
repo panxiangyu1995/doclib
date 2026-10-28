@@ -102,3 +102,5 @@ status: stable
 178/178 绿（typecheck 同绿）；未发现新缺陷——2026-10-19/20 两轮修复后行为与规格一致。发现并留档 2 处**规格语义澄清**（非缺陷）：sync 与 init 的空串 --agents 语义差异；孤儿豁免与无归属豁免是两套独立判定。
 
 > 2026-10-28 增量（#44 分支账与主分馆管理 v0.10.0）：新增 `src/core/gitinfo.test.ts`（2）、`src/core/branch.test.ts`（8：账本解析与非法行/行渲染往返/分支清单与非 git 降级/主分支探测/分馆审计三面/主分支自动探测/无簿记降级/非 git 报错）、`src/commands/branch.test.ts`（4：register 落账与三重拦截/list 账实对照三态/diff 审计与未知动作）——`snapshot.test.ts` +2（git 归属落库/非 git 无字段）、`status.test.ts` +1（归属行与跨分支警告）、`diff.test.ts` +1（归属行与跨分支警告）、`core/check.test.ts` +2（分支 notice 三态/主分支与非 git 零 notice）——**全套 394/394 绿（39 测试文件）**；REVIEW 轮加固 +2（register 竖线/换行拒绝、`-` 开头 base 注入拒绝——见 branch.md AC-2/AC-5）；行为规格与 AC 见 [branch.md](../30-features/branch.md)。
+
+> 2026-10-28 增量（#45 CI 首启实证）：`commands/status.test.ts`「载体文档晚于基线 → 待登记提醒」用例与 plan.test 同病同修——`put` 后未显式设定 mtime，CI overlayfs 整秒粒度下快照与写文件同秒落盘 → `d.mtime > Date.parse(latest.at)` 翻转（二跑 CI 红的唯二失败例之一，branch.test 夹具 `-b main` 之外）。修法同 v0.8.0 先例：`fs.utimes` 显式后移 60s；同族排查确认 planning.test（基线显式回拨 60s 构造性确定）与 plan.test（已 utimes+注释）无恙。用例数不变（395/395），产品行为未改。

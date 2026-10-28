@@ -113,7 +113,9 @@ test("status：载体文档晚于基线 → 待登记提醒", async () => {
   await runInit(root, {});
   await put(root, "src/a.ts", "v1");
   await runSnapshot(root, {});
+  const planPath = path.join(root, ".plan", "late-idea.md");
   await put(root, ".plan/late-idea.md", "晚于基线的构想");
+  await fs.utimes(planPath, new Date(Date.now() + 60_000), new Date(Date.now() + 60_000));
   const r = await runStatus(root, {});
   assert.match(r.text, /待登记（锚点一）: 1 份载体规划文档晚于最新基线/);
   assert.match(r.text, /\.plan\/late-idea\.md/);
