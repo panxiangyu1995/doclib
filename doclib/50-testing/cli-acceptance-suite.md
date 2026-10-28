@@ -64,7 +64,7 @@ status: stable
 | --- | --- | --- |
 | `src/commands/testkit.ts` | — | 共享测试基建：临时目录/文件种子/state 种子/snapshotRow/docMd/CLI spawn 助手（CI=1 非交互） |
 | `init.test.ts` | 16 | init 全场景（骨架/agents/guide/planning/force/跳过/cursor/门禁自动装/--no-hook/foreign/非 git/损坏指针降级） |
-| `plan.test.ts` | 13 | 五类任务书 + 互斥 + 编号 + 漂移段 + 载体提醒 |
+| `plan.test.ts` | 13 | 五类工单 + 互斥 + 编号 + 漂移段 + 载体提醒 |
 | `snapshot.test.ts` | 13 | 基线账本 + 快照链上限 + pad3 边界 + 忽略规则 + 损坏防护 |
 | `diff.test.ts` | 10 | 三类漂移 + covers 精确/目录级优先 + 截断 + gitignore 语义 |
 | `status.test.ts` | 18 | 概览文本/json 全载荷 + 双锚点提醒 + 引导戳/预算 + 提交门禁四态 + 记忆行三态与降级 |
@@ -87,8 +87,8 @@ status: stable
 - **边界**：MAX_SNAPSHOTS=20 裁剪、pad3 超过 999（snap-1000）、diff 单段 50 截断（55/60 双探针）、verify 分组 15 截断、引导预算 150 行超限、once 豁免基线绑定与过期、`.gitignore` 事后排除计为删除、doclib 为普通文件 + --force 硬失败、flag 缺值（--note 尾随）不崩溃。
 - **压力**：2000 文件全链路（snapshot/diff/check/status 各 <60s 断言）、25 连续快照链封顶、40 层深嵌套、unicode+空格路径、4MB 文件哈希。
 - **行为锁定**（易被无意识回归破坏的契约，测试即规格）：
-  - plan 无基线时重复生成 BUILD-001 为覆盖式；有基线无漂移拒绝生成任务书。
-  - UPDATE 任务书编号 = 基线 version+1（首份即 UPDATE-002）。
+  - plan 无基线时重复生成 BUILD-001 为覆盖式；有基线无漂移拒绝生成工单。
+  - UPDATE 工单编号 = 基线 version+1（首份即 UPDATE-002）。
   - verify 以基线文件清单为准（基线后删除文件不改变覆盖面）；非代码文件不进覆盖度分母（有基线时为 0）。
   - check 孤儿豁免（根级五文件/.github 等/covers 有主/规划载体）≠ 无归属豁免——豁免文件仍计入无归属。
   - check 走查账契约（v0.6.3）：反哺簿记 `volumes-fed`/`volumes-na` 双列表齐备（单边判非法）；未知卷名/未覆盖全部 12 卷/两集重叠 → `guide-feed-walk` 违规；走查账缺席仅 notice 不违规（存量零破坏）；status 反哺行报走查覆盖度三态（REVIEW R-3：计数按覆盖集去重，fed 内部重复不虚报）。

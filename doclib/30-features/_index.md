@@ -10,7 +10,7 @@ status: stable
 | 功能 | 规格文档 | covers | 状态 |
 | --- | --- | --- | --- |
 | init v2（骨架落位 + agents/skills/引导安装 + 门禁自动装 v0.5.1 + 载体检测建议 v0.6.1） | [init-v2.md](init-v2.md) | src/commands/init.ts 等 | implemented |
-| plan（BUILD/UPDATE/REBUILD 任务书） | 待写 | src/commands/plan.ts | implemented（规格欠账） |
+| plan（BUILD/UPDATE/REBUILD 工单） | 待写 | src/commands/plan.ts | implemented（规格欠账） |
 | diff（漂移 + 受影响文档映射） | 待写 | src/commands/diff.ts | implemented（规格欠账） |
 | snapshot（基线记录） | 待写 | src/commands/snapshot.ts | implemented（规格欠账） |
 | status（概览） | 待写 | src/commands/status.ts | implemented（规格欠账） |
@@ -22,7 +22,7 @@ status: stable
 | doclib graph（代码知识图谱加速器，F15 阶段 2） | [graph.md](graph.md) | src/commands/graph.ts、src/core/codegraph/、vendor/codegraph/ | implemented |
 | doclib ack（路径豁免） | 待写 | src/commands/ack.ts | implemented（规格欠账；--dir 目录豁免登记时校验目录存在） |
 | doclib hook（提交门禁） | [hook.md](hook.md) | src/commands/hook.ts、src/commands/status.ts | implemented（v0.5.1 补规格 + 健壮化 + init 自动装/sync 幂等补装） |
-| BOOTSTRAP/RESUME 任务书 | 待写 | — | planned |
+| BOOTSTRAP/RESUME 工单 | 待写 | — | planned |
 | .plan 检测与双锚点提醒 | 待写 | — | planned |
 | 进度对账与 reconcile | [reconcile.md](reconcile.md) | src/commands/reconcile.ts、src/core/reconcile.ts | implemented（v0.34 补规格欠账 + 判定修正） |
 | 分支账与主分馆管理（F20，含 #13 git 感知基线收编） | [branch.md](branch.md) | src/commands/branch.ts、src/core/branch.ts、src/core/gitinfo.ts | implemented（v0.10.0） |

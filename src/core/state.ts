@@ -3,7 +3,7 @@ import type { GitInfo } from "./gitinfo.js";
 
 export const LIBRARY_DIR = "doclib";
 export const STATE_DIR = ".doclib";
-export const TASKS_DIR = `${STATE_DIR}/tasks`;
+export const WORKORDERS_DIR = `${STATE_DIR}/workorders`;
 export const MAX_SNAPSHOTS = 20;
 export const MAX_ARCHIVES = 200;
 

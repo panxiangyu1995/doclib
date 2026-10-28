@@ -19,7 +19,7 @@ export async function analyzeDrift(root: string): Promise<{
   const state = await loadState(root);
   const latest = latestSnapshot(state);
   if (!latest) {
-    throw new DoclibError("尚无基线快照：先执行 doclib snapshot（若图书馆还没构建，先 doclib plan 生成 BUILD 任务书）");
+    throw new DoclibError("尚无基线快照：先执行 doclib snapshot（若图书馆还没构建，先 doclib plan 生成 BUILD 工单）");
   }
   const files = await collectFiles(root, planningIgnores(loadPlanningPaths(state)));
   const hashes = await hashAll(root, files);
@@ -68,7 +68,7 @@ export function describeDrift(an: Awaited<ReturnType<typeof analyzeDrift>>): str
   section("修改", rows.filter((r) => r.change === "modified"));
   section("删除", rows.filter((r) => r.change === "removed"));
   const uncovered = rows.filter((r) => r.docs.length === 0).length;
-  lines.push(`提示: ${uncovered} 个变更路径没有文档覆盖。下一步: doclib plan 生成更新任务书。`);
+  lines.push(`提示: ${uncovered} 个变更路径没有文档覆盖。下一步: doclib plan 生成更新工单。`);
   return lines.join("\n");
 }
 

@@ -21,7 +21,7 @@ status: living
 
 ## 怎么运转
 
-CLI 管"状态与执法"（快照链/漂移/强验证/归位处置），skills 管"语义与方法论"（怎么建、怎么保、怎么复原），两者以任务书衔接；图谱引擎只出候选、agent 撰写裁决。数据流与关键时序见 §3–§5。
+CLI 管"状态与执法"（快照链/漂移/强验证/归位处置），skills 管"语义与方法论"（怎么建、怎么保、怎么复原），两者以工单衔接；图谱引擎只出候选、agent 撰写裁决。数据流与关键时序见 §3–§5。
 
 ## 1. 系统总览
 
@@ -30,7 +30,7 @@ CLI 管"状态与执法"（快照链/漂移/强验证/归位处置），skills �
 │                        任意 repo（源项目）                      │
 │                                                             │
 │  doclib/ ←— 图书馆（12 卷基线，纯 Markdown，唯一事实源）         │
-│  .doclib/ ←— 簿记（state.json 快照链 + tasks/ 任务书）          │
+│  .doclib/ ←— 簿记（state.json 快照链 + workorders/ 工单）       │
 │  .plan/ ←— 用户自有的开发规划（过程资料，不入馆）                 │
 │  doclib/98-sessions/ ←— 对话原始记录档案区（F9 白名案例外）      │
 │  CLAUDE.md / AGENTS.md ←— 引导文件（轻量工作流提醒）             │
@@ -38,11 +38,11 @@ CLI 管"状态与执法"（快照链/漂移/强验证/归位处置），skills �
 │                                                             │
 │  源代码 ──────────────┐                                       │
 └──────────────────────┼──────────────────────────────────────┘
-                       │ hash / diff / 映射 / 任务书
+                       │ hash / diff / 映射 / 工单
               ┌────────┴────────┐
               │   doclib CLI    │ ←—— 机器活：状态与事实
               └────────┬────────┘
-                       │ 任务书（BUILD/BOOTSTRAP/RESUME/UPDATE/REBUILD）
+                       │ 工单（BUILD/BOOTSTRAP/RESUME/UPDATE/REBUILD）
               ┌────────┴────────┐
               │  agent + skills │ ←—— 知识活：十个 skill
               └─────────────────┘
@@ -52,7 +52,7 @@ CLI 管"状态与执法"（快照链/漂移/强验证/归位处置），skills �
 
 1. **北极星**：图书馆必须是活的、可用的、利于项目开发的；让图书馆变死的方案一律否决
 2. **非克隆**：文档承载行为、契约、意图与验收标准；除 ≤10 行示意片段外不搬运源码
-3. **职责切分**：CLI 管状态与事实（hash/diff/映射/任务书/统计），skills 管知识与方法论（怎么分析、怎么写、怎么开发、怎么验收）；CLI 不懂写作，skills 不懂 hash
+3. **职责切分**：CLI 管状态与事实（hash/diff/映射/工单/统计），skills 管知识与方法论（怎么分析、怎么写、怎么开发、怎么验收）；CLI 不懂写作，skills 不懂 hash
 4. **双受众**：一切产物为纯 Markdown（frontmatter 为 Markdown 生态惯例），人与 agent 同读
 5. **同步纪律**：skills 与 CLI 行为严格一致，改一方必须同步改另一方
 
@@ -63,7 +63,7 @@ CLI 管"状态与执法"（快照链/漂移/强验证/归位处置），skills �
 | 命令 | 职责 | 状态 |
 | --- | --- | --- |
 | `init` | 初始化图书馆骨架 + 簿记目录 + skills/引导落位（交互问卷 + `--agents` 参数） | 【已实现，待扩展 agents 适配】 |
-| `plan` | 生成任务书：BUILD / BOOTSTRAP / RESUME / UPDATE / REBUILD | 【部分实现：BUILD/UPDATE/REBUILD】 |
+| `plan` | 生成工单：BUILD / BOOTSTRAP / RESUME / UPDATE / REBUILD | 【部分实现：BUILD/UPDATE/REBUILD】 |
 | `diff` | 漂移报告 + 路径→文档映射 + 进度对账提示 | 【已实现，待加对账】 |
 | `snapshot` | 记录基线（版本 +1，快照链上限 20） | 【已实现】 |
 | `status` | 版本/基线/漂移概览 + `.plan` 待登记/待归档提醒 + 引导版本戳检测 | 【部分实现】 |
@@ -91,7 +91,7 @@ CLI 管"状态与执法"（快照链/漂移/强验证/归位处置），skills �
 .doclib/
 ├── state.json      # 版本号 + 快照链（每条含逐文件 sha256 表 + 检测统计）
 │                   # v2 扩展：agents 安装记录、引导文件版本戳
-└── tasks/          # 任务书（BUILD-001.md / UPDATE-002.md / REBUILD-001.md …）
+└── workorders/     # 工单（BUILD-001.md / UPDATE-002.md / REBUILD-001.md …）
 ```
 
 ## 4. 三条工作流与三层保活
@@ -111,7 +111,7 @@ CLI 管"状态与执法"（快照链/漂移/强验证/归位处置），skills �
 
 1. **实时层（主）**：引导文件中的实时同步规则约束 agent——开发中凡触及 12 卷任一卷的改动即时入馆
 2. **流程层**：`.plan/` 双锚点（规划完成登记 planned；开发完成归档成果并推进状态）
-3. **兜底层**：`diff` → UPDATE 任务书；`check` 强验证（state v3 双账本：代码账 + 文档账，确定性对账，--strict 可挂 pre-commit/CI 门禁）；CLI 对账报告；`reconcile` 终极重建——进度永不真正丢失（代码 hash + covers 映射即底层账本）
+3. **兜底层**：`diff` → UPDATE 工单；`check` 强验证（state v3 双账本：代码账 + 文档账，确定性对账，--strict 可挂 pre-commit/CI 门禁）；CLI 对账报告；`reconcile` 终极重建——进度永不真正丢失（代码 hash + covers 映射即底层账本）
 
 ## 5. 状态模型（state.json v2）
 
@@ -168,7 +168,7 @@ src/
 
 ## 8. 关键取舍记录
 
-- **任务书是 Markdown 工单**：agent 是执行主体，自然语言最稳；事实部分（路径/计数/映射）由 CLI 机器生成保证可信
+- **工单以 Markdown 交接**：agent 是执行主体，自然语言最稳；事实部分（路径/计数/映射）由 CLI 机器生成保证可信
 - **快照存全量 hash 表**：简单可靠，大仓库成本后续换链式 delta
 - **`doclib/` 自身不入快照**：图书馆是产物不是源码；`.plan/` 同理（过程资料）；馆内 `98-sessions/` 对话原始记录档案区同为不入快照/漂移（F9 白名案例外【v0.35】，边界自洽）
 - **不提供 .plan 模板**：尊重用户既有规划习惯，CLI 只做时间感知提醒

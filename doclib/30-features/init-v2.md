@@ -36,7 +36,7 @@ status: stable
 ## 怎么运转
 
 1. 模板：拷贝 assets/templates/library 全部模板文件到 doclib/（v3 骨架 33 文件；保留目录结构）；**拷贝后向 progress.md 幂等补写 `<!-- doclib:lesson-epoch: 当日 -->` 标记**（v0.6.2，教训账缺口不变量的 epoch 锚——新馆默认在岗；已含标记不重复写）；**v0.6.4 起同样向 lessons.md 幂等落位 `<!-- doclib:lesson-source-epoch: 当日 -->`**（模板携空日期标记，init 替换为当日——教训来源缺失不变量的 epoch 锚）
-2. 簿记：建 .doclib/tasks/
+2. 簿记：建 .doclib/workorders/
 3. skills：对 skillsDir 非空的目标（claude→.claude/skills、opencode→.opencode/skills）copyDir 覆盖式同步
 4. 引导（--guide light 时）：writeGuides——**有戳更新、无戳跳过（用户内容保护）、缺失写入**；v0.8.0 起模板含四区（managed/project/memory/custom），memory 区占位随模板落位（AC-12，规格见 [guides.md](guides.md)）
 5. 状态：loadState（兼容归一化）→ agents=目标 id 列表、structureVersion=STRUCTURE_VERSION（当前 3）→ saveState（既有快照链保留）

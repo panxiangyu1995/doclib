@@ -1,6 +1,6 @@
 ---
 name: doclib-resume
-description: 半成品项目接手：既有代码蒸馏为 implemented + 未来规划整理为 planned，此后按图书馆继续开发（DocLib 文档驱动开发三模式之一）。当用户接手一个开发到一半的项目、希望用 DocLib 接管开发与验收时使用。触发：plan --resume 生成 RESUME 任务书后。
+description: 半成品项目接手：既有代码蒸馏为 implemented + 未来规划整理为 planned，此后按图书馆继续开发（DocLib 文档驱动开发三模式之一）。当用户接手一个开发到一半的项目、希望用 DocLib 接管开发与验收时使用。触发：plan --resume 生成 RESUME 工单后。
 ---
 
 # doclib-resume · 半成品接手
@@ -11,7 +11,7 @@ description: 半成品项目接手：既有代码蒸馏为 implemented + 未来�
 
 ## 何时使用
 
-- 已运行 `doclib init` 且 `doclib plan --resume` 生成了 RESUME 任务书
+- 已运行 `doclib init` 且 `doclib plan --resume` 生成了 RESUME 工单
 - 项目已有部分实现（半成品），图书馆缺失或不可用
 
 ## 工作流

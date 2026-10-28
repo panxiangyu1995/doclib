@@ -112,8 +112,8 @@ test("e2e：全生命周期闭环 init→plan→建馆→verify→snapshot→dif
 
   r = await cli(["plan"], root);
   assert.equal(r.code, 0);
-  assert.match(r.stdout, /已生成任务书: BUILD-001/);
-  assert.ok(await has(root, ".doclib/tasks/BUILD-001.md"));
+  assert.match(r.stdout, /已生成工单: BUILD-001/);
+  assert.ok(await has(root, ".doclib/workorders/BUILD-001.md"));
 
   await put(root, "src/index.ts", "export const version = 1;\n");
   await put(root, "doclib/INDEX.md", "- [核心](30-features/core.md)\n");
@@ -165,8 +165,8 @@ test("e2e：全生命周期闭环 init→plan→建馆→verify→snapshot→dif
 
   r = await cli(["plan"], root);
   assert.equal(r.code, 0);
-  assert.match(r.stdout, /已生成任务书: UPDATE-002/);
-  assert.ok(await has(root, ".doclib/tasks/UPDATE-002.md"));
+  assert.match(r.stdout, /已生成工单: UPDATE-002/);
+  assert.ok(await has(root, ".doclib/workorders/UPDATE-002.md"));
 
   r = await cli(["snapshot"], root);
   assert.equal(r.code, 0);
@@ -223,7 +223,7 @@ test("e2e：init --graph → graph status/draft → plan 候选段 → .codegrap
 
   r = await cli(["plan"], root);
   assert.equal(r.code, 0);
-  const task = await get(root, ".doclib/tasks/BUILD-001.md");
+  const task = await get(root, ".doclib/workorders/BUILD-001.md");
   assert.match(task, /知识图谱候选/);
 
   r = await cli(["snapshot"], root);

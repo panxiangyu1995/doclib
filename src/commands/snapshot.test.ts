@@ -107,7 +107,7 @@ test("snapshot：node_modules 等默认忽略目录不入账", async () => {
   await put(root, "src/a.ts", "x");
   await put(root, "node_modules/pkg/index.js", "x");
   await put(root, "dist/out.js", "x");
-  await put(root, ".doclib/tasks/BUILD-001.md", "x");
+  await put(root, ".doclib/workorders/BUILD-001.md", "x");
   await put(root, ".plan/idea.md", "x");
   await put(root, "debug.log", "x");
   await put(root, ".env", "SECRET=1");

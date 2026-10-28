@@ -19,7 +19,7 @@ status: living
 | [10-architecture/data-model.md](10-architecture/data-model.md) | state.json v2 与 frontmatter 字段语义 | stable |
 | [10-architecture/data-flow.md](10-architecture/data-flow.md) | init 落位流、保活三层流、复原流 | stable |
 | [10-architecture/dependencies.md](10-architecture/dependencies.md) | 依赖选型决策（ignore 等） | stable |
-| [10-architecture/decisions.md](10-architecture/decisions.md) | ADR 二十三则（…/开发宪法与走查账/教训实时性三层等） | stable |
+| [10-architecture/decisions.md](10-architecture/decisions.md) | ADR 二十九则（…/教训实时性三层/分支感知层/严格贡献流程） | stable |
 | [10-architecture/prd.md](10-architecture/prd.md) | DocLib PRD（v0.23，需求唯一事实源；v0.23 迁入馆） | living |
 | [10-architecture/design.md](10-architecture/design.md) | 架构设计 v2（对齐 PRD；v0.23 迁入馆） | living |
 | [10-architecture/migrations.md](10-architecture/migrations.md) | 数据库迁移账本（取号/状态/纪律，暂空置） | living |
@@ -38,6 +38,7 @@ status: living
 | [40-guides/harness.md](40-guides/harness.md) | 长程开发指南（测试链声明规范 + 分级模板 + 浏览器工具序 playwright-cli 首选 + 阻塞协议 + 执法点速查） | stable |
 | [40-guides/rebuild-plan.md](40-guides/rebuild-plan.md) | 复原路线图（更名 roadmap 待迁移） | draft |
 | [40-guides/conventions.md](40-guides/conventions.md) | 编码约定 | draft |
+| [40-guides/numbering.md](40-guides/numbering.md) | 编号推进规则（先查账末后取号/一号一事/膨胀约束/槽位步进/并发重核——撞号实证成文） | stable |
 | [40-guides/benchmark.md](40-guides/benchmark.md) | 复原基准测试指南（F14 方法论操作沉淀） | living |
 | [40-guides/transcripts.md](40-guides/transcripts.md) | 对话导出工作流（98-sessions 档案区 + 双向关联 + 收尾五动作） | living |
 | [40-guides/video/_index.md](40-guides/video/_index.md) | 推广视频分区索引（分镜/字幕/复现/发布四件套 + 生命周期） | living |
@@ -47,7 +48,7 @@ status: living
 | [40-guides/video/publishing.md](40-guides/video/publishing.md) | 推广视频发布规格（B 站规格 + 数值核对表 + 发布 checklist + 风险取舍） | draft |
 | [50-testing/testing.md](50-testing/testing.md) | 测试策略（node:test + 冒烟闭环） | stable |
 | [50-testing/_index.md](50-testing/_index.md) | 50-testing 卷索引（测试策略/验收报告/benchmark 档案分区） | living |
-| [60-config/config.md](60-config/config.md) | 工程设置全集（含构建链/files 字段） | stable |
+| [60-config/config.md](60-config/config.md) | 工程设置全集（含构建链/files 字段/CI 门禁与 Ruleset） | stable |
 | [70-deploy/deploy.md](70-deploy/deploy.md) | 部署（npm 包配置已就绪，发布待阶段 5） | stable |
 | [80-design/README.md](80-design/README.md) | UI/UX——显式不适用 | not-applicable |
 | [90-reference/_index.md](90-reference/_index.md) | 参考索引（v0.23 已归位重编号） | draft |

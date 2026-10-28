@@ -1,0 +1,38 @@
+name: 缺陷报告
+description: 报告 DocLib 的误报、缺陷或异常行为
+labels: [bug]
+body:
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤
+      description: 从零开始的具体操作序列与实际输出——问题可复现是评审的第一标准
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: 环境
+      description: Node 版本（node -v）、doclib 版本（doclib --version）、操作系统
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: 缺陷描述
+      description: 简要说明发生了什么
+    validations:
+      required: false
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志与截图
+      description: 冗长日志请用 <details> 折叠
+    validations:
+      required: false

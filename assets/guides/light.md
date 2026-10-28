@@ -58,7 +58,7 @@
 ## skills 与 CLI 速查
 
 skills 按名称加载：`build`=蒸馏建馆｜`bootstrap`=新项目文档先行｜`resume`=半成品接手｜`dev`=日常开发★主力｜`update`=增量更新｜`rebuild`=从零复原｜`reconcile`=对账重建｜`audit`=质量审计｜`accept`=验收执行
-CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`verify` 覆盖度｜`init` 骨架落位｜`sync` 引导/skills 同步｜`check` 强验证+治理分｜`ack` 路径豁免｜`place` 孤儿归位（列出/收编入馆/入棺归档/还原；写操作默认干跑，`--apply` 执行）｜`hook` 提交门禁｜`branch` 分支账（list 账实对照/register 登记分馆/diff 合并审计）｜`graph` 知识图谱（index/status/draft/explore，可选增强）
+CLI：`status` 概览｜`diff` 漂移｜`plan` 工单｜`snapshot` 基线｜`verify` 覆盖度｜`init` 骨架落位｜`sync` 引导/skills 同步｜`check` 强验证+治理分｜`ack` 路径豁免｜`place` 孤儿归位（列出/收编入馆/入棺归档/还原；写操作默认干跑，`--apply` 执行）｜`hook` 提交门禁｜`branch` 分支账（list 账实对照/register 登记分馆/diff 合并审计）｜`graph` 知识图谱（index/status/draft/explore，可选增强）
 
 <!-- doclib:managed-end -->
 

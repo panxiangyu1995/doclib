@@ -13,26 +13,26 @@ async function tmp(): Promise<string> {
 }
 
 async function tasks(root: string): Promise<string[]> {
-  return fs.readdir(path.join(root, ".doclib", "tasks")).catch(() => [] as string[]);
+  return fs.readdir(path.join(root, ".doclib", "workorders")).catch(() => [] as string[]);
 }
 
-test("plan --bootstrap：生成 BOOTSTRAP 任务书（含五阶段协议与 revision）", async () => {
+test("plan --bootstrap：生成 BOOTSTRAP 工单（含五阶段协议与 revision）", async () => {
   const root = await tmp();
   await seedState(root);
   const r = await runPlan(root, { bootstrap: true });
   assert.match(r.text, /BOOTSTRAP-001/);
-  const content = await fs.readFile(path.join(root, ".doclib", "tasks", "BOOTSTRAP-001.md"), "utf8");
+  const content = await fs.readFile(path.join(root, ".doclib", "workorders", "BOOTSTRAP-001.md"), "utf8");
   assert.ok(content.includes("五阶段对话协议"));
   assert.ok(content.includes("doclib implement"));
 });
 
-test("plan --resume：生成 RESUME 任务书（含项目清单）", async () => {
+test("plan --resume：生成 RESUME 工单（含项目清单）", async () => {
   const root = await tmp();
   await fs.mkdir(path.join(root, "doclib"), { recursive: true });
   await fs.writeFile(path.join(root, "index.js"), "x", "utf8");
   const r = await runPlan(root, { resume: true });
   assert.match(r.text, /RESUME-001/);
-  const content = await fs.readFile(path.join(root, ".doclib", "tasks", "RESUME-001.md"), "utf8");
+  const content = await fs.readFile(path.join(root, ".doclib", "workorders", "RESUME-001.md"), "utf8");
   assert.ok(content.includes("既有代码蒸馏"));
   assert.ok(content.includes("implemented"));
 });
@@ -48,9 +48,9 @@ test("plan：bootstrap/resume/rebuild 互斥（三组两两组合）", async () 
 test("plan：全新空目录也生成 BUILD-001（规模 0/未知语言/尚未建立基线/revision 0）", async () => {
   const root = await tmp();
   const r = await runPlan(root, {});
-  assert.match(r.text, /已生成任务书: BUILD-001/);
+  assert.match(r.text, /已生成工单: BUILD-001/);
   assert.match(r.text, /revision: 0/);
-  const content = await fs.readFile(path.join(root, ".doclib", "tasks", "BUILD-001.md"), "utf8");
+  const content = await fs.readFile(path.join(root, ".doclib", "workorders", "BUILD-001.md"), "utf8");
   assert.ok(content.includes("规模: 0 个文件"));
   assert.ok(content.includes("语言分布: 无"));
   assert.ok(content.includes("主语言: 未知"));
@@ -63,7 +63,7 @@ test("plan：BUILD 清单采集 package.json（项目名/框架/scripts/树）",
   await put(root, "package.json", JSON.stringify({ name: "demo-app", dependencies: { react: "18" }, scripts: { build: "tsc", test: "vitest" } }));
   await put(root, "src/index.ts", "export {};");
   const r = await runPlan(root, {});
-  const content = await fs.readFile(path.join(root, ".doclib", "tasks", "BUILD-001.md"), "utf8");
+  const content = await fs.readFile(path.join(root, ".doclib", "workorders", "BUILD-001.md"), "utf8");
   assert.ok(content.includes("项目名: demo-app"));
   assert.ok(content.includes("React"));
   assert.ok(content.includes("scripts: build, test"));
@@ -81,8 +81,8 @@ test("plan：无基线时重复生成 BUILD-001（覆盖式），有基线且无
   assert.match(r2.text, /BUILD-001/);
   await runSnapshot(root, {});
   const r3 = await runPlan(root, {});
-  assert.match(r3.text, /无漂移：图书馆与代码已同步，无需生成更新任务书。/);
-  assert.ok(!(await has(root, ".doclib/tasks/BUILD-002.md")));
+  assert.match(r3.text, /无漂移：图书馆与代码已同步，无需生成更新工单。/);
+  assert.ok(!(await has(root, ".doclib/workorders/BUILD-002.md")));
 });
 
 test("plan：UPDATE-002 三段漂移 + 文档映射 + 收尾提示（基线 v1 → 编号 002）", async () => {
@@ -93,8 +93,8 @@ test("plan：UPDATE-002 三段漂移 + 文档映射 + 收尾提示（基线 v1 �
   await put(root, "src/a.ts", "v2");
   await put(root, "src/new.ts", "added");
   const r = await runPlan(root, {});
-  assert.match(r.text, /已生成任务书: UPDATE-002/);
-  const content = await fs.readFile(path.join(root, ".doclib", "tasks", "UPDATE-002.md"), "utf8");
+  assert.match(r.text, /已生成工单: UPDATE-002/);
+  const content = await fs.readFile(path.join(root, ".doclib", "workorders", "UPDATE-002.md"), "utf8");
   assert.ok(content.includes("基线: snap-001 (version 1)"));
   assert.ok(content.includes("### 新增 — 需建立或并入文档 (1)"));
   assert.ok(content.includes("src/new.ts"));
@@ -110,7 +110,7 @@ test("plan：UPDATE 删除段——无覆盖文件标注（无关联文档）", 
   await runSnapshot(root, {});
   await fs.rm(path.join(root, "src", "gone.ts"));
   const r = await runPlan(root, {});
-  const content = await fs.readFile(path.join(root, ".doclib", "tasks", "UPDATE-002.md"), "utf8");
+  const content = await fs.readFile(path.join(root, ".doclib", "workorders", "UPDATE-002.md"), "utf8");
   assert.ok(content.includes("### 删除 — retire 候选 (1)"));
   assert.ok(content.includes("src/gone.ts  →  (无关联文档)"));
 });
@@ -121,7 +121,7 @@ test("plan：无漂移不生成文件，提示同步", async () => {
   await runSnapshot(root, {});
   const r = await runPlan(root, {});
   assert.match(r.text, /无漂移：图书馆与代码已同步/);
-  assert.equal((r.json as { task: null }).task, null);
+  assert.equal((r.json as { workorder: null }).workorder, null);
   assert.deepEqual(await tasks(root), []);
 });
 
@@ -148,14 +148,14 @@ test("plan --rebuild：无图书馆报错；有则生成 REBUILD-001（隔离约
   await fs.mkdir(path.join(root, "doclib"), { recursive: true });
   const r1 = await runPlan(root, { rebuild: true });
   assert.match(r1.text, /REBUILD-001/);
-  let content = await fs.readFile(path.join(root, ".doclib", "tasks", "REBUILD-001.md"), "utf8");
+  let content = await fs.readFile(path.join(root, ".doclib", "workorders", "REBUILD-001.md"), "utf8");
   assert.ok(content.includes(`目标目录: ${path.join("..", `${path.basename(root)}-rebuild`)}`));
   assert.ok(content.includes("只允许读取 doclib/"));
-  await put(root, ".doclib/tasks/REBUILD-XYZ.md", "奇怪命名也计入");
+  await put(root, ".doclib/workorders/REBUILD-XYZ.md", "奇怪命名也计入");
   const r2 = await runPlan(root, { rebuild: true });
   assert.match(r2.text, /REBUILD-003/);
   const r3 = await runPlan(root, { rebuild: true, to: "/tmp/custom-dest" });
-  content = await fs.readFile(path.join(root, ".doclib", "tasks", "REBUILD-004.md"), "utf8");
+  content = await fs.readFile(path.join(root, ".doclib", "workorders", "REBUILD-004.md"), "utf8");
   assert.ok(content.includes("目标目录: /tmp/custom-dest"));
   assert.ok(r3.text.includes("REBUILD-004"));
 });
@@ -179,7 +179,7 @@ test("plan：自定义规划载体目录下的文件不计入清单", async () =
   await put(root, "plans/private-idea.md", "内部构想");
   await put(root, "src/a.ts", "code");
   const r = await runPlan(root, {});
-  const content = await fs.readFile(path.join(root, ".doclib", "tasks", "BUILD-001.md"), "utf8");
+  const content = await fs.readFile(path.join(root, ".doclib", "workorders", "BUILD-001.md"), "utf8");
   assert.ok(content.includes("规模: 1 个文件"));
   assert.ok(!content.includes("private-idea"));
   assert.ok(await has(root, "plans/private-idea.md"));

@@ -33,7 +33,7 @@ Three terms you will meet again and again:
 | Term | In plain words |
 | --- | --- |
 | The library `doclib/` | A folder in your repo: 12 volumes of Markdown, the project's single source of truth — look here first for anything |
-| The bookkeeping `.doclib/` | The CLI's private workspace (baseline snapshots, task books); machine-maintained, you never touch it |
+| The bookkeeping `.doclib/` | The CLI's private workspace (baseline snapshots, work orders); machine-maintained, you never touch it |
 | Agent / skills | The AI that does the work, and the manuals that teach it how; effective the moment they are installed — no prompt-writing needed |
 
 ### See it run in one minute
@@ -90,7 +90,7 @@ After installing there are no commands to learn — just talk to the agent in pl
 
 | Where you stand | What you say to the agent | What the agent does |
 | --- | --- | --- |
-| An existing project that needs living docs | "Use doclib to build this project's documentation library" | `doclib plan` generates a BUILD task book → loads `doclib-build`, fills the library in three passes → `verify` → `snapshot` |
+| An existing project that needs living docs | "Use doclib to build this project's documentation library" | `doclib plan` generates a BUILD work order → loads `doclib-build`, fills the library in three passes → `verify` → `snapshot` |
 | A brand-new project: spec first, code second | "I'm building X — use doclib to mine the requirements into a spec first" | `doclib plan --bootstrap` → loads `doclib-bootstrap`, mines the requirements into the library with you; develop against it from then on |
 | A half-built project to take over | "Take over this repo; use doclib to sort out what's done and what isn't" | `doclib plan --resume` → loads `doclib-resume`, distills what exists + registers the plan → switches to `doclib-dev` |
 | Everyday development: keep docs in step with code | "Continue development against the library" | `doclib status` / `diff` → loads `doclib-dev`, files to the library in real time while developing |
@@ -106,7 +106,7 @@ After installing there are no commands to learn — just talk to the agent in pl
 │                                                              │
 │    source code ─────┐                                        │
 │    doclib/ ◀────────┤ Library: narratives + entity ledgers   │
-│    .doclib/ ◀───────┤ Ledger: snapshots + task books         │
+│    .doclib/ ◀───────┤ Ledger: snapshots + work orders        │
 │    CLAUDE.md ◀──────┤ Guides: how agents use all this        │
 │    .claude/         │ Agent adapters: 11 skills land here    │
 └─────────────────────┼────────────────────────────────────────┘
@@ -114,7 +114,7 @@ After installing there are no commands to learn — just talk to the agent in pl
                ┌──────┴──────┐
                │  doclib CLI │  Machine side: state and facts
                └──────┬──────┘
-                      │  task books (BUILD / UPDATE / REBUILD / BOOTSTRAP / RESUME)
+                      │  work orders (BUILD / UPDATE / REBUILD / BOOTSTRAP / RESUME)
                ┌──────┴──────┐
                │ agent+skills │  Knowledge side: analyze, write, accept
                └──────────────┘
@@ -144,7 +144,7 @@ Each document also follows a genre standard: narrative documents use the five te
 | --- | --- | --- |
 | Real-time (primary) | Whenever a change touches the knowledge of any volume | The agent files it immediately — the guide file's real-time sync rules bind it |
 | Workflow | After a planning document is finished / after the work it describes is finished | Dual anchors: register `planned` → archive the outcome and advance to `implemented` |
-| Backstop | Anything that slipped through | `diff` → `plan` → UPDATE task book → `check` strong validation |
+| Backstop | Anything that slipped through | `diff` → `plan` → UPDATE work order → `check` strong validation |
 
 The governance trio: `doclib check` (two-ledger reconciliation + governance health score, `--strict` can act as a gate) · `doclib place` (orphan placement; write operations dry-run by default, `--apply` executes them) · `doclib hook` (pre-commit gate / CI template).
 
@@ -154,7 +154,7 @@ There is exactly one source of truth for feature state: `doclib/00-overview/feat
 
 ### Four ways to start
 
-No commands to memorize — say one sentence to the agent (see [Get started in two steps](#get-started-in-two-steps)) and it picks the right task book:
+No commands to memorize — say one sentence to the agent (see [Get started in two steps](#get-started-in-two-steps)) and it picks the right work order:
 
 - **An existing project** (BUILD): three passes over the codebase distill the status quo into the library — skeleton first, then data, then behavior — with coverage verified automatically at the end.
 - **A brand-new project** (BOOTSTRAP): dialogue first mines the requirements into a spec (with per-feature acceptance criteria); the first line of code is written only after the spec settles.
@@ -216,7 +216,7 @@ This section is for lookup. Day to day you just talk to your agent — the agent
 | Group | Command | Responsibility | When to use it |
 | --- | --- | --- | --- |
 | Library | `init` | Initialize the `doclib/` skeleton, the `.doclib/` ledger, the skills and the guide files (installs the commit gate automatically) | Onboarding a new repo |
-| Library | `plan` | Generate a task book: BUILD / UPDATE / REBUILD / BOOTSTRAP / RESUME | Before starting any piece of work |
+| Library | `plan` | Generate a work order: BUILD / UPDATE / REBUILD / BOOTSTRAP / RESUME | Before starting any piece of work |
 | Library | `implement` | Splitter: planned candidates → readiness gate → `.plan` implementation skeleton (AC anchors pre-filled; dry-run by default, `--apply` to write) | Before starting a planned feature |
 | Library | `verify` | Coverage report: uncovered paths / stale documents / INDEX integrity | After building, and after every incremental update |
 | Library | `snapshot` | Record the current code state as the new baseline (library version +1, revision +1) | Once a sync is done |
@@ -241,8 +241,8 @@ Skills are loaded by the agent by name, and each one is bound to a single trigge
 
 | Skill | When to load it | Related command |
 | --- | --- | --- |
-| `doclib-build` | Distill an existing project into a library | `plan` (BUILD task book) |
-| `doclib-update` | Incremental update after code changes | `plan` (UPDATE task book) |
+| `doclib-build` | Distill an existing project into a library | `plan` (BUILD work order) |
+| `doclib-update` | Incremental update after code changes | `plan` (UPDATE work order) |
 | `doclib-rebuild` | Rebuild from scratch using only the library | `plan --rebuild` |
 | `doclib-dev` ★ | Development sessions in two modes: A everyday development; B the long-horizon six-step loop (pick a task → work against the skeleton → test chain → AC acceptance → one commit per task) | `status` / `diff` / `snapshot` / `implement` |
 | `doclib-bootstrap` | Build the library of a new project through dialogue | `plan --bootstrap` |
@@ -286,7 +286,7 @@ Opening the repo for the first time? Here is the map:
 | `test/` | Rebuild benchmark repos (clones of umami / fd / csvkit / memos / aspnetcore …) | Rebuild & benchmark experiments |
 | `video/` | Promo-video project sources (HyperFrames) | The curious |
 | `scripts/` | Build helper scripts | Build / release |
-| `.doclib/` | The CLI's private bookkeeping (baseline snapshots, task books, guide-feed source) | Maintained by machines; hands off |
+| `.doclib/` | The CLI's private bookkeeping (baseline snapshots, work orders, guide-feed source) | Maintained by machines; hands off |
 | `.plan/` | The planning carrier of every development task (one of the dual anchors) | Process archive |
 | `.claude/` `.opencode/` | Distributed skill copies and commands (generated by `doclib sync`) | Read by agents |
 
@@ -312,7 +312,7 @@ AI writes, machines verify: every ledger entry carries a code anchor (`covers`),
 
 ## Contributing
 
-All three kinds of contribution are welcome: **report a bug or request a feature** (GitHub Issues) · **improve the documentation** (edit the matching volume under `doclib/`; new documents go through the placement decision tree first) · **contribute code** (see [CONTRIBUTING.md](CONTRIBUTING.md)).
+All three kinds of contribution are welcome: **report a bug or request a feature** (GitHub Issues, structured forms) · **improve the documentation** (edit the matching volume under `doclib/`; new documents go through the placement decision tree first; pure doc fixes may PR directly) · **contribute code** (open an issue first, then PR — see [CONTRIBUTING.md](CONTRIBUTING.md)). PRs go through the template (including AI-usage disclosure), enforced by CI gates (typecheck / test / `doclib check --strict`) and a branch ruleset.
 
 Three rules you must follow:
 

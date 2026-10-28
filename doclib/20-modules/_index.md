@@ -27,7 +27,7 @@ status: stable
 | core/prompts | TTY 交互问卷（非 TTY 降级） | 待成卷 | src/core/prompts.ts |
 | core/guides | 引导四区渲染（managed 再生/project 反哺注入/memory 记忆快照注入/custom 保留）/版本戳/双闸新鲜度与三预算/馆内指纹/走查账解析（volumes-fed/volumes-na 三态）/记忆簿记解析（双 as-of + window 与保留标记 fail-fast） | 30-features/guides.md | src/core/guides.ts |
 | commands/init | 骨架落位 + agents/skills/引导安装 | 30-features/init-v2.md | src/commands/init.ts |
-| commands/plan | 任务书生成（BUILD/UPDATE/REBUILD） | 待成卷 | src/commands/plan.ts |
+| commands/plan | 工单生成（BUILD/UPDATE/REBUILD） | 待成卷 | src/commands/plan.ts |
 | commands/diff | 漂移报告与受影响文档映射 | 待成卷 | src/commands/diff.ts |
 | commands/snapshot | 基线记录（版本 +1；git 仓库自动填充快照归属 branch/commit） | 待成卷 | src/commands/snapshot.ts |
 | commands/branch | 分支账三动作（list 账实对照/register 登记分馆/diff 合并审计报告） | 30-features/branch.md | src/commands/branch.ts |

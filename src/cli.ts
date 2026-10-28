@@ -89,7 +89,7 @@ const HELP = `doclib — 把任意项目蒸馏成可复原的文档图书馆
 
 命令:
   init      初始化 doclib/ 图书馆骨架与 .doclib/ 簿记目录
-  plan      生成任务书: BUILD(无基线) / UPDATE(有漂移) / REBUILD(--rebuild) / BOOTSTRAP(--bootstrap) / RESUME(--resume)
+  plan      生成工单: BUILD(无基线) / UPDATE(有漂移) / REBUILD(--rebuild) / BOOTSTRAP(--bootstrap) / RESUME(--resume)
   diff      对比当前代码与基线快照, 输出漂移与受影响文档
   snapshot  将当前代码状态记录为新基线 (图书馆版本 +1, revision +1)
   status    图书馆版本、基线、漂移、治理健康分、引导预算、载体提醒概览
@@ -111,9 +111,9 @@ const HELP = `doclib — 把任意项目蒸馏成可复原的文档图书馆
   --note       snapshot 的备注文本；place ack 的豁免理由；branch register 的分支目的
   --to         rebuild 目标目录 (默认 ../<项目名>-rebuild)；place collect 的目标卷
   --force      init 时补齐/刷新模板文件（用户内容不覆盖）
-  --rebuild    plan 生成从零复原任务书
-  --bootstrap  plan 生成新项目对话式建馆任务书
-  --resume     plan 生成半成品接手任务书
+  --rebuild    plan 生成从零复原工单
+  --bootstrap  plan 生成新项目对话式建馆工单
+  --resume     plan 生成半成品接手工单
   --agents     init 适配的 agent: claude,opencode,cursor,generic（缺省交互/降级 generic）
   --guide      init 引导文件档位: light | none（缺省交互/降级 light）
   --planning   init 规划载体路径（逗号分隔多路径，默认 .plan/）

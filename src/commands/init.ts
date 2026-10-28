@@ -6,7 +6,7 @@ import { resolveAgents } from "../core/agents.js";
 import { isInteractive, askAgents, askGuide, askPlanning, askGraph } from "../core/prompts.js";
 import { writeGuides } from "../core/guides.js";
 import { STRUCTURE_VERSION } from "../core/version.js";
-import { DoclibError, DEFAULT_PLANNING, LIBRARY_DIR, TASKS_DIR, loadState, saveState } from "../core/state.js";
+import { DoclibError, DEFAULT_PLANNING, LIBRARY_DIR, WORKORDERS_DIR, loadState, saveState } from "../core/state.js";
 import { graphIndexPresent, isNodeCompatible, loadVendorEngine, renderProgress } from "../core/codegraph/engine.js";
 import { readHookState, resolveHooksDir, runHook } from "./hook.js";
 import { suggestCarriers } from "../core/planning.js";
@@ -59,7 +59,7 @@ export async function runInit(
     );
   }
 
-  await fs.mkdir(path.join(root, TASKS_DIR), { recursive: true });
+  await fs.mkdir(path.join(root, WORKORDERS_DIR), { recursive: true });
 
   let agentSpec = opts.agents;
   let guide = opts.guide;
@@ -157,9 +157,9 @@ export async function runInit(
     hookLine,
     "",
     "下一步:",
-    "1. doclib plan                 # 生成 BUILD 构建任务书（含项目清单）",
+    "1. doclib plan                 # 生成 BUILD 构建工单（含项目清单）",
     wantGraph ? "   （图谱已建：plan 将提示 doclib graph draft 产出登记簿候选草稿）" : "   （可选：doclib graph index 建图后，plan 会提示草稿候选）",
-    "2. 让 agent 加载 doclib-build skill，按任务书构建图书馆",
+    "2. 让 agent 加载 doclib-build skill，按工单构建图书馆",
     "3. doclib verify && doclib snapshot --note \"initial build\"",
     "",
   ];

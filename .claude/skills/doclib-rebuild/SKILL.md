@@ -1,6 +1,6 @@
 ---
 name: doclib-rebuild
-description: 只凭 DocLib 文档图书馆从零复原一个项目。当存在 REBUILD 任务书（.doclib/tasks/REBUILD-*.md）或用户要求"按文档重建项目"时使用。这是从零的重新开发，不是克隆：不访问源项目，不复制源码。
+description: 只凭 DocLib 文档图书馆从零复原一个项目。当存在 REBUILD 工单（.doclib/workorders/REBUILD-*.md）或用户要求"按文档重建项目"时使用。这是从零的重新开发，不是克隆：不访问源项目，不复制源码。
 ---
 
 # doclib-rebuild · 从零复原
@@ -11,7 +11,7 @@ description: 只凭 DocLib 文档图书馆从零复原一个项目。当存在 R
 
 ## 硬约束
 
-- **信息隔离**：只允许读取 doclib/ 图书馆（及其 REBUILD 任务书）。禁止访问源项目目录、源码、git 历史
+- **信息隔离**：只允许读取 doclib/ 图书馆（及其 REBUILD 工单）。禁止访问源项目目录、源码、git 历史
 - **从零开发**：所有代码在目标目录新写。文档中的 ≤10 行示意片段是行为规格，不是拿来抄的代码
 - **忠实于文档**：技术选型、模块边界、数据模型、行为细节以文档为准
 

@@ -1,6 +1,6 @@
 ---
 name: doclib-bootstrap
-description: 新项目对话式规划建馆（五阶段协议）+ 外部规划工具兼容转化，文档先行开发验收（DocLib 文档驱动开发三模式之一）。当用户要启动一个全新项目（尚无代码或仅有骨架）、或已用 BMAD/spec-kit/OpenSpec/Kiro 做规划想把文档转入 DocLib 图书馆时使用。触发：plan --bootstrap 生成 BOOTSTRAP 任务书后。
+description: 新项目对话式规划建馆（五阶段协议）+ 外部规划工具兼容转化，文档先行开发验收（DocLib 文档驱动开发三模式之一）。当用户要启动一个全新项目（尚无代码或仅有骨架）、或已用 BMAD/spec-kit/OpenSpec/Kiro 做规划想把文档转入 DocLib 图书馆时使用。触发：plan --bootstrap 生成 BOOTSTRAP 工单后。
 ---
 
 # doclib-bootstrap · 对话式规划建馆
@@ -11,7 +11,7 @@ description: 新项目对话式规划建馆（五阶段协议）+ 外部规划�
 
 ## 何时使用
 
-- 已运行 `doclib init` 且 `doclib plan --bootstrap` 生成了 BOOTSTRAP 任务书
+- 已运行 `doclib init` 且 `doclib plan --bootstrap` 生成了 BOOTSTRAP 工单
 - 项目尚无代码或仅有空骨架
 - 用户已用 BMAD / spec-kit / OpenSpec / Kiro 产出规划文档（转下方「兼容层流程」）
 

@@ -29,7 +29,7 @@ F8 bootstrap 已解决「想法→馆」，但三个缺口使规划知识无法�
 3. **门禁三件套**——check 行为：acceptance-anchor / assumption-residue / implementation-anchor 三类违规（判定细节见 `30-features/check.md`）。
 4. **provenance 对账**——CLI 行为：馆内带 source-hash 的文档与源文件现 hash 比对，soft 提醒接入 status/plan。
 
-**骨架契约**：`doclib implement --apply` 产出的 .plan 文档带 frontmatter `type: plan-skeleton`、`feature: <N>`、`generated: <日期>`、`anchors: [<规格路径#AC-x>...]`（anchors 支持列表或标量两种 YAML 形态，执法同权）；正文预填目的/边界/引用锚点（馆内确定性字段），方案设计与实施清单节留 `TODO(agent)` 契约位。实施文档落 `.plan/<日期>/<slug>.md`（slug 为功能名 kebab-case）——任务书落 `.doclib/tasks/` 簿记、实施文档落 `.plan/` 载体，落点语义不同分开不混。
+**骨架契约**：`doclib implement --apply` 产出的 .plan 文档带 frontmatter `type: plan-skeleton`、`feature: <N>`、`generated: <日期>`、`anchors: [<规格路径#AC-x>...]`（anchors 支持列表或标量两种 YAML 形态，执法同权）；正文预填目的/边界/引用锚点（馆内确定性字段），方案设计与实施清单节留 `TODO(agent)` 契约位。实施文档落 `.plan/<日期>/<slug>.md`（slug 为功能名 kebab-case）——工单落 `.doclib/workorders/` 簿记（0.11.0 前为 `.doclib/tasks/`，ADR #30）、实施文档落 `.plan/` 载体，落点语义不同分开不混。
 
 **AC 编号规范**：30-features 验收标准条目编号 `AC-1..N`；新增文档强制、存量不追溯。AC 锚点以 `规格路径#AC-x` 形式被骨架 frontmatter anchors、实施清单条目、accept 答卷、同题共答答卷引用。
 
@@ -57,7 +57,7 @@ F8 bootstrap 已解决「想法→馆」，但三个缺口使规划知识无法�
 **AC-6**：Given 馆内 narrative 正文含未清 ASSUMPTION 词面 When `doclib check` Then assumption-residue 违规；Given status: draft 同况 Then 降级为警告不阻断。
 **AC-7**：Given feature-map in-progress 行「对应文档」列为空、"-" 或 "—" When `doclib check` Then implementation-anchor 违规；Given 列有值 Then 无违规。
 **AC-8**：Given 馆内文档 frontmatter 带 source-path/source-hash 且源文件 hash 已变 When `doclib status`/`doclib plan` Then 输出「源已变更待再转化」提醒行；一致或无标记 Then 无提醒。
-**AC-9**：Given doclib-bootstrap skill 文本 When 审阅 Then 含五阶段协议/9 方法菜单/Fast-Coaching 双模式/ASSUMPTION 纪律/兼容层流程（指向 40-guides/010-tool-adoption.md）；Given BOOTSTRAP 任务书 Then 含五阶段指引。
+**AC-9**：Given doclib-bootstrap skill 文本 When 审阅 Then 含五阶段协议/9 方法菜单/Fast-Coaching 双模式/ASSUMPTION 纪律/兼容层流程（指向 40-guides/010-tool-adoption.md）；Given BOOTSTRAP 工单 Then 含五阶段指引。
 **AC-10**：Given 40-guides/010-tool-adoption.md When 审阅 Then 含四工具语义映射表（逐语义件逐工具）+ 快照式收编纪律 + provenance 规范。
 **AC-11**：Given 临时目录全流程（init → 假 planned → implement 候选/干跑/apply → 填实模拟 → check 三类正反例 → 形态识别与 provenance 提醒）When 执行 Then AC-1..8 逐条验证留痕。
 **AC-12**：Given `npm run typecheck` + `npm test` When 执行 Then 全绿；新测试文件已登记 package.json test script。

@@ -1,6 +1,6 @@
 ---
-snapshot: 97
-docs-hash: d48617e7d2c65a816cb05e8f591c2cac1cf352092ef424f09c81308d7546806e
+snapshot: 101
+docs-hash: 9882b11e5b7e753c34045a0eff8e2f436baeb18f63c2ccdf39be5286e11cff29
 volumes-fed: [00-overview, 10-architecture, 20-modules, 30-features, 40-guides, 50-testing, 60-config, 95-lessons]
 volumes-na: [70-deploy, 80-design, 90-reference, 99-archive]
 ---
@@ -27,6 +27,7 @@ volumes-na: [70-deploy, 80-design, 90-reference, 99-archive]
 ## 开发宪法
 
 - 架构铁律：commands/core 职责边界不可反向｜vendored 源禁直改（FORK-NOTES.md 登记账）｜图谱扩展走 adapter 层｜破坏约定先立 ADR 再动代码（`10-architecture/overview.md`·`decisions.md`·`40-guides/conventions.md`）
+- 编号纪律：一切账本（feature-map/ADR/PRD 版本/产品版本/馆内序号）取号前先查账末取 max+1，禁凭记忆或对话上文取号（并发撞号 #44 实证）｜一号一事永不换号｜结构性裁决才占 ADR 号（膨胀约束）｜动账前 `doclib status` 并发重核（`40-guides/numbering.md`）
 - 编码铁律：TypeScript ESM 导入带 `.js` 后缀｜strict + noUncheckedIndexedAccess（数组访问判空是常态）｜源码不写注释（设计解释进 ADR）｜用户可见错误一律抛 DoclibError｜文件 kebab-case/导出动宾/常量全大写（`40-guides/conventions.md`）
 - 数据与迁移：N-A（无数据库；引入持久化时先在 `10-architecture/migrations.md` 账本取号，forward-only、applied 不可变）
 - UI/UX：N-A（CLI 无图形界面，`80-design/README.md` 显式声明；CLI 文案体验归 30-features 行为规格）

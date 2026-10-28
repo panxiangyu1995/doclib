@@ -61,7 +61,7 @@ status: living
 - **编译面裁剪**：telemetry/mcp（主模块）/installer/bin/upgrade/ui-server/ui 不进构建——**telemetry 物理隔离不触网**；`mcp/version.ts` 与 `mcp/dynamic-boundaries.ts` 为无遥测叶子模块纳入编译面
 - **fork 就地编辑仅一处**（FORK-NOTES F-1~F-3 登记处）：`index.ts` 移除 `MCPServer` re-export；v1.6.2 无 `import.meta`（F-2 无需）；Q28 语言子集 13 文法全部 in-tree（F-3 无需补拷）
 - **无 daemon**：不做 watcher/后台进程，所有查询走 open+catch-up sync（复用上游连接时对账）
-- **优雅降级**（三铁律三）：Node 不在 [22.5, 25) 窗口或引擎缺失→graph 全家抛 DoclibError（文案明示"doclib 核心流程不受影响"）；init 不阻塞；skills/任务书候选段按存在性自适应
+- **优雅降级**（三铁律三）：Node 不在 [22.5, 25) 窗口或引擎缺失→graph 全家抛 DoclibError（文案明示"doclib 核心流程不受影响"）；init 不阻塞；skills/工单候选段按存在性自适应
 - **运行时依赖**：ignore + web-tree-sitter + picomatch + jsonc-parser（皆纯 JS 零原生；+3 需 ADR #13 修订"仅依赖 ignore"条款）；wasm 文法随 dist 分发（Q28 口径 13 个）
 
 ### 排除与治理适配
@@ -87,7 +87,7 @@ status: living
 | AC4 | When `graph draft` → Then 四文件生成且各含警示头与 `provenance: codegraph-draft`、routes 条目含标识/covers/status 与 TODO(agent)；重复 draft 无 `--force` 被拒 |
 | AC5 | Given 存在 `.codegraph/` When `doclib snapshot`/`diff`/`check` → Then `.codegraph/` 不出现在文件账/漂移/孤儿报告 |
 | AC6 | When `doclib init --graph` → Then 输出含 `- 知识图谱: .codegraph/` 且图建成；交互问卷含第 4 问 |
-| AC7 | Given `.codegraph/` 存在 When `doclib plan` → Then BUILD 任务书含"知识图谱候选"段；不存在则不含 |
+| AC7 | Given `.codegraph/` 存在 When `doclib plan` → Then BUILD 工单含"知识图谱候选"段；不存在则不含 |
 | AC8 | When 全量检索 `dist/vendor/` → Then 无 telemetry 端点（`telemetry.getcodegraph.com`）与出网调用路径 |
 | AC9 | When `npm run typecheck && npm test` → Then 全绿无回归 |
 | AC10 | When 清洁临时目录走 init --graph → index → status → draft → plan → snapshot → explore 全流程 → Then 每步符合上表预期 |

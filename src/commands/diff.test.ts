@@ -12,7 +12,7 @@ test("diff：无基线 → DoclibError（含引导提示）", async () => {
   await assert.rejects(
     () => runDiff(root, {}),
     (e: unknown) =>
-      e instanceof DoclibError && /尚无基线快照：先执行 doclib snapshot（若图书馆还没构建，先 doclib plan 生成 BUILD 任务书）/.test(e.message),
+      e instanceof DoclibError && /尚无基线快照：先执行 doclib snapshot（若图书馆还没构建，先 doclib plan 生成 BUILD 工单）/.test(e.message),
   );
 });
 
@@ -72,7 +72,7 @@ test("diff：无覆盖标签区分——新增（无覆盖文档 → 需落文�
   const text = describeDrift(await analyzeDrift(root));
   assert.match(text, /src\/fresh\.ts  →  \(无覆盖文档 → 需落文档\)/);
   assert.match(text, /src\/old\.ts  →  \(无关联文档\)/);
-  assert.match(text, /提示: 2 个变更路径没有文档覆盖。下一步: doclib plan 生成更新任务书。/);
+  assert.match(text, /提示: 2 个变更路径没有文档覆盖。下一步: doclib plan 生成更新工单。/);
 });
 
 test("diff：单段超 50 行截断（55 新增 → 显示 50 + 其余 5 项；json 全量）", async () => {

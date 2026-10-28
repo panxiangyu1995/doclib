@@ -5,6 +5,12 @@ covers:
   - tsconfig.json
   - .gitignore
   - scripts/copy-assets.js
+  - .github/workflows/ci.yml
+  - .github/CODEOWNERS
+  - .github/PULL_REQUEST_TEMPLATE.md
+  - .github/ISSUE_TEMPLATE/config.yml
+  - .github/ISSUE_TEMPLATE/bug_report.yml
+  - .github/ISSUE_TEMPLATE/feature_request.yml
 status: stable
 ---
 
@@ -54,8 +60,16 @@ status: stable
 | 内置 L1 忽略面（见上表） | 否 | 否 | 第三方与工具产物 |
 | 规划载体（`state.planning`） | 否 | 否 | 已声明的规划路径（F9 双轨边界） |
 
+## CI（GitHub Actions）【2026-10-28，#45/ADR #29】
+
+- `.github/workflows/ci.yml`：`pull_request`（opened/synchronize/reopened）+ `push`（main）触发；concurrency 按 ref 取消旧跑；permissions 仅 `contents: read`
+- `verify` 单 job 步骤链：`npm ci` → `npm run typecheck` → `npm test`（脚本首步 build 产出 dist/）→ `node dist/cli.js check --strict`——**馆-码对账进 CI 首例**：外部 PR 改代码未同步入馆会被直接拦截
+- 步骤链 = [50-testing/testing.md](../50-testing/testing.md) frontmatter 测试链声明（fast=typecheck / full=test）的镜像；**改测试链须手工同步 ci.yml**——hook chain-stale 只管 pre-commit 烘焙面，CI 文件无自动对账（维护注意点）
+- Ruleset `main-protection`（GitHub 仓库设置，非文件）：PR 必过 `verify` 检查方可合并；bypass=仓库管理员角色（维护者直推 main 工作流保留，Ghostty 维护者豁免先例）；禁 force-push 与分支删除
+- 发版链 `release.yml`（`v*` tag 触发）见 [70-deploy/deploy.md](../70-deploy/deploy.md)
+
 ## 测试
 
-- `npm test` = build + node --test 显式列出 dist/core/*.test.js 与 dist/commands/*.test.js（28 个文件；Node 24 目录语义问题，见 ADR-5）
+- `npm test` = build + node --test 显式列出 dist/core/*.test.js 与 dist/commands/*.test.js（39 个文件 / 394 用例；Node 24 目录语义问题，见 ADR-5）
 
 变更本卷内容（新增依赖、改 tsconfig、动构建链）须实时更新此文档（实时同步原则）。

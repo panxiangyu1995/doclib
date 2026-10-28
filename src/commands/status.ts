@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { collectFiles, hashAll } from "../core/fsutil.js";
 import { detectProject } from "../core/detect.js";
-import { LIBRARY_DIR, STATE_DIR, TASKS_DIR, latestSnapshot, loadState, computeDrift } from "../core/state.js";
+import { LIBRARY_DIR, STATE_DIR, WORKORDERS_DIR, latestSnapshot, loadState, computeDrift } from "../core/state.js";
 import { guideBudgetReport, guideStampReport, libraryFingerprint, readGuideMemory, readGuideProject } from "../core/guides.js";
 import { loadPlanningPaths, planningReminderReport, planningIgnores, suggestCarriers } from "../core/planning.js";
 import { runCheckCore } from "../core/check.js";
@@ -136,8 +136,15 @@ export async function runStatus(root: string, opts: { json?: boolean } = {}): Pr
     `提交门禁: ${hookState === "doclib-strict" ? "已安装(--strict)" : hookState === "doclib" ? "已安装" : "未安装"}`,
   );
 
-  const tasks = await fs.readdir(path.join(root, TASKS_DIR)).catch(() => [] as string[]);
-  lines.push(`任务书: ${tasks.length > 0 ? tasks.join(", ") : "无"}`);
+  const workorders = await fs.readdir(path.join(root, WORKORDERS_DIR)).catch(() => [] as string[]);
+  lines.push(`工单: ${workorders.length > 0 ? workorders.join(", ") : "无"}`);
+  const legacyTasks = await fs
+    .readdir(path.join(root, STATE_DIR, "tasks"))
+    .then((entries) => (entries.length > 0 ? entries : null))
+    .catch(() => null);
+  if (legacyTasks !== null) {
+    lines.push(`旧版目录: .doclib/tasks/ 已废弃（0.11.0 更名 .doclib/workorders/），确认无用后可删除`);
+  }
   lines.push("");
   if (opts.json) {
     const payload = {
@@ -163,7 +170,7 @@ export async function runStatus(root: string, opts: { json?: boolean } = {}): Pr
       guides: { stamp, budget, feed: feedLine, memory: memoryLine },
       hook: hookState,
       detection: det,
-      tasks,
+      workorders,
     };
     return { text: JSON.stringify(payload, null, 2), json: payload };
   }

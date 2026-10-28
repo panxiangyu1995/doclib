@@ -105,8 +105,8 @@ status: living
 | 术语 | 含义 |
 | --- | --- |
 | 图书馆 | `doclib/` 目录：纯 Markdown 层级的文档集合，最终交付物 |
-| 簿记 | `.doclib/` 目录：CLI 私有状态（快照链、任务书），不属于图书馆 |
-| 任务书 | `.doclib/tasks/*.md`：CLI 生成、agent 消费的工单（BUILD / UPDATE / REBUILD） |
+| 簿记 | `.doclib/` 目录：CLI 私有状态（快照链、工单），不属于图书馆 |
+| 工单 | `.doclib/workorders/*.md`：CLI 生成、agent 消费的施工交接单（BUILD / UPDATE / REBUILD） |
 | 基线 | 某时刻代码状态快照（逐文件 hash），保活循环的对比基准 |
 | 漂移 | 当前代码相对基线的差异（新增/修改/删除） |
 | 锚点 | 文档 frontmatter 中的 `covers` 字段：文档 → 代码路径的映射，增量更新的关键 |
@@ -153,7 +153,7 @@ status: living
 
 - 覆盖内容：功能、特征、结构、架构、数据流、依赖、设计决策、边界行为等**所有相关内容**
 - 图书馆结构：有索引、有层次、覆盖全（结构规格见 §7）
-- 生成方式：agent（按 doclib-build skill 的方法论）撰写；CLI 负责项目清单采集（语言/框架/入口/结构树）并生成 BUILD 任务书
+- 生成方式：agent（按 doclib-build skill 的方法论）撰写；CLI 负责项目清单采集（语言/框架/入口/结构树）并生成 BUILD 工单
 - 反克隆铁律（写入 skill）：文档只写行为、契约、设计意图、验收标准
 - **冷启动文档资产盘点【v0.17】**：对从未使用 DocLib 的 repo（存在文档不全/落后/散落等失序问题），init/BUILD 除项目清单外同步扫描**馆外文档资产**（README、docs/、各规划载体、散落 spec 等），产出收编清单；每份资产三态处置——**收编**（内容入对应卷）/ **豁免**（ack 登记理由）/ **废弃**（过期即清）；收编后 README 瘦身为**入口页 + 独立摘要**（快速开始/结构总览保留，详细知识指向馆，Q21）；常见规划载体（`.plan/`、`.specify/`、`openspec/` 等）检测后**建议声明**（检测只是建议，声明权在用户）；已声明规划载体的过程材料不收编、不进图书馆（双轨制，见 F9）
 - **登记簿建账【v0.18】**：BUILD 含实体层建账——CLI 确定性扫描产出实体清单（路由定义、图标引用等模式化目标）作为**候选**，agent 逐项确认/补全/撰写五要素条目；机器只出候选不代写，撰写与裁决权在 agent（§7 细粒度保活三角）；登记簿族按分期推进（API 先行）
@@ -165,7 +165,7 @@ status: living
 触发：项目发生任何二次开发/新开发之后。
 
 - 冷启动：图书馆不存在 → 走 F1 全量蒸馏
-- 热更新：图书馆存在且落后 N 个版本 → CLI 计算"当前代码 vs 最新基线"的漂移，映射出受影响文档，生成 UPDATE 任务书；agent 按最小扰动原则增量更新
+- 热更新：图书馆存在且落后 N 个版本 → CLI 计算"当前代码 vs 最新基线"的漂移，映射出受影响文档，生成 UPDATE 工单；agent 按最小扰动原则增量更新
 - 版本间距无关性：落后的 N 个版本在最近一次 snapshot 时被一次吸收，流程不因 N 变大而复杂化
 - **init 即 snapshot【v0.17】**：init 完成后立即引导首次 snapshot 固化基线——零起点 repo 从第一时间起只有增量漂移语义，不存在"落后 N 个版本"的烂账滚雪球；与版本间距无关性共同保证"无论从多乱的状态接入，治理起点永远干净"
 
@@ -198,11 +198,11 @@ status: living
 
 1. **实时层（主）**：开发中即时更新，由引导文件中的实时同步规则约束 agent
 2. **流程层**：F9 双锚点——`.plan/` 规划工作流内的登记与归档
-3. **兜底层**：`diff` → `plan` → UPDATE 任务书，捕获一切遗漏的漂移，保证最终一致
+3. **兜底层**：`diff` → `plan` → UPDATE 工单，捕获一切遗漏的漂移，保证最终一致
 
 ### F3 复原 rebuild（P0）【已确认目标，细节部分为提案】
 
-输入：图书馆（+ REBUILD 任务书）。输出：全新目录中从零开发的项目。
+输入：图书馆（+ REBUILD 工单）。输出：全新目录中从零开发的项目。
 
 - 信息隔离：复原者只允许读图书馆，禁止访问源项目
 - 施工顺序：按图书馆内复原路线图分阶段推进
@@ -250,7 +250,7 @@ status: living
 - **引导裁剪纪律【v0.22，官方最佳实践制度化；v0.23 硬预算定稿 Q37/38】**：新增引导规则前自问"**删掉这条 agent 会犯错吗**"——不会则入 skill / 入馆，绝不进引导；详细 API 知识用链接指向馆，禁止内联；关键规则**单点强调**（官方实验：多处 IMPORTANT 全部失效）；**硬预算：managed 区 ≤150 行**，`status` 报告行数、超限提示瘦身（只显示不阻断）
 - **`doclib sync`（可重入更新）**：把最新 skills 与引导规则区同步到已安装 agent；幂等（无变化不写）；旧版有戳无区文件整体再生并提示；无戳文件永远跳过
 - **实时维护义务【已确认 v0.15】**：lib 应用到任何 repo 后，该 repo 的引导文件与图书馆**同为一体实时更新**——项目工作流/注意事项/教训产生的新 agent 规则，当场写入定制区；确认长期普适的沉淀进图书馆并提示 `doclib sync`；会话结束自检扩为**四问**（+引导文件需要更新吗？）
-- **更新触发三重机制【已确认 Q4】**：① 版本戳检测（status/verify 提示"过期 → doclib sync"）；② 实时同步规则覆盖引导文件本身（映射表含"引导文件规则演进"行）；③ BUILD/UPDATE/REBUILD 任务书收尾固定包含"检查引导版本，过期运行 sync"
+- **更新触发三重机制【已确认 Q4】**：① 版本戳检测（status/verify 提示"过期 → doclib sync"）；② 实时同步规则覆盖引导文件本身（映射表含"引导文件规则演进"行）；③ BUILD/UPDATE/REBUILD 工单收尾固定包含"检查引导版本，过期运行 sync"
 - CLI 提供引导文件模板（固定部分与 skills/CLI 行为严格同步）；agent 在定制区补充项目专属内容；复原项目在复原收尾阶段落位完整档（full）
 
 ### F6 CLI 命令规格（v0.1 原型已实现，待 PRD 稳定后校准）【提案】
@@ -258,7 +258,7 @@ status: living
 | 命令 | 职责 |
 | --- | --- |
 | `init` | 初始化图书馆骨架与簿记目录 |
-| `plan` | 生成任务书：BUILD（无基线）/ UPDATE（有漂移）/ REBUILD（`--rebuild`）/ BOOTSTRAP（`--bootstrap`）/ RESUME（`--resume`） |
+| `plan` | 生成工单：BUILD（无基线）/ UPDATE（有漂移）/ REBUILD（`--rebuild`）/ BOOTSTRAP（`--bootstrap`）/ RESUME（`--resume`） |
 | `diff` | 漂移报告：变更路径 + 映射到的受影响文档 |
 | `snapshot` | 记录当前代码为新基线（图书馆版本 +1） |
 | `status` | 版本/基线/漂移概览 |
@@ -272,19 +272,19 @@ status: living
 | Skill | 使命 | 触发场景 | 关联 CLI |
 | --- | --- | --- | --- |
 | doclib-setup【已实现】 | 安装适配：skills 落位到目标 agent 目录、引导文件模板落盘与定制补充、版本戳写入 | `npx @panxiangyu1995/doclib init` 之后 | init / setup |
-| doclib-build【已实现】 | 存量项目蒸馏建馆 | BUILD 任务书 | plan(BUILD) |
-| doclib-bootstrap【已实现】 | 新项目对话式挖掘建馆 → 文档先行开发验收 | BOOTSTRAP 任务书 | plan(BOOTSTRAP) |
-| doclib-resume【已实现】 | 半成品接手：已有代码蒸馏为 implemented + 规划整理为 planned | RESUME 任务书 | plan(RESUME) |
+| doclib-build【已实现】 | 存量项目蒸馏建馆 | BUILD 工单 | plan(BUILD) |
+| doclib-bootstrap【已实现】 | 新项目对话式挖掘建馆 → 文档先行开发验收 | BOOTSTRAP 工单 | plan(BOOTSTRAP) |
+| doclib-resume【已实现】 | 半成品接手：已有代码蒸馏为 implemented + 规划整理为 planned | RESUME 工单 | plan(RESUME) |
 | doclib-dev【已实现】★日常主力 | 开发会话工作流：`.plan` 双锚点（登记 planned → 开发 → 归档成果）、实时同步 12 卷、会话纪律（开始查 status / 结束自检） | 每个开发会话 | status / diff / snapshot |
-| doclib-update【已实现】 | 增量更新（兜底层 UPDATE 任务书执行） | UPDATE 任务书 | plan(UPDATE) |
-| doclib-rebuild【已实现】 | 从零复原 | REBUILD 任务书 | plan(--rebuild) |
+| doclib-update【已实现】 | 增量更新（兜底层 UPDATE 工单执行） | UPDATE 工单 | plan(UPDATE) |
+| doclib-rebuild【已实现】 | 从零复原 | REBUILD 工单 | plan(--rebuild) |
 | doclib-reconcile【已实现】 | 进度对账与重建：漂移 vs 进度账、疑似完成清单确认补录 | 对账报告不一致 / reconcile 输出 | reconcile |
 | doclib-audit【已实现】 | 图书馆质量审计：类别完备性检查、覆盖粒度判断、终极抽查 | verify 报告之后 / 定期 | verify |
 | doclib-accept【已实现】 | 验收执行：逐条执行 30-features 验收标准并留痕 | 功能完成时 / REBUILD 验收 | 验收留痕文件 |
 
 设计纪律：skill 与 CLI 行为严格同步（改 CLI 语义必须同步改 skill）；每个 skill 只绑定一个触发场景，避免职责粘连；三核心（build/update/rebuild）的纪律条款是其他 skill 的引用基线。
 
-### F8 文档驱动开发（P0）【已确认 v0.3；BOOTSTRAP/RESUME 任务书已实现 v0.25】
+### F8 文档驱动开发（P0）【已确认 v0.3；BOOTSTRAP/RESUME 工单已实现 v0.25】
 
 图书馆不仅用于复原存量项目，更是**一切开发与迭代的规格与验收基准**——任何项目（全新/半成品/成熟）都可以通过系统化图书馆进行接下来的开发。
 
@@ -298,7 +298,7 @@ status: living
 
 - feature-map 状态机：`planned / in-progress / implemented / retired`——功能从规划到落地的全生命周期在图书馆中可见；保活循环同步维护该状态（进度账设计见 F11）
 - 验收体系一等公民：30-features 的验收标准既是复原验收基准，也是日常开发验收基准
-- 三种模式共用同一图书馆结构、同一保活循环、同一任务书机制，仅任务书类型不同（BUILD / BOOTSTRAP / RESUME / UPDATE / REBUILD）
+- 三种模式共用同一图书馆结构、同一保活循环、同一工单机制，仅工单类型不同（BUILD / BOOTSTRAP / RESUME / UPDATE / REBUILD）
 
 ### F11 进度账与对账兜底（P0）【已确认，v0.11】
 
@@ -412,7 +412,7 @@ doclib/
 ├─ 实体事实（API/图标/路由/配置）→ 实体登记簿族
 ├─ 过时内容 → 登记簿状态机降级 / 99-archive（留墓碑）
 ├─ 过程材料（规划/spec/草稿）→ 规划载体（F9，开发者自留，不进馆）
-├─ 机器状态（快照/任务书/ack 账）→ .doclib/ 簿记（不进馆）
+├─ 机器状态（快照/工单/ack 账）→ .doclib/ 簿记（不进馆）
 ├─ 给 agent 的指令 → 根目录引导文件（技术约束例外）
 └─ 项目门面（README/LICENSE/CHANGELOG）→ 根目录（生态惯例例外）
 ```
@@ -657,7 +657,7 @@ doclib/
 
 ### F16 代码知识图谱命令族（`doclib graph`）【v0.30，F15 阶段 2 落地】
 
-`doclib graph index|status|draft|explore`——index 建/同步/重建图；status 只读状态；draft 产出 `.doclib/drafts/` 四册登记簿候选（routes→80-design、modules→20-modules、dependencies→10-architecture、unused→状态机候选，每文件 `provenance: codegraph-draft` 警示头 + `TODO(agent)` 契约位，**禁止直接入馆**）；explore 面向 agent 的符号导航上下文（markdown 直出）。`init --graph` 交互第 4 问一步建图；BUILD 任务书检测 `.codegraph/` 附候选段。引擎：vendored codegraph CJS 岛（`src/core/codegraph/engine.ts` 单点桥 + Node∈[22.5,25) 门 + 优雅降级，graph 失败不阻塞 doclib 核心）。行为规格与验收标准：`30-features/graph.md`（AC1–AC10）。
+`doclib graph index|status|draft|explore`——index 建/同步/重建图；status 只读状态；draft 产出 `.doclib/drafts/` 四册登记簿候选（routes→80-design、modules→20-modules、dependencies→10-architecture、unused→状态机候选，每文件 `provenance: codegraph-draft` 警示头 + `TODO(agent)` 契约位，**禁止直接入馆**）；explore 面向 agent 的符号导航上下文（markdown 直出）。`init --graph` 交互第 4 问一步建图；BUILD 工单检测 `.codegraph/` 附候选段。引擎：vendored codegraph CJS 岛（`src/core/codegraph/engine.ts` 单点桥 + Node∈[22.5,25) 门 + 优雅降级，graph 失败不阻塞 doclib 核心）。行为规格与验收标准：`30-features/graph.md`（AC1–AC10）。
 
 ### F17 规划直通车（P0）【v0.40 立项，Q43–Q48】
 
@@ -667,7 +667,7 @@ doclib/
 
 - **17a 对话规划引擎（bootstrap v2）**：`doclib-bootstrap` 升级为五阶段对话协议——阶段 0 Brain dump（用户倒出一切 + 指向已有文件/工具目录；命中四工具形态即转 17b）→ 阶段 1 定位与术语（`00-overview/project.md` + glossary.md；**Glossary 锚定**：此后对话全程逐字用术语，同义词即纪律违规）→ 阶段 2 功能规格（`30-features/`：行为叙述 + AC 编号可测验收标准（Given/When/Then）+ Out of Scope；推断打 ASSUMPTION 行内标签、用户确认后清零，残留由 17d 执法）→ 阶段 3 架构决策（**spine 判据**：「两个会话独立建造会不会选出不兼容的东西」——只记冲突面决策，防文档膨胀）→ 阶段 4 UI/UX（有界面才做，`80-design/`）。**双模式**：Fast（批量补漏 1–2 问 → 整篇草稿带 ASSUMPTION 标签）/ Coaching（逐节引导、答得薄即 push back）；每阶段收尾进**深化菜单**（9 方法固定集写死 skill 文本，零脚本零依赖：红队攻击/第一性原理/边界穷举/用户旅程走查/反漏项核对/前置条件质疑/换位审问（复原者·新用户·审计者三视角）/反例构造/简化挑战；HALT 等选择 + Apply/Reject 门控——未经用户接受不改稿）。
 - **17b 工具兼容层（快照式收编【Q46】）**：首批四工具 **BMAD / spec-kit / OpenSpec / Kiro**（Q47）；统一语义映射表入馆 `40-guides/010-tool-adoption.md`（八类语义件：愿景定位/术语/功能规格+验收/技术方案/UI-UX/任务拆单/编码宪法/深度材料 × 四工具源形态 × 馆唯一归宿）；CLI 仅持**形态识别模式闭集**（`_bmad-output/`、`.specify/`+`specs/`、`openspec/changes/`、`.kiro/specs/`）与映射预览（干跑，place list 建议形态同构）；**转化执行并入 doclib-bootstrap**（Q47）；兼容语义 = **快照式收编**——转化时刻内容入馆即唯一事实源，源文档原位保留（F9 双轨），源侧再改动 = 新规划信号 → 增量再转化；转化产物 frontmatter 记 `source-tool`/`source-path`/`source-hash`（**provenance**，与 graph draft 惯例同构），源 hash 变更 → status/plan 输出 soft 提醒「源已变更待再转化」；任务清单**自动提取 planned 候选 + agent 逐条与用户确认后登记**（机器出候选不代写）。
-- **17c 拆单器（图书馆 → .plan 实施工单）**：`doclib implement [--feature N] [--apply]`——无 feature 列 planned 候选清单；有则 **readiness 校验**（对应文档列有值 + AC 锚点可解析——馆内依据齐备才可开工，BMAD readiness gate 的 DocLib 映射）→ 干跑展示骨架 → `--apply` 落盘 `.plan/<日期>/<slug>.md`；骨架 frontmatter `type: plan-skeleton` / `feature: N` / `generated` / `anchors: [<规格路径#AC-x>...]`，目的/边界/引用锚点预填（馆内确定性字段），方案设计/实施清单留 `TODO(agent)` 契约位（graph draft 同款惯例）；agent 面新 skill `doclib-implement` 对话填实（施工顺序/方案/备选），实施清单每条引用 AC 锚点，**填实保留 frontmatter**（执法前提）。落点语义：任务书 = `.doclib/tasks/` 簿记工单，实施文档 = `.plan/` 载体规划材料——落点不同语义不同，分开不混（Q41 同源逻辑）。
+- **17c 拆单器（图书馆 → .plan 实施工单）**：`doclib implement [--feature N] [--apply]`——无 feature 列 planned 候选清单；有则 **readiness 校验**（对应文档列有值 + AC 锚点可解析——馆内依据齐备才可开工，BMAD readiness gate 的 DocLib 映射）→ 干跑展示骨架 → `--apply` 落盘 `.plan/<日期>/<slug>.md`；骨架 frontmatter `type: plan-skeleton` / `feature: N` / `generated` / `anchors: [<规格路径#AC-x>...]`，目的/边界/引用锚点预填（馆内确定性字段），方案设计/实施清单留 `TODO(agent)` 契约位（graph draft 同款惯例）；agent 面新 skill `doclib-implement` 对话填实（施工顺序/方案/备选），实施清单每条引用 AC 锚点，**填实保留 frontmatter**（执法前提）。落点语义：工单 = `.doclib/workorders/` 簿记工单，实施文档 = `.plan/` 载体规划材料——落点不同语义不同，分开不混（Q41 同源逻辑）。
 - **17d 门禁三件套**（check 违规类 14→17；全部存在性/词面判定零语义猜测，ADR #20 同范式）：① **acceptance-anchor**——载体中 `type: plan-skeleton` 生成物的实施清单条目缺 AC 引用 token、或引用的 AC 在馆内不存在（**仅约束 CLI 生成物，用户自由格式 .plan 不受检**——F9 不解析载体格式的边界守住）② **assumption-residue**——馆内 narrative 正文含未清 ASSUMPTION 词面（`status: draft` 降级警告，docquality 同构）③ **implementation-anchor**——feature-map in-progress 行对应文档列空/"-"（与沉淀锚点缺失镜像对称）。
 
 **设计推论**：
@@ -793,3 +793,4 @@ doclib/
 | v0.41 | 2026-10-27 | **F18 记忆快照与协作者画像反哺立项**（规划 .plan/2026-10-27/guide-memory-snapshot.md；RIPER-5 四模式；外部调研 context7 Claude Code auto memory/Cline Memory Bank + gh 同类实现矩阵；用户输入：近 10-30 天工作按 .plan 规划文档实施，应总结成记忆快照进 CLAUDE.md/AGENTS.md 防新会话记忆丢失 + 总结对话语气与用户习惯做画像；INNOVATE 8 项拍板「按推荐」）：F5 区域契约三区→四区（+memory 保留区，位于 project 与 custom 之间）；双层快照（近期工作记忆 ≤25 行：当前焦点/近期完成/活跃注意 + 协作者画像 ≤12 行：决策风格/沟通偏好/工作流习惯，不写私人化评价）；簿记单源 `.doclib/guide-memory.md`（双 as-of + window 默认 30）经 sync 注入，注入管线/保留标记 fail-fast 三面分层与 guide-project 同构；新鲜度 soft（work-as-of 落后 progress 最新条目日期 → status ⚠ 工作记忆滞后；服务新鲜度≠事实源失真，不进 check 不进治理分）；反幻觉 soft 执法（快照指针 token 存在性核对，memory-pointer notice 复用 lesson-source 范式）；memory 区预算 ≤40 行独立；素材 v1=馆内/簿记已蒸馏层（progress+feature-map+in-progress .plan+拍板记录+98-sessions 旁证），DB 回捞留 v2 联动 #34；蒸馏执行者=agent 会话收尾（planstore 四动作→五动作）；Q49–Q53 |
 | v0.42 | 2026-10-27 | **F19 长程开发闭环立项**（规划 .plan/2026-10-27/long-horizon-harness.md；RIPER-5 四模式；外部实证 auto-coding-agent-demo CLAUDE.md 六步工作流/task.json/阻塞协议全文 + gh 实证 microsoft/playwright-cli v0.1.22「Playwright CLI with SKILLS」官方裁决 coding agent 场景 CLI 优于 MCP；INNOVATE 两轮 12 项拍板全推荐+用户两条主动修正）：定位「图书馆+开发辅助」harness factory——test-chain 馆内声明（testing.md frontmatter 扁平键 fast/full，单档回退、缺席不活跃、嵌套 fail-fast）→ sync 确定性反哺（managed 模板 %TEST_CHAIN% 占位：有链链块/无链显式 N-A 行）→ hook install 烘焙 fast 档+指纹注释+chain-stale 软提醒（--ci 烘焙 full 档独立步骤；无链产物逐字节等价）→ check 三新判定（skeleton-progress strict 伪造完成拦截+blocked-residue/chain-stale/skeleton-open notices，治理分公式不变）→ doclib-dev 双情形（A 常规骨架九节不动/B 长程六步回路：implement 选任务→填单开工→开发→验证分级（fast 全绿/交互面浏览器必做·工具序 playwright-cli>agent-browser skill>playwright mcp/收口 full+doclib-accept AC）→勾选翻 implemented+一任务一 commit→循环）+阻塞协议四动作+永不删任务铁律；rebuild 两处指针轻联动；intest.md 收编薄指针；版本 0.9.0；Q54–Q56 |
 | v0.43 | 2026-10-28 | **F20 分支账与主分馆管理立项**（规划 .plan/2026-10-28/branch-management.md；RIPER-5 四模式；研究确证 src 分支零感知与双场景失真机制；用户四拍板：专篇分支账/progress 标注字段/CLI 辅助/双场景都做；Q-A~Q-D 推荐项默认）：§2 边界条款定向扩展（仍不替代版本管理，新增分支感知层，ADR #28）；三层构成（分支账专篇六列状态机账本 + `doclib branch` 命令族 list/register/diff 合并审计 + Snapshot 可选 git 字段归属感知收编 v0.2 欠账「git 感知基线」）+ check 两新 soft notice（branch-unregistered/branch-ledger-incomplete，hook 零改动复用 check 链路）+ progress `[branch:slug]` token（存量兼容）；路线图 v0.2/v0.3 词条收编标注（多馆管理由分馆收编，watch 仍 planned）；AC-1..12；版本 0.10.0；feature-map #13→implemented、#14 注记、#44 新建 implemented |
+| v0.44 | 2026-10-28 | **工单改名（workorder）立项**（#46；规划 .plan/2026-10-28/workorder-rename.md；RIPER-5 五模式全走查；用户实测反馈「任务书」与 .plan 规划文档认知混淆，一度拍板「取消并入」，机制澄清后确认为纯命名问题拍板改名）：术语「任务书」→「工单」（work order）+ 簿记目录 `.doclib/tasks/` → `.doclib/workorders/`（一次性切换不读旧目录 + status 旧目录废弃提示行）；机制零变更（五工单类型/编号规则/revision 乐观锁/执法面全保持）；ADR #30；版本 0.11.0；feature-map #46 新建 |

@@ -3,7 +3,7 @@ import path from "node:path";
 import { collectFiles, renderTree } from "../core/fsutil.js";
 import { graphIndexPresent } from "../core/codegraph/engine.js";
 import { detectProject } from "../core/detect.js";
-import { DoclibError, LIBRARY_DIR, STATE_DIR, TASKS_DIR, latestSnapshot, loadState, pad3 } from "../core/state.js";
+import { DoclibError, LIBRARY_DIR, STATE_DIR, WORKORDERS_DIR, latestSnapshot, loadState, pad3 } from "../core/state.js";
 import { analyzeDrift } from "./diff.js";
 import { loadPlanningPaths, planningIgnores, planningReminderReport } from "../core/planning.js";
 import { libraryRootOf } from "./snapshot.js";
@@ -14,21 +14,21 @@ function langSummary(languages: Record<string, number>): string {
   return entries.length > 0 ? entries.map(([k, v]) => `${k} ${v}`).join(", ") : "无";
 }
 
-async function writeTask(root: string, name: string, content: string): Promise<string> {
-  const dir = path.join(root, TASKS_DIR);
+async function writeWorkorder(root: string, name: string, content: string): Promise<string> {
+  const dir = path.join(root, WORKORDERS_DIR);
   await fs.mkdir(dir, { recursive: true });
   const abs = path.join(dir, name);
   await fs.writeFile(abs, content, "utf8");
   return abs;
 }
 
-async function buildTask(root: string): Promise<{ name: string; content: string }> {
+async function buildWorkorder(root: string): Promise<{ name: string; content: string }> {
   const state = await loadState(root);
   const number = pad3(state.version + 1);
   const files = await collectFiles(root, planningIgnores(loadPlanningPaths(state)));
   const det = await detectProject(root, files);
   const tree = renderTree(files, 2);
-  const baselineDesc = state.version === 0 ? "尚未建立基线" : `已有基线，本任务书用于重建/补全`;
+  const baselineDesc = state.version === 0 ? "尚未建立基线" : `已有基线，本工单用于重建/补全`;
   const graphSection = (await graphIndexPresent(root))
     ? `
 ## 知识图谱候选（可选加速器）
@@ -36,7 +36,7 @@ async function buildTask(root: string): Promise<{ name: string; content: string 
 本仓库已建代码知识图谱（.codegraph/）。可用 \`doclib graph draft\` 产出登记簿候选草稿至 .doclib/drafts/（routes/modules/dependencies/unused 四册），并在 \`doclib graph explore <query>\` 中做符号导航——**图输出只是候选，禁止直接入馆**；agent 逐条裁决、补写行为契约后按归位宪法回灌。未建图则忽略本节（纯 agent 扫描不受影响）。
 `
     : "";
-  const content = `# BUILD-${number} · 文档图书馆构建任务书
+  const content = `# BUILD-${number} · 文档图书馆构建工单
 
 生成时间: ${new Date().toISOString()}
 执行者: 携带 doclib-build skill 的 agent（人执行则按 skills/doclib-build/SKILL.md 手册操作）
@@ -45,7 +45,7 @@ async function buildTask(root: string): Promise<{ name: string; content: string 
 
 1. 加载 skill: doclib-build
 2. 图书馆骨架已就绪: ${LIBRARY_DIR}/（结构与写作要点见 ${LIBRARY_DIR}/README.md）
-3. 本任务书基于代码状态 version ${state.version}（${baselineDesc}）
+3. 本工单基于代码状态 version ${state.version}（${baselineDesc}）
 4. 当前 revision: ${state.revision}（入馆写前记录此值；写后 doclib check 比对，revision 已变即重新对账）
 
 ## 项目清单（CLI 自动采集）
@@ -78,7 +78,7 @@ ${graphSection}
   return { name: `BUILD-${number}.md`, content };
 }
 
-async function updateTask(root: string): Promise<{ name: string | null; content: string }> {
+async function updateWorkorder(root: string): Promise<{ name: string | null; content: string }> {
   const an = await analyzeDrift(root);
   const total = an.drift.added.length + an.drift.modified.length + an.drift.removed.length;
   if (total === 0) return { name: null, content: "" };
@@ -89,7 +89,7 @@ async function updateTask(root: string): Promise<{ name: string | null; content:
   const section = (title: string, items: { path: string; change: string; docs: string[] }[]): string =>
     items.length === 0 ? "" : `### ${title} (${items.length})\n\n${items.map(line).join("\n")}\n`;
   const removedRows = an.rows.filter((r) => r.change === "removed");
-  const content = `# UPDATE-${number} · 增量更新任务书
+  const content = `# UPDATE-${number} · 增量更新工单
 
 基线: ${an.snapshotId} (version ${an.snapshotVersion})
 revision: ${state.revision}（入馆写前记录此值；写后 doclib check 比对，revision 已变即重新对账）
@@ -114,7 +114,7 @@ ${section("删除 — retire 候选", removedRows)}
   return { name: `UPDATE-${number}.md`, content };
 }
 
-async function rebuildTask(root: string, to?: string): Promise<{ name: string; content: string }> {
+async function rebuildWorkorder(root: string, to?: string): Promise<{ name: string; content: string }> {
   const state = await loadState(root);
   const libRoot = libraryRootOf(root);
   try {
@@ -122,10 +122,10 @@ async function rebuildTask(root: string, to?: string): Promise<{ name: string; c
   } catch {
     throw new DoclibError(`图书馆 ${LIBRARY_DIR}/ 不存在：先 doclib init 并完成构建`);
   }
-  const existing = await fs.readdir(path.join(root, TASKS_DIR)).catch(() => [] as string[]);
+  const existing = await fs.readdir(path.join(root, WORKORDERS_DIR)).catch(() => [] as string[]);
   const number = pad3(existing.filter((f) => f.startsWith("REBUILD-")).length + 1);
   const target = to ?? path.join("..", `${path.basename(root)}-rebuild`);
-  const content = `# REBUILD-${number} · 从零复原任务书
+  const content = `# REBUILD-${number} · 从零复原工单
 
 图书馆: ${LIBRARY_DIR}/ (version ${state.version})
 当前 revision: ${state.revision}（入馆写前记录此值；写后 doclib check 比对，revision 已变即重新对账）
@@ -156,11 +156,11 @@ async function rebuildTask(root: string, to?: string): Promise<{ name: string; c
   return { name: `REBUILD-${number}.md`, content };
 }
 
-async function bootstrapTask(root: string): Promise<{ name: string; content: string }> {
+async function bootstrapWorkorder(root: string): Promise<{ name: string; content: string }> {
   const state = await loadState(root);
-  const existing = await fs.readdir(path.join(root, TASKS_DIR)).catch(() => [] as string[]);
+  const existing = await fs.readdir(path.join(root, WORKORDERS_DIR)).catch(() => [] as string[]);
   const number = pad3(existing.filter((f) => f.startsWith("BOOTSTRAP-")).length + 1);
-  const content = `# BOOTSTRAP-${number} · 新项目对话式建馆任务书
+  const content = `# BOOTSTRAP-${number} · 新项目对话式建馆工单
 
 规划载体: ${loadPlanningPaths(state).join(", ")}
 revision: ${state.revision}（入馆写前记录此值；写后 doclib check 比对，revision 已变即重新对账）
@@ -189,14 +189,14 @@ revision: ${state.revision}（入馆写前记录此值；写后 doclib check 比
   return { name: `BOOTSTRAP-${number}.md`, content };
 }
 
-async function resumeTask(root: string): Promise<{ name: string; content: string }> {
+async function resumeWorkorder(root: string): Promise<{ name: string; content: string }> {
   const state = await loadState(root);
   const files = await collectFiles(root, planningIgnores(loadPlanningPaths(state)));
   const det = await detectProject(root, files);
   const tree = renderTree(files, 2);
-  const existing = await fs.readdir(path.join(root, TASKS_DIR)).catch(() => [] as string[]);
+  const existing = await fs.readdir(path.join(root, WORKORDERS_DIR)).catch(() => [] as string[]);
   const number = pad3(existing.filter((f) => f.startsWith("RESUME-")).length + 1);
-  const content = `# RESUME-${number} · 半成品接手任务书
+  const content = `# RESUME-${number} · 半成品接手工单
 
 规划载体: ${loadPlanningPaths(state).join(", ")}
 revision: ${state.revision}（入馆写前记录此值；写后 doclib check 比对，revision 已变即重新对账）
@@ -239,44 +239,44 @@ export async function runPlan(
   const state0 = await loadState(root);
   const revLine = `revision: ${state0.revision}`;
   const modes = [opts.rebuild, opts.bootstrap, opts.resume].filter(Boolean).length;
-  if (modes > 1) throw new DoclibError("--rebuild / --bootstrap / --resume 互斥，一次只能生成一种任务书");
+  if (modes > 1) throw new DoclibError("--rebuild / --bootstrap / --resume 互斥，一次只能生成一种工单");
   if (opts.rebuild) {
-    const t = await rebuildTask(root, opts.to);
-    await writeTask(root, t.name, t.content);
-    const text = [`已生成复原任务书: ${t.name}`, `位置: ${path.join(root, TASKS_DIR, t.name)}`, revLine, "", "下一步: 让 agent 加载 doclib-rebuild skill 并执行该任务书。", ""].join("\n");
-    return { text, json: { task: t.name } };
+    const t = await rebuildWorkorder(root, opts.to);
+    await writeWorkorder(root, t.name, t.content);
+    const text = [`已生成复原工单: ${t.name}`, `位置: ${path.join(root, WORKORDERS_DIR, t.name)}`, revLine, "", "下一步: 让 agent 加载 doclib-rebuild skill 并执行该工单。", ""].join("\n");
+    return { text, json: { workorder: t.name } };
   }
   if (opts.bootstrap) {
-    const t = await bootstrapTask(root);
-    await writeTask(root, t.name, t.content);
-    const text = [`已生成任务书: ${t.name}`, `位置: ${path.join(root, TASKS_DIR, t.name)}`, revLine, "", "下一步: 让 agent 加载 doclib-bootstrap skill 并执行该任务书（对话式挖掘 → 文档先行）。", ""].join("\n");
-    return { text, json: { task: t.name } };
+    const t = await bootstrapWorkorder(root);
+    await writeWorkorder(root, t.name, t.content);
+    const text = [`已生成工单: ${t.name}`, `位置: ${path.join(root, WORKORDERS_DIR, t.name)}`, revLine, "", "下一步: 让 agent 加载 doclib-bootstrap skill 并执行该工单（对话式挖掘 → 文档先行）。", ""].join("\n");
+    return { text, json: { workorder: t.name } };
   }
   if (opts.resume) {
-    const t = await resumeTask(root);
-    await writeTask(root, t.name, t.content);
-    const text = [`已生成任务书: ${t.name}`, `位置: ${path.join(root, TASKS_DIR, t.name)}`, revLine, "", "下一步: 让 agent 加载 doclib-resume skill 并执行该任务书（蒸馏 implemented + 登记规划）。", ""].join("\n");
-    return { text, json: { task: t.name } };
+    const t = await resumeWorkorder(root);
+    await writeWorkorder(root, t.name, t.content);
+    const text = [`已生成工单: ${t.name}`, `位置: ${path.join(root, WORKORDERS_DIR, t.name)}`, revLine, "", "下一步: 让 agent 加载 doclib-resume skill 并执行该工单（蒸馏 implemented + 登记规划）。", ""].join("\n");
+    return { text, json: { workorder: t.name } };
   }
   const state = await loadState(root);
   const hasBaseline = latestSnapshot(state) !== null;
   const reminder = await planningReminderReport(root, state, latestSnapshot(state));
-  const t = hasBaseline ? await updateTask(root) : await buildTask(root);
+  const t = hasBaseline ? await updateWorkorder(root) : await buildWorkorder(root);
   if (t.name === null) {
-    const none = ["无漂移：图书馆与代码已同步，无需生成更新任务书。", reminder.length > 0 ? "" : null, reminder].filter((x): x is string => x !== null).join("\n");
-    return { text: `${none}\n`, json: { task: null } };
+    const none = ["无漂移：图书馆与代码已同步，无需生成更新工单。", reminder.length > 0 ? "" : null, reminder].filter((x): x is string => x !== null).join("\n");
+    return { text: `${none}\n`, json: { workorder: null } };
   }
-  await writeTask(root, t.name, t.content);
+  await writeWorkorder(root, t.name, t.content);
   const kind = hasBaseline ? "UPDATE" : "BUILD";
   const skill = kind === "BUILD" ? "doclib-build" : "doclib-update";
   const text = [
-    `已生成任务书: ${t.name}`,
-    `位置: ${path.join(root, TASKS_DIR, t.name)}`,
+    `已生成工单: ${t.name}`,
+    `位置: ${path.join(root, WORKORDERS_DIR, t.name)}`,
     revLine,
     "",
     reminder.length > 0 ? `${reminder}\n` : "",
-    `下一步: 让 agent 加载 ${skill} skill 并执行该任务书。`,
+    `下一步: 让 agent 加载 ${skill} skill 并执行该工单。`,
     "",
   ].join("\n");
-  return { text, json: { task: t.name } };
+  return { text, json: { workorder: t.name } };
 }

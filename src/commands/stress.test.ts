@@ -130,7 +130,7 @@ test("压力：60 个修改文件——diff 单段 50 截断且 plan UPDATE 全�
   assert.match(text, /… 其余 10 项/);
   const { runPlan } = await import("./plan.js");
   const r = await runPlan(root, {});
-  const task = await fs.readFile(path.join(root, ".doclib", "tasks", "UPDATE-002.md"), "utf8");
+  const task = await fs.readFile(path.join(root, ".doclib", "workorders", "UPDATE-002.md"), "utf8");
   assert.match(task, /### 修改 — 更新受影响文档 \(60\)/);
   assert.ok(task.includes("src/f000.ts"));
   assert.ok(task.includes("src/f059.ts"));

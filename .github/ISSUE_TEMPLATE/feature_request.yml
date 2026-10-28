@@ -1,0 +1,30 @@
+name: 功能建议
+description: 提出新能力或改进建议
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 问题场景
+      description: 你想解决什么问题
+    validations:
+      required: false
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 期望行为
+    validations:
+      required: false
+  - type: textarea
+    id: criteria
+    attributes:
+      label: 验收判据
+      description: 可执行的判据（如 Given/When/Then）——判据可执行是评审的第二标准
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 替代方案
+    validations:
+      required: false

@@ -19,7 +19,7 @@ type StatusJson = {
   guides: { stamp: string; budget: string };
   hook: string;
   detection: { primary: string };
-  tasks: string[];
+  workorders: string[];
 };
 
 test("status：全新目录（未初始化形态）不崩溃且各行齐备", async () => {
@@ -30,20 +30,20 @@ test("status：全新目录（未初始化形态）不崩溃且各行齐备", as
   assert.match(r.text, /基线: 无（尚未 snapshot）/);
   assert.match(r.text, /漂移: -/);
   assert.match(r.text, /治理: -/);
-  assert.match(r.text, /任务书: 无/);
+  assert.match(r.text, /工单: 无/);
   const j = JSON.parse((await runStatus(root, { json: true })).text) as StatusJson;
   assert.equal(j.library.initialized, false);
   assert.equal(j.baseline, null);
   assert.equal(j.drift, null);
   assert.equal(j.health, null);
-  assert.deepEqual(j.tasks, []);
+  assert.deepEqual(j.workorders, []);
 });
 
 test("status：--json 全载荷字段（library/baseline/drift/health/planning/guides/detection/tasks）", async () => {
   const root = await tmpRoot("doclib-acc-status-");
   await runInit(root, { agents: "claude,opencode" });
   await put(root, "src/a.ts", "v1");
-  await put(root, ".doclib/tasks/BUILD-001.md", "任务书");
+  await put(root, ".doclib/workorders/BUILD-001.md", "工单");
   await runSnapshot(root, { note: "initial" });
   const r = await runStatus(root, { json: true });
   const j = JSON.parse(r.text) as StatusJson;
@@ -64,7 +64,7 @@ test("status：--json 全载荷字段（library/baseline/drift/health/planning/g
   assert.equal(typeof j.guides.stamp, "string");
   assert.equal(typeof j.guides.budget, "string");
   assert.equal(j.detection.primary, "TypeScript");
-  assert.deepEqual(j.tasks, ["BUILD-001.md"]);
+  assert.deepEqual(j.workorders, ["BUILD-001.md"]);
 });
 
 test("status：文本形态含基线备注/快照链/revision/漂移/治理分", async () => {
@@ -144,15 +144,25 @@ test("status：引导预算超限警示（managed 区 >150 行）", async () => 
   assert.match(r.text, /AGENTS\.md 16[0-9]\/150 行 ⚠ 超限 → 瘦身/);
 });
 
-test("status：任务书列表（多文件逗号分隔）", async () => {
+test("status：工单列表（多文件逗号分隔）", async () => {
   const root = await tmpRoot("doclib-acc-status-");
   await runInit(root, {});
-  await put(root, ".doclib/tasks/BUILD-001.md", "a");
-  await put(root, ".doclib/tasks/BOOTSTRAP-001.md", "b");
+  await put(root, ".doclib/workorders/BUILD-001.md", "a");
+  await put(root, ".doclib/workorders/BOOTSTRAP-001.md", "b");
   const r = await runStatus(root, {});
-  assert.match(r.text, /任务书: /);
+  assert.match(r.text, /工单: /);
   assert.ok(r.text.includes("BUILD-001.md"));
   assert.ok(r.text.includes("BOOTSTRAP-001.md"));
+});
+
+test("status：旧版 .doclib/tasks/ 存在时输出废弃提示，不存在时不输出", async () => {
+  const root = await tmpRoot("doclib-acc-status-");
+  await runInit(root, {});
+  const clean = await runStatus(root, {});
+  assert.ok(!clean.text.includes("已废弃"));
+  await put(root, ".doclib/tasks/BUILD-001.md", "旧版工单");
+  const r = await runStatus(root, {});
+  assert.match(r.text, /旧版目录: \.doclib\/tasks\/ 已废弃（0\.11\.0 更名 \.doclib\/workorders\/），确认无用后可删除/);
 });
 
 test("status：--json stdout 与 json 同源可解析；无基线时 drift/health 为 null", async () => {

@@ -48,7 +48,7 @@ test("init：全新目录落位 24 文件骨架/簿记/引导/state（非交互�
   for (const rel of SKELETON) {
     assert.ok(await has(root, rel), `缺少 ${rel}`);
   }
-  assert.ok(await has(root, ".doclib/tasks"));
+  assert.ok(await has(root, ".doclib/workorders"));
   assert.ok(await has(root, "AGENTS.md"));
   assert.ok(!(await has(root, "CLAUDE.md")));
   const agents = await get(root, "AGENTS.md");

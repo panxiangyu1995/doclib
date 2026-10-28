@@ -33,7 +33,7 @@ DocLib 给项目配的是**管家 + 门禁**：
 | 词 | 大白话解释 |
 | --- | --- |
 | 图书馆 `doclib/` | 你仓库里的一个文件夹，12 卷 Markdown 文档，项目的唯一事实源——任何问题先查它 |
-| 簿记 `.doclib/` | CLI 的私有工作区（基线快照、任务书），机器维护，你不用碰 |
+| 簿记 `.doclib/` | CLI 的私有工作区（基线快照、工单），机器维护，你不用碰 |
 | agent / skills | 帮你干活的 AI 与教它干活的手册；装好即生效，不需要你写提示词 |
 
 ### 一分钟看懂它怎么运转
@@ -90,7 +90,7 @@ npx @panxiangyu1995/doclib init --agents claude,opencode
 
 | 你的处境 | 你对 agent 说 | agent 会做什么 |
 | --- | --- | --- |
-| 已有项目，想让文档「活」起来 | 「用 doclib 把这个项目的文档馆建起来」 | `doclib plan` 生成 BUILD 任务书 → 加载 `doclib-build` 三遍扫描填实馆 → `verify` → `snapshot` |
+| 已有项目，想让文档「活」起来 | 「用 doclib 把这个项目的文档馆建起来」 | `doclib plan` 生成 BUILD 工单 → 加载 `doclib-build` 三遍扫描填实馆 → `verify` → `snapshot` |
 | 全新项目，想先有规格再写码 | 「我要做一个 XX，先用 doclib 把需求挖成规格」 | `doclib plan --bootstrap` → 加载 `doclib-bootstrap` 与你对话把需求填进馆，此后按馆开发 |
 | 半成品项目要接手 | 「接手这个仓库，用 doclib 梳理已实现和没做的」 | `doclib plan --resume` → 加载 `doclib-resume` 蒸馏已实现 + 登记规划 → 转入 `doclib-dev` |
 | 日常开发，想让文档跟上代码 | 「按图书馆继续开发」 | `doclib status` / `diff` → 加载 `doclib-dev`，边开发边实时入馆 |
@@ -106,7 +106,7 @@ npx @panxiangyu1995/doclib init --agents claude,opencode
 │                                                               │
 │    源代码 ─────┐                                              │
 │    doclib/ ◀───┤ 图书馆：12 卷叙述层 + 实体登记簿（唯一事实源）   │
-│    .doclib/ ◀──┤ 簿记：快照链 + 任务书（CLI 私有，不入馆）        │
+│    .doclib/ ◀──┤ 簿记：快照链 + 工单（CLI 私有，不入馆）          │
 │    CLAUDE.md ◀─┤ 引导：让 agent 自助会用这套体系                │
 │    .claude/    ┤ agent 适配：11 个 skills 的落位目录             │
 └────────────────┼──────────────────────────────────────────────┘
@@ -114,7 +114,7 @@ npx @panxiangyu1995/doclib init --agents claude,opencode
           ┌──────┴──────┐
           │  doclib CLI │  机器活：状态与事实
           └──────┬──────┘
-                 │  任务书（BUILD / UPDATE / REBUILD / BOOTSTRAP / RESUME）
+                 │  工单（BUILD / UPDATE / REBUILD / BOOTSTRAP / RESUME）
           ┌──────┴──────┐
           │ agent+skills │  知识活：怎么分析、怎么写、怎么验收
           └─────────────┘
@@ -144,7 +144,7 @@ npx @panxiangyu1995/doclib init --agents claude,opencode
 | --- | --- | --- |
 | 实时层（主） | 开发中凡改到有文档承载的知识 | agent 当场入馆（引导文件的实时同步规则约束它） |
 | 流程层 | 规划文档完成后 / 该开发完成后 | 双锚点：登记 `planned` → 归档成果并推进 `implemented` |
-| 兜底层 | 万一有遗漏 | `diff` → `plan` → UPDATE 任务书 → `check` 强验证 |
+| 兜底层 | 万一有遗漏 | `diff` → `plan` → UPDATE 工单 → `check` 强验证 |
 
 治理执法三件套：`doclib check`（双账本对账 + 治理健康分，`--strict` 可作门禁）· `doclib place`（孤儿归位，写操作默认干跑，`--apply` 才执行）· `doclib hook`（pre-commit 门禁 / CI 模板）。
 
@@ -154,7 +154,7 @@ npx @panxiangyu1995/doclib init --agents claude,opencode
 
 ### 四种开工模式
 
-装好后不用背命令——对 agent 说一句话（见[两步上手](#两步上手)），它会选对任务书开工：
+装好后不用背命令——对 agent 说一句话（见[两步上手](#两步上手)），它会选对工单开工：
 
 - **已有项目**（BUILD）：三遍扫描把现状蒸馏成馆——先骨架、再数据、再行为，建完自动核对覆盖度。
 - **全新项目**（BOOTSTRAP）：先和你对话把需求挖成规格（含功能验收标准），规格定了再写第一行代码。
@@ -216,7 +216,7 @@ doclib/
 | 组 | 命令 | 职责 | 何时用 |
 | --- | --- | --- | --- |
 | 建馆 | `init` | 初始化 `doclib/` 骨架、`.doclib/` 簿记、skills 与引导文件（自动装提交门禁） | 接入一个新 repo |
-| 建馆 | `plan` | 生成任务书：BUILD / UPDATE / REBUILD / BOOTSTRAP / RESUME | 每次开工前 |
+| 建馆 | `plan` | 生成工单：BUILD / UPDATE / REBUILD / BOOTSTRAP / RESUME | 每次开工前 |
 | 建馆 | `implement` | 拆单器：planned 候选清单 → readiness 校验 → `.plan` 实施骨架（AC 锚点预填，干跑默认、`--apply` 落盘） | 馆内功能开工前 |
 | 建馆 | `verify` | 覆盖度报告：未覆盖路径 / 失效文档 / INDEX 完整性 | 建馆后、每次增量更新后 |
 | 建馆 | `snapshot` | 把当前代码状态记为新基线（图书馆版本 +1，revision +1） | 同步完成后 |
@@ -241,8 +241,8 @@ skills 由 agent 按名称加载，各自绑定一个触发场景：
 
 | Skill | 何时加载 | 关联命令 |
 | --- | --- | --- |
-| `doclib-build` | 存量项目蒸馏建馆 | `plan`（BUILD 任务书） |
-| `doclib-update` | 代码变更后的增量更新 | `plan`（UPDATE 任务书） |
+| `doclib-build` | 存量项目蒸馏建馆 | `plan`（BUILD 工单） |
+| `doclib-update` | 代码变更后的增量更新 | `plan`（UPDATE 工单） |
 | `doclib-rebuild` | 只凭图书馆从零复原 | `plan --rebuild` |
 | `doclib-dev` ★ | 开发会话双情形：A 常规开发；B 长程六步回路（选任务 → 填单开发 → 测试链 → AC 验收 → 一任务一 commit） | `status` / `diff` / `snapshot` / `implement` |
 | `doclib-bootstrap` | 新项目对话式建馆 | `plan --bootstrap` |
@@ -286,7 +286,7 @@ skills 由 agent 按名称加载，各自绑定一个触发场景：
 | `test/` | 复原基准仓（umami / fd / csvkit / memos / aspnetcore 等克隆） | 复原与基准实验 |
 | `video/` | 推广视频工程源（HyperFrames） | 好奇成片怎么做的 |
 | `scripts/` | 构建辅助脚本 | 构建 / 发版 |
-| `.doclib/` | CLI 私有簿记（基线快照、任务书、引导反哺源） | 机器维护，不用碰 |
+| `.doclib/` | CLI 私有簿记（基线快照、工单、引导反哺源） | 机器维护，不用碰 |
 | `.plan/` | 每次开发的规划载体（双锚点之一） | 过程档案 |
 | `.claude/` `.opencode/` | skills 分发副本与命令（`doclib sync` 生成） | agent 读取 |
 
@@ -312,7 +312,7 @@ AI 写、机器验：登记簿逐条挂代码锚点（`covers`），`check` 逐�
 
 ## 参与贡献
 
-三类贡献都欢迎：**报问题与提需求**（GitHub Issues）· **补文档**（改 `doclib/` 对应卷，落位先走归位决策树）· **提代码**（见 [CONTRIBUTING.md](CONTRIBUTING.md)）。
+三类贡献都欢迎：**报问题与提需求**（GitHub Issues，走结构化表单）· **补文档**（改 `doclib/` 对应卷，落位先走归位决策树；纯文档纠错可直提 PR）· **提代码**（先开 issue 认领再提 PR，见 [CONTRIBUTING.md](CONTRIBUTING.md)）。PR 须走模板（含 AI 使用披露），CI 门禁（typecheck / test / `doclib check --strict`）与 Ruleset 机器执法。
 
 三条必守纪律：
 

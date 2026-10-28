@@ -1,4 +1,4 @@
-<!-- doclib-guide cli=0.10.0 structure=3 -->
+<!-- doclib-guide cli=0.11.0 structure=3 -->
 # DocLib 工作流
 
 <!-- doclib:managed-begin -->
@@ -60,7 +60,7 @@
 ## skills 与 CLI 速查
 
 skills 按名称加载：`build`=蒸馏建馆｜`bootstrap`=新项目文档先行｜`resume`=半成品接手｜`dev`=日常开发★主力｜`update`=增量更新｜`rebuild`=从零复原｜`reconcile`=对账重建｜`audit`=质量审计｜`accept`=验收执行
-CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`verify` 覆盖度｜`init` 骨架落位｜`sync` 引导/skills 同步｜`check` 强验证+治理分｜`ack` 路径豁免｜`place` 孤儿归位（列出/收编入馆/入棺归档/还原；写操作默认干跑，`--apply` 执行）｜`hook` 提交门禁｜`branch` 分支账（list 账实对照/register 登记分馆/diff 合并审计）｜`graph` 知识图谱（index/status/draft/explore，可选增强）
+CLI：`status` 概览｜`diff` 漂移｜`plan` 工单｜`snapshot` 基线｜`verify` 覆盖度｜`init` 骨架落位｜`sync` 引导/skills 同步｜`check` 强验证+治理分｜`ack` 路径豁免｜`place` 孤儿归位（列出/收编入馆/入棺归档/还原；写操作默认干跑，`--apply` 执行）｜`hook` 提交门禁｜`branch` 分支账（list 账实对照/register 登记分馆/diff 合并审计）｜`graph` 知识图谱（index/status/draft/explore，可选增强）
 
 <!-- doclib:managed-end -->
 
@@ -87,6 +87,7 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
 ## 开发宪法
 
 - 架构铁律：commands/core 职责边界不可反向｜vendored 源禁直改（FORK-NOTES.md 登记账）｜图谱扩展走 adapter 层｜破坏约定先立 ADR 再动代码（`10-architecture/overview.md`·`decisions.md`·`40-guides/conventions.md`）
+- 编号纪律：一切账本（feature-map/ADR/PRD 版本/产品版本/馆内序号）取号前先查账末取 max+1，禁凭记忆或对话上文取号（并发撞号 #44 实证）｜一号一事永不换号｜结构性裁决才占 ADR 号（膨胀约束）｜动账前 `doclib status` 并发重核（`40-guides/numbering.md`）
 - 编码铁律：TypeScript ESM 导入带 `.js` 后缀｜strict + noUncheckedIndexedAccess（数组访问判空是常态）｜源码不写注释（设计解释进 ADR）｜用户可见错误一律抛 DoclibError｜文件 kebab-case/导出动宾/常量全大写（`40-guides/conventions.md`）
 - 数据与迁移：N-A（无数据库；引入持久化时先在 `10-architecture/migrations.md` 账本取号，forward-only、applied 不可变）
 - UI/UX：N-A（CLI 无图形界面，`80-design/README.md` 显式声明；CLI 文案体验归 30-features 行为规格）
@@ -102,39 +103,25 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
 <!-- doclib:memory-begin -->
 ## 近期工作记忆（窗口 30 天）
 
-- 当前焦点：#44 分支账与主分馆管理 v0.10.0 落地归档（F20）——`doclib branch` 命令族/分支账/快照 git 归属/check 两 notice；测试 392/392，基线 snap-095/revision 86，本仓 dogfooding（.plan/2026-10-28/branch-management.md）
-- 当前焦点（次）：#42 复原基准第三梯队**建馆侧已落地**（9 馆建成于 test/）——复原侧闭环待排期；npm 0.10.0 未发布（0.8.0 为 latest）——发版随下一批功能窗口
+- 当前焦点：#45 严格贡献流程落地归档（γ-lite：CONTRIBUTING v2 AI 政策九条款+.github 模板四件+ci.yml 门禁含 check --strict+Ruleset；ADR #29）+ **编号推进规则立法** `40-guides/numbering.md`（并发双撞号实证→五纪律）并蒸馏双引导（.plan/2026-10-28/strict-contributions.md）
+- 当前焦点（次）：#46 工单改名已收敛（另一实例：任务书→工单+.doclib/workorders/，395/395 绿）；#42 复原侧闭环待排期；npm 0.10.0 未发布（0.8.0 为 latest）——发版随下一批功能窗口
 - 近期完成：
-  - 10-28 #44 分支账与主分馆管理 v0.10.0：#13 git 感知基线收编 implemented、#14 多馆管理注记收编（watch 仍 planned）；路线图 v0.2/v0.3 两欠账词条收编；ADR #28（边界条款定向扩展）；踩坑「Markdown 表格裸竖线错位」入 95-lessons
-  - 10-27 #43 长程开发闭环 v0.9.0 落地归档（F19）：test-chain 声明+hook 烘焙+check 三新判定+dev 双情形+sync 反哺——测试 372/372，本仓 dogfooding（.plan/2026-10-27/long-horizon-harness.md）
-  - 10-27 #42 建馆侧落地：9 仓克隆入 test/ + 9 馆建成（646 篇 / 登记簿 6967 条 / AC 1760 条，9/9 strict + 治理 100 A）；ADR #27 交互契约承载面立项
-  - 10-27 #41 推广视频落地归档：8.5MB 成片 7200 帧位级一致 + 质检三绿 + 知识层 5 篇入馆（另一实例执行）
-  - 10-27 #41 规划完成：HyperFrames 选型四路实证成立；落位②定案；发布链修正清单就绪（npm 0.4.0→0.8.0）
-  - 10-27 #40 记忆快照与协作者画像反哺 v0.8.0 落地（F18，commit ee0023c，基线 snap-081 / revision 72）
-  - 10-27 #39 规划直通车 v0.7.0：doclib implement 拆单 + 门禁三件套 + bootstrap 五阶段（.plan/2026-10-27/planning-express.md）
-  - 10-26 #32/#37 引导反哺三区契约与开发宪法六篇 + 12 卷走查账 v0.6.0-0.6.3（.plan/2026-10-26/guide-feed.md + .plan/2026-10-26/guide-constitution.md）
-  - 10-26 #35/#36/#38 归档闭环三不变量 + 教训账缺口 + 教训实时性（一行制/来源行执法）v0.6.1-0.6.4
-  - 10-26 #33 会话档案区 98-sessions 立项与 M1 落地（.plan/2026-10-26/transcript-archive.md）
-  - 10-23 #28 文体学全链路与 #29 旗标面对账落地
-  - 10-22 #26/#27 README 门面重写（中英双语）+ 门面多语言变体模式豁免
-  - 10-23 #23 基准扩容：四基准馆建成（aspnetcore/fd/csvkit/memos 均 100 A，doclib/50-testing/benchmark/）
+  - 10-28 #46 工单改名（另一实例收敛落地；纯概念名与簿记路径，机制零变更）
+  - 10-28 #44 分支账与主分馆管理 v0.10.0：branch 命令族/分支账/快照 git 归属/check 两 notice；#13/#14 收编；ADR #28；裸竖线教训入档
+  - 10-27 #43 长程开发闭环 v0.9.0（test-chain 声明+hook 烘焙+check 三新判定+dev 双情形+sync 反哺）；#42 建馆侧 9 馆建成（646 篇/6967 条/1760 AC，9/9 strict 100 A，ADR #27 立项）；#41 推广视频落地（8.5MB 成片+发布链修正）；#40 记忆快照反哺 v0.8.0；#39 规划直通车 v0.7.0
+  - 10-26 #32/#35-#38 引导反哺三区契约+开发宪法六篇+归档三不变量+教训实时性 v0.6.x；10-22/23 #26/#27/#28/#29 README 门面重写（中英双语）+文体学+旗标面对账
 - 活跃注意：
-  - **npm 0.8.0 已发布**（2026-10-27，latest 已指向，SLSA provenance 齐备）——release.yml node 已改 24 自洽 engines；推广视频 CTA 的 npx 安装版本与片中声明一致
-  - **本仓存在并发写入实例**（实测：改写基线/占端口/抢带宽/软件著作权 skill 26 文件在飞）——执行前须重核基线/工作区/端口；#43 期其 WIP 阻断门禁经用户拍板「最小登记放行」（ack ×3+config.md 事实登记）——并发冲突处置先例
-  - .claude/commands/{intest,r5,review}.md 已 ack standing（待其会话收编）；软著申请资料/ 已入 gitignore+config.md 登记
-  - #42 复原侧闭环待排期（建馆侧已成；9 样本册「复原侧」小节均为待办）；挑战档 meilisearch/zellij **未建馆**（计划标「后置」）——plausible 三仓**标「未实测」**（Elixir/Rust 工具链受阻），宁可缺证不虚报
-  - #34 transcript 批量回捞 planned——素材升级依赖它（OpenCode DB 285 会话/2.5 万消息待接入）
-  - #23 复原侧闭环待排程（四馆建馆侧已建成，隔离复原未启动）；#19 ast-grep 阶段 1 planned
-  - 既有失真已处置：`40-guides/workflow.md` 悬空指针（AGENTS.md / .doclib/guide-project.md / 10-architecture/data-flow.md 三处）已改指真实承载点（`10-architecture/overview.md`·`30-features/guides.md`）
-  - 产品级建议留档：SOURCE_PATH_TOKEN_RE 截断字符集已含反引号/星号（#40 根治），后续关注 lesson-source 与 memory-pointer 共享词面的同源缺陷
-  - 反哺区当前状态：走查 12/12（.doclib/guide-project.md）——基线版本号等自引用易腐数字不入快照
+  - **并发写入实例常态化**（10-28 双撞号实证：两实例同轮各取 #44/ADR #28——处置先例：前置门核查→代提交在飞成果→顺延换号；取号先查账末已成文 numbering.md；动账前 `doclib status`+revision 重核）
+  - npm 0.8.0 已发布（2026-10-27，latest 指向/SLSA 齐备）；0.10.0 待发——发版前逐项核对 README 数字表（39 测试文件/395 用例）
+  - .claude/commands/{intest,r5,review}.md 已 ack standing（待其会话收编）；软著申请资料/ 已 gitignore+config.md 登记
+  - 复原侧闭环待排期：#42 第三梯队 9 馆 + #23 四馆（隔离复原未启动）；挑战档 meilisearch/zellij 未建馆（标后置）；plausible 三仓标未实测——宁可缺证不虚报；#34 transcript 批量回捞 planned；#19 ast-grep 阶段 1 planned
 
 ## 协作者画像
 
 - 决策风格：偏好「一步到位」全链路（#28 三拍板、#38「α+β+γ+δ 一步到位」原话）；习惯提问工具成批拍板（单轮 8-14 项）；偏离推荐必须给理由（Q44 矛盾澄清）；产品级缺陷要求根治而非兜底（Q42 模式识别取代闭集）
 - 决策风格（新观察）：**先验判断会主动要求「确认」而非直接采纳**（原话「HyperFrames 效果好又省心，你帮我确认一下」）——研究阶段须实证优先、给结论而非附和；选项批量给出且**连续两次选推荐项**（落位/ffmpeg 时机）→ 推荐项的论证质量直接决定决策效率
 - 沟通偏好：中文交流；以 RIPER-5 模式协议管控会话（研究→创新→计划→执行→审查，模式切换须显式指令）；研究阶段要求「确切的肯定的研究结果，不包含任何的猜测」——实证优先（context7/gh/实测交叉验证）；方案呈现给推荐+理由由其拍板
-- 决策风格（新观察）：**会主动修正推荐方案的设计方向**（#43 原话「可以少新增一个skill……只做成一个dev skill」「测试标准……也该一样反哺到claude.md和agents.md中」）——推荐项被接受≠设计定稿，交付前用户仍做全局审视并给结构性修正；执行期偏差（语义缺陷/并发冲突）能快速拍板
+- 决策风格（新观察）：**会主动修正推荐方案的设计方向**（#43 原话「可以少新增一个skill……只做成一个dev skill」；#45 原话「会不会过于严格了啊」→ γ-lite 拆除唯一新增硬拦截；「编号推进的太快了…制定规则」→ 防膨胀立法）——推荐项被接受≠设计定稿，交付前用户仍做全局审视并给结构性修正；对账本膨胀与资源浪费敏感
 - 工作流习惯：新功能必走 .plan 载体双锚点（规划文档先行，按文档实施）；REVIEW 轮独立进行（「全方位漏洞审查」「严格代码审查查找漏洞」）；常要求真实仓库扩展验收（「在 test 目录下的克隆项目中测试」）；对「遗漏入馆」高度敏感（曾实证手动补录 → 拍板 hook 执法路线 #35）；会直接下发 planstore 纪律指令要求规划文档补齐反遗漏自检五项
 - 协作节奏（新观察）：**一次指令下达多仓批量执行**（「克隆…到 test 目录下，然后分别在这些仓库下建馆」）——期望代理自行拆分为逐仓并行子任务并统一收尾纪律，不逐仓确认；本轮两次提问工具拍板**均选推荐项**（9 仓而非 11 仓 / 只建馆不做答卷）
 - 证据偏好（新观察）：**要求「实测」但排斥实测膨胀**——原话「你推荐的都做实测」「有必要搞半天么」「为什么不用 context7 mcp 或者 gh cli」→ 仓库事实走 gh API、SDK 文档走 context7，本机只做编译/测试/运行与 UI 交互探针；报告须分层标注「已实测/未实测」，缺证即标缺证
@@ -148,7 +135,7 @@ CLI：`status` 概览｜`diff` 漂移｜`plan` 任务书｜`snapshot` 基线｜`
 - 结构：`src/cli.ts` 入口；`src/commands/` 十三命令（init/plan/diff/snapshot/status/verify/sync/check/ack/place/hook/reconcile/graph）；`src/core/` 纯逻辑模块（清单与职责以 `doclib/20-modules/_index.md` 为准，不在此枚举防漂移）；`assets/` 模板与引导源（guides=managed 区再生源，改引导规则须改此处再 sync）；`skills/` 手册源（`doclib sync` 分发至 `.claude/skills/` `.opencode/skills/`）；PRD+DESIGN 已入馆 `doclib/10-architecture/`
 - skills 状态：10/10 全部实现（build/update/rebuild + dev/bootstrap/resume/setup/reconcile/audit/accept，feature-map #6）
 - 进度指针：`doclib/10-architecture/prd.md`（v0.38）｜`doclib/10-architecture/design.md`（v2）｜`doclib/00-overview/feature-map.md`｜`doclib/00-overview/progress.md`
-- 术语：图书馆=doclib/、簿记=.doclib/、任务书=.doclib/tasks/、基线=snapshot、漂移=drift、锚点=covers
+- 术语：图书馆=doclib/、簿记=.doclib/、工单=.doclib/workorders/、基线=snapshot、漂移=drift、锚点=covers
 - 会话档案：agent 对话原始记录导出落 `doclib/98-sessions/`（F9 唯一白名案例外，ADR #19）——会话收尾三动作（导出提醒→落位补 frontmatter 五要素→.plan 头部登记）见 `.opencode/commands/planstore.md`（双侧同文）与 `doclib/40-guides/transcripts.md`；文件名 `<slug>-<yyyymmdd>-<NN>.md`
 - 基准铁律：复原对比对象=**原仓库**（非图书馆）——重建↔原仓库实质差距=建馆缺陷显影器（benchmark.md 目的铁律）（三阶段：P1 信息零遗漏→P2 质量保证→P3 升华超越原仓库）
 - 治理状态：规划载体 `.plan/<日期>/` 已声明（F9 默认实例）；登记簿落点已拍板——**分散挂靠各卷**（Q25，挂靠表见 PRD §7）；复原基准测试体系已立项（F14，首个基准项目 **colinhacks/zod**【Q31】，操作指南 `40-guides/benchmark.md`；**复原须与建馆不同会话/实例/模型，防先验污染**）；历史遗留已清零（v0.23）：50-reference 已归位 90-reference、PRD/DESIGN 已迁入 `doclib/10-architecture/`；写协调乐观锁 revision 已立项（Q36）
