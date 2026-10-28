@@ -113,3 +113,6 @@ type: ledger
 > v0.6.1 增量（#35 归档闭环）：本档案覆盖的 `src/core/check.test.ts` 增 2 例（check 归档三不变量集成：载体未登记检出/无载体零误报）；孤儿面语义未变，`place` 载体形态识别建议见 [30-features/place.md](../30-features/place.md)。
 > v0.6.3 增量（#37 开发宪法）：本档案覆盖的 `src/core/check.test.ts` 增 1 例（guideWalkVerdict 走查账四场景纯函数单测）；孤儿面语义未变，走查账规格见 [30-features/guides.md](../30-features/guides.md)。
 > v0.6.3 REVIEW 轮增量（#37）：本档案覆盖的 `src/core/check.test.ts` 走查单测扩 fed 内部重复/overlap 去重断言（`guideWalkVerdict` R-3/R-4 回归）；孤儿面语义未变。
+
+
+> 2026-10-28 后记：#44 v0.10.0——`core/check.ts` notices 新增 branch-unregistered/branch-ledger-incomplete 两类（soft 不入 strict，见 [branch.md](../30-features/branch.md) AC-11）；本记录为 v0.5.0 时点留痕。

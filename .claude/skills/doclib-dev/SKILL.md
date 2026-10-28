@@ -22,6 +22,7 @@ description: DocLib 开发会话工作流（★主力），双情形：A=常规�
    - **载体提醒**（待登记/待归档）：先处理提醒再开发
    - **引导预算**：超限顺手瘦身
 2. 运行 `doclib check` 确认违规为零；记录当前 **revision**（写后比对用）
+3. **分支核对**：`git branch --show-current` 非主分支（main/master）时——分支账（`doclib/00-overview/branches.md`）未登记本分支则先 `doclib branch register <分支> --note <目的>`；check 会出 branch-unregistered 软提示；分馆期 progress 条目带 `[branch:分支名]` 行内标注
 
 ## 符号查询纪律（可选加速器）
 
@@ -121,3 +122,4 @@ description: DocLib 开发会话工作流（★主力），双情形：A=常规�
 - 文档写行为/契约/意图/验收标准；除 ≤10 行示意片段外禁止搬运源码
 - 新增引导规则先自问"删掉会犯错吗"——不会则入 skill/入馆，不进引导
 - 兜底（check/diff/reconcile）不是用来依赖的
+- 分支纪律：新建分支先登记分支账（register）；合并回主馆后条目翻 merged 保留、跑 `doclib branch diff` 复核冲突面、重新 snapshot 固化基线

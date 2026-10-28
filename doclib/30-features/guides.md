@@ -84,3 +84,5 @@ managed 区核心为**实时同步映射表**（改动类型→必须同步的�
 
 - CLI 命令：`doclib sync`（引导/skills 同步）· `doclib init`（骨架落位，见 [init-v2.md](init-v2.md)）· `doclib check`（强验证，见 [check.md](check.md)）
 - 蒸馏执行者：`doclib-build` / `doclib-accept` skill 收尾步骤；本仓实例 `.doclib/guide-project.md`
+
+> v0.10.0（#44）增量：引导 light 档 CLI 速查增 `branch` 词条（`assets/guides/light.md` 再生源先行，sync 注入两份引导）；分区契约与注入管线不变。

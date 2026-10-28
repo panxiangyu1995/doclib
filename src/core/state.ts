@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import type { GitInfo } from "./gitinfo.js";
 
 export const LIBRARY_DIR = "doclib";
 export const STATE_DIR = ".doclib";
@@ -21,6 +22,7 @@ export type Snapshot = {
   stats: SnapshotStats;
   files: Record<string, string>;
   docs?: Record<string, string>;
+  git?: GitInfo;
 };
 
 export type StateAck = {

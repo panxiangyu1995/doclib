@@ -227,6 +227,7 @@ This section is for lookup. Day to day you just talk to your agent — the agent
 | Governance | `place` | Place orphan documents: `list` / `collect` / `archive` / `ack` / `restore` (write operations dry-run by default) | When documents live outside the library |
 | Governance | `hook` | Install / remove the pre-commit hook (the library's `test-chain` declaration is baked in automatically; `--ci github` emits a CI template including the full tier) | When wiring up CI / after declaring a test chain |
 | Governance | `reconcile` | Reconcile and rebuild the progress ledger: probably done / mismatch / to advance | When the progress ledger and the code disagree |
+| Governance | `branch` | Branch ledger: `list` (ledger vs git) / `register` (register a branch library) / `diff` (merge audit) | Creating a branch / before merging back to main |
 | Enhancement | `sync` | Regenerate the managed region of the guide files and the skills (idempotent, custom regions preserved) | After upgrading the CLI |
 | Enhancement | `graph` | Code knowledge graph: `index` / `status` / `draft` / `explore <query>` (optional enhancement, requires Node ≥ 22.5) | Accelerating large repos |
 
@@ -256,12 +257,12 @@ Skills are loaded by the agent by name, and each one is bound to a single trigge
 
 | Item | Value | Source |
 | --- | --- | --- |
-| npm package / version | `@panxiangyu1995/doclib` / 0.9.0 (npm latest 0.8.0; release rides the next window) | `package.json` |
+| npm package / version | `@panxiangyu1995/doclib` / 0.10.0 (npm latest 0.8.0, release rides the next window) | `package.json` |
 | License / Node | MIT / `>=22.5 <25` | `package.json` |
 | Runtime dependencies | 4: `ignore` / `jsonc-parser` / `picomatch` / `web-tree-sitter` | `dependencies` in `package.json` |
-| CLI commands / Skills | 14 / 11 | `src/commands/` · `skills/` |
+| CLI commands / Skills | 15 / 11 | `src/commands/` · `skills/` |
 | Library skeleton | 12 volumes + ledger family (first 5 books) + `99-archive` + `98-sessions`, 33 skeleton files in total | `assets/templates/library/` |
-| Tests | 36 test files / 372 cases | the test script in `package.json` |
+| Tests | 39 test files / 394 cases | the test script in `package.json` |
 | Source size | 5,998 lines of non-test code / 5,760 lines of tests | `src/` |
 | This repo's own governance | 100/100 (A), zero violations | `doclib check` |
 | Rebuild benchmark | umami: 97% coverage at build time → 96.4% on the same-question double run (53/55) → 100% on regression | `doclib/50-testing/benchmark/` |

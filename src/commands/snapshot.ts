@@ -3,6 +3,7 @@ import { collectFiles, hashAll } from "../core/fsutil.js";
 import { detectProject } from "../core/detect.js";
 import { hashDocs } from "../core/ledger.js";
 import { DoclibError, LIBRARY_DIR, loadState, pad3, saveState, type Snapshot } from "../core/state.js";
+import { readGitInfo } from "../core/gitinfo.js";
 import { loadPlanningPaths, planningIgnores } from "../core/planning.js";
 import type { CommandResult } from "./init.js";
 
@@ -19,6 +20,7 @@ export async function runSnapshot(root: string, opts: { note?: string }): Promis
   const det = await detectProject(root, files);
 
   const version = state.version + 1;
+  const git = await readGitInfo(root);
   const snapshot: Snapshot = {
     id: `snap-${pad3(version)}`,
     version,
@@ -33,6 +35,7 @@ export async function runSnapshot(root: string, opts: { note?: string }): Promis
     files: hashes,
     docs,
   };
+  if (git) snapshot.git = git;
   state.snapshots.push(snapshot);
   state.latest = snapshot.id;
   state.version = version;

@@ -6,6 +6,7 @@ import { LIBRARY_DIR, STATE_DIR, TASKS_DIR, latestSnapshot, loadState, computeDr
 import { guideBudgetReport, guideStampReport, libraryFingerprint, readGuideMemory, readGuideProject } from "../core/guides.js";
 import { loadPlanningPaths, planningReminderReport, planningIgnores, suggestCarriers } from "../core/planning.js";
 import { runCheckCore } from "../core/check.js";
+import { readGitInfo } from "../core/gitinfo.js";
 import { latestProgressDate } from "../core/archival.js";
 import { LIBRARY_VOLUMES } from "../core/place.js";
 import { readHookState } from "./hook.js";
@@ -81,9 +82,17 @@ export async function runStatus(root: string, opts: { json?: boolean } = {}): Pr
     memoryLine = `⚠ ${e instanceof Error ? e.message : String(e)}`;
   }
   lines.push(`记忆: ${memoryLine}`);
+  let ownership = "";
+  if (latest?.git) {
+    ownership = `（来自分支 ${latest.git.branch} @ ${latest.git.commit.slice(0, 7)}）`;
+    const cur = await readGitInfo(root);
+    if (cur && cur.branch !== latest.git.branch) {
+      ownership += ` · ⚠ 当前分支 ${cur.branch} 与基线分支 ${latest.git.branch} 不一致 → 跨分支漂移可能，建议重基线`;
+    }
+  }
   lines.push(
     latest
-      ? `基线: ${latest.id} @ ${latest.at}${latest.note ? `（${latest.note}）` : ""} · 快照链 ${state.snapshots.length} 条 · revision ${state.revision}`
+      ? `基线: ${latest.id} @ ${latest.at}${latest.note ? `（${latest.note}）` : ""}${ownership} · 快照链 ${state.snapshots.length} 条 · revision ${state.revision}`
       : "基线: 无（尚未 snapshot）",
   );
 
@@ -140,7 +149,13 @@ export async function runStatus(root: string, opts: { json?: boolean } = {}): Pr
       },
       revision: state.revision,
       baseline: latest
-        ? { id: latest.id, at: latest.at, note: latest.note, snapshotCount: state.snapshots.length }
+        ? {
+            id: latest.id,
+            at: latest.at,
+            note: latest.note,
+            snapshotCount: state.snapshots.length,
+            git: latest.git ?? null,
+          }
         : null,
       drift,
       health,

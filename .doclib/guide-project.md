@@ -1,6 +1,6 @@
 ---
-snapshot: 86
-docs-hash: b0c4caa4d6f06331e75777d8453128074ef525a833df4830bdbfb9bd8ab832ca
+snapshot: 97
+docs-hash: d48617e7d2c65a816cb05e8f591c2cac1cf352092ef424f09c81308d7546806e
 volumes-fed: [00-overview, 10-architecture, 20-modules, 30-features, 40-guides, 50-testing, 60-config, 95-lessons]
 volumes-na: [70-deploy, 80-design, 90-reference, 99-archive]
 ---
@@ -9,13 +9,15 @@ volumes-na: [70-deploy, 80-design, 90-reference, 99-archive]
 
 - DocLib：把任意代码项目蒸馏成「可复原的文档图书馆」——任何 agent 或人只凭 `doclib/` 即可从零重建该项目（≥90% 功能复原）（`doclib/00-overview/project.md`）
 - 本仓库 dogfooding：DocLib 以自身图书馆管理自身开发（`doclib/README.md`）
+- 复原基准样本馆：第三梯队 9 馆已建成于 `test/`（不入 git；档案入 `50-testing/benchmark/100~190`），复原侧闭环待排期（`doclib/40-guides/benchmark.md`）
 
 ## 架构速览
 
-- CLI 入口 `src/cli.ts`，十四命令于 `src/commands/`（init/plan/diff/snapshot/status/verify/sync/check/ack/place/hook/reconcile/graph/implement）；纯逻辑于 `src/core/`（`doclib/20-modules/_index.md`）
+- CLI 入口 `src/cli.ts`，十五命令于 `src/commands/`（init/plan/diff/snapshot/status/verify/sync/check/ack/place/hook/reconcile/branch/graph/implement；v0.10.0 +branch）；纯逻辑于 `src/core/`（`doclib/20-modules/_index.md`）
 - 规划直通车（F17）：对话规划 bootstrap 五阶段→工具收编（BMAD/spec-kit/OpenSpec/Kiro 快照式）→`doclib implement` 拆单（readiness+AC 锚点骨架）→门禁三件套（`doclib/30-features/040-planning-express.md`）
 - 知识图谱引擎 vendored 于 `vendor/codegraph/`（git subtree；就地改动必须登记 FORK-NOTES.md，优先在 adapter 层 `src/core/codegraph/` 扩展）（`doclib/30-features/graph.md`）
 - 需求唯一事实源 `doclib/10-architecture/prd.md`｜设计 `doclib/10-architecture/design.md`｜ADR 账本 `doclib/10-architecture/decisions.md`
+- 基线演进在途：ADR #27（80-design 增设交互语义承载面）已立项、规格待首轮复原实测后定稿（`doclib/10-architecture/decisions.md`）
 
 ## 模块地图
 

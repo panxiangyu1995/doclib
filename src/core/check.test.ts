@@ -345,3 +345,62 @@ test("check：chain-stale 三态（失配/匹配/未传脚本体不判）", asyn
   const r4 = await runCheckCore(root, { hookScript: ok });
   assert.ok(!r4.notices.some((n) => n.kind === "chain-stale"));
 });
+
+test("check：分支账 notice 三态（feature 分支未建账/已登记/账有缺陷）", async () => {
+  const { execFile } = await import("node:child_process");
+  const { promisify } = await import("node:util");
+  const exec = promisify(execFile);
+  const root = await tmp();
+  await setupBaseline(root, true);
+  await exec("git", ["init", "-q", "-b", "main", root]);
+  await exec("git", ["-C", root, "config", "user.email", "t@t.io"]);
+  await exec("git", ["-C", root, "config", "user.name", "t"]);
+  await exec("git", ["-C", root, "add", "-A"]);
+  await exec("git", ["-C", root, "commit", "-qm", "seed"]);
+  await exec("git", ["-C", root, "checkout", "-q", "-b", "feat-ledger"]);
+
+  const r1 = await runCheckCore(root);
+  const unregistered = r1.notices.find((n) => n.kind === "branch-unregistered");
+  assert.ok(unregistered);
+  assert.match(unregistered.detail, /feat-ledger 未建分支账/);
+
+  await fs.mkdir(path.join(root, "doclib", "00-overview"), { recursive: true });
+  await fs.writeFile(
+    path.join(root, "doclib", "00-overview", "branches.md"),
+    "| 分支 | 创建日期 | 目的 | 状态 | 差异摘要 | 关联 |\n| --- | --- | --- | --- | --- | --- |\n| feat-ledger | 2026-10-28 | 图谱联动 | active | 新增分支账 | |\n| bad-row | 2026-10-28 | 缺陷演示 | bogus | x | |\n",
+    "utf8",
+  );
+  const r2 = await runCheckCore(root);
+  assert.ok(!r2.notices.some((n) => n.kind === "branch-unregistered"));
+  const incomplete = r2.notices.filter((n) => n.kind === "branch-ledger-incomplete");
+  assert.equal(incomplete.length, 1);
+  assert.match(incomplete[0]!.detail, /非法行/);
+
+  await fs.writeFile(
+    path.join(root, "doclib", "00-overview", "branches.md"),
+    "| 分支 | 创建日期 | 目的 | 状态 | 差异摘要 | 关联 |\n| --- | --- | --- | --- | --- | --- |\n| feat-ledger | 2026-10-28 |  | active |  | |\n",
+    "utf8",
+  );
+  const r3 = await runCheckCore(root);
+  const missing = r3.notices.filter((n) => n.kind === "branch-ledger-incomplete");
+  assert.equal(missing.length, 1);
+  assert.match(missing[0]!.detail, /feat-ledger 条目要素缺失/);
+});
+
+test("check：主分支与非 git 目录零分支 notice", async () => {
+  const { execFile } = await import("node:child_process");
+  const { promisify } = await import("node:util");
+  const exec = promisify(execFile);
+  const root = await tmp();
+  await setupBaseline(root, true);
+  const plain = await runCheckCore(root);
+  assert.ok(!plain.notices.some((n) => n.kind === "branch-unregistered" || n.kind === "branch-ledger-incomplete"));
+
+  await exec("git", ["init", "-q", "-b", "main", root]);
+  await exec("git", ["-C", root, "config", "user.email", "t@t.io"]);
+  await exec("git", ["-C", root, "config", "user.name", "t"]);
+  await exec("git", ["-C", root, "add", "-A"]);
+  await exec("git", ["-C", root, "commit", "-qm", "seed"]);
+  const mainRun = await runCheckCore(root);
+  assert.ok(!mainRun.notices.some((n) => n.kind === "branch-unregistered" || n.kind === "branch-ledger-incomplete"));
+});

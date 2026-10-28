@@ -25,7 +25,7 @@ status: stable
 - npm 包 **@panxiangyu1995/doclib**（bin=`doclib`，命令名不变）——任意 repo `npx @panxiangyu1995/doclib init` 一键进入
 - **新包首发走 npm staging 审批**（上传成功后 0.0.0-stage，maintainer 网页/CLI 转正为正式版本）；已存在的包后续版本 direct 发布无需审批
 - 运行时依赖四个：`ignore`（gitignore 语义）、`jsonc-parser`（引导/配置 JSONC 容错解析）、`picomatch`（glob 匹配）、`web-tree-sitter`（`graph` 的代码解析）；assets（templates/guides/skills）经 copy-assets 进入 `dist/assets`，发布包内相对 import.meta.url 解析
-- npm 现况：仓库版本 **0.8.0**，npm `latest` 曾长期停在 **0.4.0**（v0.4.0 后 14 个 commit 未发布）——发版前须核对 `npm view @panxiangyu1995/doclib version` 与 `package.json` 一致
+- npm 现况：仓库版本 **0.10.0**（v0.10.0 起未发布增量：#44 分支账与主分馆管理），npm `latest` 停在 **0.8.0**——发版前须核对 `npm view @panxiangyu1995/doclib version` 与 `package.json` 一致
 
 ## 怎么运转
 

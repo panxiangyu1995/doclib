@@ -27,6 +27,7 @@ description: 将任意代码项目蒸馏为"可复原的文档图书馆"。当�
 4. **自检**：执行下方"覆盖度清单"，全过才算完成
 5. **蒸馏反哺区（开发宪法）**：读馆撰写 `.doclib/guide-project.md`（frontmatter：`snapshot` 当前基线版本 + `docs-hash` 当前馆内指纹 + **12 卷走查账** `volumes-fed`/`volumes-na` 双列表——`doclib status` 反哺行可读指纹）——五段各 ≤10 行、每条附馆内路径：项目定位（00-overview/project）/ 架构速览（10-architecture/overview + 关键 ADR）/ 模块地图（20-modules/_index）/ **开发宪法**（六篇：①架构铁律←10-architecture/overview+design+ADR+20-modules ②编码铁律←40-guides/conventions+95-lessons 高频教训 ③数据与迁移铁律←10-architecture/migrations+data-model ④UI/UX 铁律←80-design ⑤测试与验收铁律←50-testing+30-features ⑥禁区←各卷红线蒸馏；每条一行+馆内路径；不适用篇**显式写 N-A 行**；段末置「规则唯一事实源指针」句：馆无规则→提案入 ADR/规格，禁止即兴发明）/ 命令速查（60-config/config）。**裁决三问前置**（每条落笔前）：①馆内已有裁决吗？②实况多套并存吗（混用先裁决：结构性入 ADR、轻量条目内标注「以 X 为准，存量渐进收敛」）？③描述存量还是规定增量（描述性实况优先/规定性文档声称优先）？无法裁决区域显式写豁免；项目原有规则文档（CONTRIBUTING 等）真相先入馆（covers 锚定/收编）再蒸馏，禁止跳馆转写。**12 卷走查**：每卷裁决 fed（知识进反哺正文）或 na（不适用/非冷启动必需；99-archive 恒 na），两列表齐备——check `guide-feed-walk` strict 强校验（未知卷/未全覆盖/重叠/单边非法）。然后 `doclib sync` 注入引导文件。真相在馆，反哺区仅再生禁止直改
 6. **收尾**：运行 `doclib verify`，然后 `doclib snapshot --note "initial build"` 固化基线
+7. **分支登记**：若蒸馏发生在非主分支（main/master）——建分支账 `doclib/00-overview/branches.md`（`doclib branch register <分支> --note <蒸馏目的>`）并在差异摘要列记「本馆基于分支 X 蒸馏，与主分支的差异要点」；主分支蒸馏则登记 main 主馆条目；快照归属（branch/commit）由 snapshot 自动记录，无需手工
 
 ## 反克隆铁律
 

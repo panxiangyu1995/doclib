@@ -14,6 +14,8 @@ import {
   loadTestChain,
   skeletonProgressFindings,
 } from "./harness.js";
+import { MAIN_BRANCHES, readBranchLedger } from "./branch.js";
+import { readGitInfo } from "./gitinfo.js";
 import { LIBRARY_VOLUMES } from "./place.js";
 
 export type { CheckFinding, CheckFindingKind } from "./ledger.js";
@@ -29,7 +31,9 @@ export type CheckNoticeKind =
   | "memory-pointer"
   | "skeleton-open"
   | "blocked-residue"
-  | "chain-stale";
+  | "chain-stale"
+  | "branch-unregistered"
+  | "branch-ledger-incomplete";
 
 export type CheckNotice = {
   kind: CheckNoticeKind;
@@ -172,6 +176,37 @@ export function guideWalkVerdict(walk: VolumesWalk): GuideWalkVerdict {
     });
   }
   return { findings, absent: false };
+}
+
+async function branchLedgerNotices(root: string): Promise<CheckNotice[]> {
+  const git = await readGitInfo(root);
+  if (git === null || MAIN_BRANCHES.includes(git.branch)) return [];
+  const ledger = await readBranchLedger(root);
+  if (ledger === null) {
+    return [
+      {
+        kind: "branch-unregistered",
+        detail: `当前分支 ${git.branch} 未建分支账 → doclib branch register ${git.branch} --note <目的>`,
+      },
+    ];
+  }
+  const out: CheckNotice[] = [];
+  const active = ledger.entries.find((e) => e.name === git.branch && e.status === "active");
+  if (!active) {
+    out.push({
+      kind: "branch-unregistered",
+      detail: `当前分支 ${git.branch} 未在分支账登记（active）→ doclib branch register ${git.branch} --note <目的>`,
+    });
+  }
+  for (const bad of ledger.invalid) {
+    out.push({ kind: "branch-ledger-incomplete", detail: `分支账非法行（状态须为 active/merged/abandoned）：${bad.slice(0, 80)}` });
+  }
+  for (const e of ledger.entries) {
+    if (e.purpose.length === 0 || e.divergence.length === 0) {
+      out.push({ kind: "branch-ledger-incomplete", detail: `分支 ${e.name} 条目要素缺失（目的/差异摘要为空）` });
+    }
+  }
+  return out;
 }
 
 export async function runCheckCore(
@@ -352,6 +387,7 @@ export async function runCheckCore(
   if (chainDetail !== null) {
     notices.push({ kind: "chain-stale", detail: chainDetail });
   }
+  notices.push(...(await branchLedgerNotices(root)));
   const assumption = await assumptionFindings(path.join(root, LIBRARY_DIR));
   for (const v of assumption.violations) {
     findings.push({ kind: "assumption-residue", path: `${LIBRARY_DIR}/${v.doc}`, detail: v.detail });

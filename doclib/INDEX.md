@@ -13,6 +13,7 @@ status: living
 | [00-overview/project.md](00-overview/project.md) | DocLib 定位与北极星 | stable |
 | [00-overview/feature-map.md](00-overview/feature-map.md) | 功能进度总账（状态事实源） | living |
 | [00-overview/progress.md](00-overview/progress.md) | 进度时间线 | living |
+| [00-overview/branches.md](00-overview/branches.md) | 分支账（主馆/分馆登记与状态机） | living |
 | [00-overview/glossary.md](00-overview/glossary.md) | 术语表 | draft |
 | [10-architecture/overview.md](10-architecture/overview.md) | 架构总览（分层/选型，指向 DESIGN v2） | stable |
 | [10-architecture/data-model.md](10-architecture/data-model.md) | state.json v2 与 frontmatter 字段语义 | stable |
@@ -45,6 +46,7 @@ status: living
 | [40-guides/video/production.md](40-guides/video/production.md) | 推广视频生产复现指南（HyperFrames 工程结构 + 三条硬约束 + 已知坑） | living |
 | [40-guides/video/publishing.md](40-guides/video/publishing.md) | 推广视频发布规格（B 站规格 + 数值核对表 + 发布 checklist + 风险取舍） | draft |
 | [50-testing/testing.md](50-testing/testing.md) | 测试策略（node:test + 冒烟闭环） | stable |
+| [50-testing/_index.md](50-testing/_index.md) | 50-testing 卷索引（测试策略/验收报告/benchmark 档案分区） | living |
 | [60-config/config.md](60-config/config.md) | 工程设置全集（含构建链/files 字段） | stable |
 | [70-deploy/deploy.md](70-deploy/deploy.md) | 部署（npm 包配置已就绪，发布待阶段 5） | stable |
 | [80-design/README.md](80-design/README.md) | UI/UX——显式不适用 | not-applicable |
@@ -67,5 +69,15 @@ status: living
 | [50-testing/benchmark/070-umami-regression.md](50-testing/benchmark/070-umami-regression.md) | umami 回归轮切片答卷（22/22；全量 71/71） | stable |
 | [50-testing/benchmark/080-umami-alignment-log.md](50-testing/benchmark/080-umami-alignment-log.md) | 回归对齐日志（含新发现 8 条处置） | stable |
 | [50-testing/benchmark/090-umami-gap-analysis.md](50-testing/benchmark/090-umami-gap-analysis.md) | 实质差距分析（重建↔原仓库·API12/页面39/结构2） | stable |
+| [50-testing/benchmark/100-tier2-summary.md](50-testing/benchmark/100-tier2-summary.md) | 第三梯队建馆侧汇总档案（9 样本总账 + 面穷举对账 + ADR 触发 + 复原侧待办） | living |
+| [50-testing/benchmark/110-rqlite.md](50-testing/benchmark/110-rqlite.md) | rqlite 建馆侧档案（Raft 共识样本：391 登记簿 / 270 AC） | living |
+| [50-testing/benchmark/120-syncthing.md](50-testing/benchmark/120-syncthing.md) | syncthing 建馆侧档案（P2P+加密+冲突样本：690 登记簿 / 196 AC） | living |
+| [50-testing/benchmark/130-headscale.md](50-testing/benchmark/130-headscale.md) | headscale 建馆侧档案（控制面+策略 DSL 样本：410 登记簿 / 140 AC） | living |
+| [50-testing/benchmark/140-yt-dlp.md](50-testing/benchmark/140-yt-dlp.md) | yt-dlp 建馆侧档案（广度极限样本：2805 登记簿 / 2040 提取器 / 235 AC） | living |
+| [50-testing/benchmark/150-docmost.md](50-testing/benchmark/150-docmost.md) | docmost 建馆侧档案（CRDT 实时协作样本：715 登记簿 / 251 AC） | living |
+| [50-testing/benchmark/160-plausible.md](50-testing/benchmark/160-plausible.md) | plausible 建馆侧档案（Elixir+OLAP 双存储样本：538 登记簿 / 152 AC） | living |
+| [50-testing/benchmark/170-excalidraw.md](50-testing/benchmark/170-excalidraw.md) | excalidraw 建馆侧档案（UI/UX 专项：518 登记簿 / 106 交互契约 / 6 无处安放项） | living |
+| [50-testing/benchmark/180-documenso.md](50-testing/benchmark/180-documenso.md) | documenso 建馆侧档案（UI/UX 专项：815 登记簿 / 73 交互契约 / 8 无处安放项） | living |
+| [50-testing/benchmark/190-formbricks.md](50-testing/benchmark/190-formbricks.md) | formbricks 建馆侧档案（UI/UX 专项对照组：885 登记簿 / 54 交互契约 / 8 无处安放项） | living |
 | [98-sessions/_index.md](98-sessions/_index.md) | 会话档案分区索引（对话原始记录规范：命名/frontmatter 五要素/双向关联） | living |
 | [98-sessions/transcript-archive-20261026-01.md](98-sessions/transcript-archive-20261026-01.md) | 会话记录：对话档案区立项与 M1（session-id 待回填） | archived-session |

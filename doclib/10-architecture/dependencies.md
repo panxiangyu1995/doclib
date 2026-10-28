@@ -34,3 +34,5 @@ type: ledger
 | @types/node ^22 | devDep |
 | @types/picomatch ^4.0.2 | devDep，vendored 引擎类型（上游同款） |
 | scripts/copy-assets.js | node:fs 递归拷贝（零依赖脚本）：assets/ 与 skills/ → dist/assets/；vendor schema.sql + 13 wasm → dist/vendor/；写入 dist/vendor/package.json（type commonjs 作用域标记） |
+
+> v0.10.0（#44）：运行时依赖零变化（git 探测用 Node 内置 `node:child_process`——`core/gitinfo.ts`，无新依赖引入）；仅 package.json 版本字段 0.9.0→0.10.0。

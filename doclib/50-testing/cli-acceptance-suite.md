@@ -18,6 +18,9 @@ covers:
   - src/commands/implement.test.ts
   - src/core/check.test.ts
   - src/core/harness.test.ts
+  - src/core/gitinfo.test.ts
+  - src/core/branch.test.ts
+  - src/commands/branch.test.ts
   - package.json
 status: stable
 ---
@@ -97,3 +100,5 @@ status: stable
 ## 三、验收结论
 
 178/178 绿（typecheck 同绿）；未发现新缺陷——2026-10-19/20 两轮修复后行为与规格一致。发现并留档 2 处**规格语义澄清**（非缺陷）：sync 与 init 的空串 --agents 语义差异；孤儿豁免与无归属豁免是两套独立判定。
+
+> 2026-10-28 增量（#44 分支账与主分馆管理 v0.10.0）：新增 `src/core/gitinfo.test.ts`（2）、`src/core/branch.test.ts`（8：账本解析与非法行/行渲染往返/分支清单与非 git 降级/主分支探测/分馆审计三面/主分支自动探测/无簿记降级/非 git 报错）、`src/commands/branch.test.ts`（4：register 落账与三重拦截/list 账实对照三态/diff 审计与未知动作）——`snapshot.test.ts` +2（git 归属落库/非 git 无字段）、`status.test.ts` +1（归属行与跨分支警告）、`diff.test.ts` +1（归属行与跨分支警告）、`core/check.test.ts` +2（分支 notice 三态/主分支与非 git 零 notice）——**全套 394/394 绿（39 测试文件）**；REVIEW 轮加固 +2（register 竖线/换行拒绝、`-` 开头 base 注入拒绝——见 branch.md AC-2/AC-5）；行为规格与 AC 见 [branch.md](../30-features/branch.md)。

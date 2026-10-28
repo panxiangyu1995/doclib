@@ -136,3 +136,20 @@ test("diff：--json 输出与 json 字段同源（stdout 可直接 JSON.parse）
   assert.deepEqual(parsed.drift.modified, ["src/a.ts"]);
   assert.deepEqual(parsed, r.json);
 });
+
+test("diff：git 仓库基线归属行与跨分支不一致提示", async () => {
+  const { execFile } = await import("node:child_process");
+  const { promisify } = await import("node:util");
+  const exec = promisify(execFile);
+  const root = await tmpRoot("doclib-acc-diff-git-");
+  await exec("git", ["init", "-q", "-b", "main", root]);
+  await put(root, "src/a.ts", "v1");
+  await exec("git", ["-C", root, "add", "-A"]);
+  await exec("git", ["-C", root, "-c", "user.email=t@t.io", "-c", "user.name=t", "commit", "-qm", "seed"]);
+  await runSnapshot(root, {});
+  const same = await runDiff(root, {});
+  assert.match(same.text, /基线: snap-001 \(version 1\)（来自分支 main @ [0-9a-f]{7}）/);
+  await exec("git", ["-C", root, "checkout", "-q", "-b", "feat-cross"]);
+  const cross = await runDiff(root, {});
+  assert.match(cross.text, /⚠ 当前分支 feat-cross 与基线分支 main 不一致/);
+});

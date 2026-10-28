@@ -227,6 +227,7 @@ doclib/
 | 治理 | `place` | 孤儿归位：`list` / `collect` / `archive` / `ack` / `restore`（写操作默认干跑） | 馆外有文档时 |
 | 治理 | `hook` | pre-commit 钩子安装 / 移除（馆内 `test-chain` 声明自动烘焙测试链；`--ci github` 出含 full 档的 CI 模板） | 接入 CI 时 / 声明测试链后 |
 | 治理 | `reconcile` | 进度对账重建：疑似完成 / 进度不符 / 待推进 | 进度账与代码不一致时 |
+| 治理 | `branch` | 分支账：`list`（账实对照）/ `register`（登记分馆）/ `diff`（分馆 vs 主馆合并审计） | 新建分支 / 分支合并回主馆前 |
 | 增强 | `sync` | 引导文件规则区与 skills 同步再生（幂等，定制区保留） | 升级 CLI 后 |
 | 增强 | `graph` | 代码知识图谱：`index` / `status` / `draft` / `explore <query>`（可选增强，需 Node ≥ 22.5） | 大仓库加速 |
 
@@ -256,12 +257,12 @@ skills 由 agent 按名称加载，各自绑定一个触发场景：
 
 | 项 | 值 | 来源 |
 | --- | --- | --- |
-| npm 包 / 版本 | `@panxiangyu1995/doclib` / 0.9.0（npm latest 0.8.0，发版随下一窗口） | `package.json` |
+| npm 包 / 版本 | `@panxiangyu1995/doclib` / 0.10.0（npm latest 0.8.0，发版随下一窗口） | `package.json` |
 | License / Node | MIT / `>=22.5 <25` | `package.json` |
 | 运行时依赖 | 4 个：`ignore` / `jsonc-parser` / `picomatch` / `web-tree-sitter` | `package.json` `dependencies` |
-| CLI 命令 / Skills | 14 / 11 | `src/commands/` · `skills/` |
+| CLI 命令 / Skills | 15 / 11 | `src/commands/` · `skills/` |
 | 图书馆骨架 | 12 卷 + 登记簿族（首批 5 册）+ `99-archive` + `98-sessions`，共 33 个骨架文件 | `assets/templates/library/` |
-| 测试 | 36 个测试文件 / 372 用例 | `package.json` test 脚本 |
+| 测试 | 39 个测试文件 / 394 用例 | `package.json` test 脚本 |
 | 源码规模 | 非测试 5,998 行 / 测试 5,760 行 | `src/` |
 | 本仓库自身治理 | 100/100 (A)，违规 0 | `doclib check` |
 | 复原基准 | umami：建馆 97% 覆盖 → 同题共答 96.4%（53/55）→ 回归 100% | `doclib/50-testing/benchmark/` |

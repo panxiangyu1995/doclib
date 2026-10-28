@@ -60,6 +60,22 @@ status: living
 - **生态**：宽松协议（MIT 等）、活跃维护（对比有基准）、入口清晰
 - **切片复原**：大项目按功能切片部分复原，局部缺陷同样可暴露
 
+## 上游文档的收编判据（上游自带文档体系时）
+
+> 适用于「上游仓库 in-repo docs 丰富」的样本（第三梯队实测：formbricks 252 篇 mdx + ACCESSIBILITY.md + GLOSSARY.md）。上游文档不是「越多越好搬」——**搬进来会让馆变胖变钝**，且可能弱化上游语义。
+
+**主判据**：*这句话描述的是「系统保证什么」还是「人该怎么做」？* 前者入馆，后者不收编（对「从零复原」零信息量）。
+
+**三条补充条款**：
+
+1. **不重复**——上游已说清的只引路径，不搬段落（`covers` 锚定 + 指针句即可）；
+2. **不降格**——转写时不弱化上游语义强度（上游的强约束不得被软化成「建议」）；
+3. **切片一致**——切片外能力即使有价值也不收编，否则验收范围与边界打架。
+
+**优先转写而非另起炉灶**：上游的术语表与规范类文档（如 `GLOSSARY.md` / `ACCESSIBILITY.md`）应**转写为馆内对应册**（术语表 / 无障碍册），不另写一套——避免双源。
+
+**结果按四态判定入册**（馆内 / 非文档资产 / 工具链豁免 / 待归位），**判据与结果同处一册**（`40-guides/workflow.md` 的收编流程），不拆开——判据随会话消失时下一批文档又按个人偏好收。实测样例见 `doclib/50-testing/benchmark/190-formbricks.md`。
+
 ## 同题共答（对比分层）
 
 | 层级 | 对比物 | 判定 |
@@ -125,5 +141,7 @@ MVP 首轮已闭环：umami 建馆（97% 覆盖/治理 A）→ 隔离复原（op
 - 首个基准项目【Q31】：colinhacks/zod——**另一环境并行进行中**（用户启动，待回收档案）
 - 第二基准项目（本环境）：umami——首轮闭环（档案见 doclib/50-testing/benchmark/）
 - 四领域样本（memos/fd/csvkit/aspnetcore）：**建馆侧四馆已建成**（feature-map #23）——待做：复原侧闭环（隔离复原 / 同题共答 / 缺陷四分类 / 回灌 / 回归）与档案入馆（`50-testing/benchmark/` 现仅 umami 010~090）
-- 第三梯队（更复杂样本 + UI/UX 专项）：**规划中**——9 个候选已完成本机实测并分层标注（主推荐 rqlite / syncthing / headscale / yt-dlp / docmost / plausible + 挑战档 meilisearch / zellij + UI/UX 专项 excalidraw / documenso / formbricks），切片边界逐仓已定；建馆侧与复原侧待排期（`.plan/2026-10-27/benchmark-tier2.md`，feature-map #42）
+- 第三梯队（更复杂样本 + UI/UX 专项）：**建馆侧 9 馆已建成**（feature-map #42，2026-10-27）——主推荐 6 仓（rqlite / syncthing / headscale / yt-dlp / docmost / plausible）+ UI/UX 专项 3 仓（excalidraw / documenso / formbricks）；9/9 覆盖度 85%–100%、治理 100/100（A 级）、strict 通过；档案入馆 `50-testing/benchmark/100~190`（汇总 + 逐样本册）；**挑战档 2 仓（meilisearch / zellij）按「后置」未克隆未建馆**
+  - **交互契约 ADR 触发条件已满足**：三个 UI/UX 样本合计 22 条「交互语义无处安放」（阈值 ≥3）→ 已立 ADR #27（80-design 增设交互语义承载面，**本轮不预写规格**，形态待首轮复原实测后定稿）
+  - **待做（复原侧）**：逐仓 `plan --rebuild` → 隔离复原（不同会话/实例/模型）→ 同题共答双跑 → 缺陷四分类 → 回灌 → 回归 → 档案扩充（答卷卷 / 差异卷 / 回灌卷）
 - 待办：回归切片抽查（B 类 13 条对齐后重跑受影响 AC）｜ zod 档案回收 ｜ S3-02 后 S3 全闭环

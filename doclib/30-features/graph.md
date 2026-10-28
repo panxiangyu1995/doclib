@@ -73,7 +73,7 @@ status: living
 ## 约束
 
 - 图输出永不直接入馆（铁律一）；agent 逐条裁决回灌
-- graph 命令族为可选增强：任何 graph 失败不得阻塞 doclib 核心流程（init/plan/diff/snapshot/status/verify/check/ack/place/hook/reconcile/sync）
+- graph 命令族为可选增强：任何 graph 失败不得阻塞 doclib 核心流程（init/plan/diff/snapshot/status/verify/check/ack/place/hook/reconcile/branch/sync/implement）
 - `.doclib/drafts/` 属簿记区：不入快照、不入漂移；草稿被 agent 消费后即为过程产物
 - vendored 源码修改必须登记 FORK-NOTES.md（subtree 合并审计锚点）
 

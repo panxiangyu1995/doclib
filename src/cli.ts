@@ -10,6 +10,7 @@ import { runCheck } from "./commands/check.js";
 import { runAck } from "./commands/ack.js";
 import { runHook } from "./commands/hook.js";
 import { runReconcile } from "./commands/reconcile.js";
+import { runBranch } from "./commands/branch.js";
 import { runGraph } from "./commands/graph.js";
 import { runPlace } from "./commands/place.js";
 import { runImplement } from "./commands/implement.js";
@@ -99,6 +100,7 @@ const HELP = `doclib — 把任意项目蒸馏成可复原的文档图书馆
   place     孤儿归位：list（列出待归位与建议归宿）/ collect（收编入馆）/ archive（入棺归档）/ ack（登记豁免）/ restore（还原归档）；写操作默认干跑，--apply 执行
   hook      pre-commit 钩子安装/移除（--strict；--ci github 发 CI 模板）
   reconcile 进度对账重建：疑似完成/进度不符/待推进清单
+  branch    分支账：list（账实对照）/ register <分支> --note <目的>（登记分馆）/ diff [主分支]（分馆 vs 主馆合并审计）
   graph     代码知识图谱: index 建图(增量同步)/status 状态/draft 登记簿候选草稿/explore 上下文查询（可选增强，需 Node >= 22.5）
   implement 拆单器：无 --feature 列 planned 候选；--feature <N> readiness 校验后生成 .plan 实施骨架（干跑默认，--apply 落盘）
 
@@ -106,7 +108,7 @@ const HELP = `doclib — 把任意项目蒸馏成可复原的文档图书馆
   --json       以 JSON 输出 (diff/verify/status/place list/graph status)
   --graph      init 时同步初始化代码知识图谱（需 Node >= 22.5，可用 doclib graph index 补建）
   --no-hook    init 时不自动安装 pre-commit 门禁（默认自动安装 --strict 档）
-  --note       snapshot 的备注文本；place ack 的豁免理由
+  --note       snapshot 的备注文本；place ack 的豁免理由；branch register 的分支目的
   --to         rebuild 目标目录 (默认 ../<项目名>-rebuild)；place collect 的目标卷
   --force      init 时补齐/刷新模板文件（用户内容不覆盖）
   --rebuild    plan 生成从零复原任务书
@@ -170,6 +172,9 @@ async function main(): Promise<void> {
       break;
     case "reconcile":
       console.log((await runReconcile(root, flags)).text);
+      break;
+    case "branch":
+      console.log((await runBranch(root, { action: args[1], name: args[2], note: flags.note, base: args[2], json: flags.json })).text);
       break;
     case "graph":
       console.log((await runGraph(root, args[1] ?? "", { ...flags, query: args[2] })).text);

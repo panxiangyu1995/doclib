@@ -56,3 +56,5 @@ install 期：`loadTestChain(root)` 读 testing.md frontmatter → `hookScript` 
 - 判定细节：`30-features/check.md`（三新类）
 - PRD：`10-architecture/prd.md` F19；ADR #26
 - 长程回路全文：`skills/doclib-dev/SKILL.md` 情形 B
+
+> v0.10.0（#44）增量：doclib-dev「会话开始」增第 3 步**分支核对**（非主分支未登记 → `doclib branch register`）、纪律底线增分支纪律一行；命令速查面（引导 light 档）增 `branch` 词条——长程回路与烘焙执法语义不变，规格见 [branch.md](branch.md)。

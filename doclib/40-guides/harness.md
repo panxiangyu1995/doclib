@@ -53,3 +53,5 @@ status: stable
 - 长程回路全文：`skills/doclib-dev/SKILL.md` 情形 B
 - 测试链声明事实源：`50-testing/testing.md` frontmatter
 - ADR #26（架构裁决：状态承载/烘焙执法/确定性反哺）
+
+> v0.10.0（#44）增量：情形 A/B 共享骨架「会话开始」增分支核对步（分馆期 progress 条目带 `[branch:分支名]` 标注）——六步回路本身不变，见 `30-features/branch.md`。

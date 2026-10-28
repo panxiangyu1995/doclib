@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { runSnapshot } from "./snapshot.js";
@@ -178,4 +180,27 @@ test("snapshot：state.json schema 非法（缺 version/snapshots）→ 回落�
   const r = await runSnapshot(root, {});
   assert.match(r.text, /snap-001/);
   assert.ok(await has(root, ".doclib/state.json"));
+});
+
+test("snapshot：git 仓库内快照记录归属（branch/commit 落库）", async () => {
+  const root = await tmpRoot("doclib-acc-snap-git-");
+  const exec = promisify(execFile);
+  await exec("git", ["init", "-q", root]);
+  await put(root, "src/a.ts", "v1");
+  await exec("git", ["-C", root, "add", "-A"]);
+  await exec("git", ["-C", root, "-c", "user.email=t@t.io", "-c", "user.name=t", "commit", "-qm", "seed"]);
+  await runSnapshot(root, { note: "git-owned" });
+  const state = await loadState(root);
+  const snap = state.snapshots[0]!;
+  assert.ok(snap.git);
+  assert.match(snap.git.branch, /^(main|master)$/);
+  assert.match(snap.git.commit, /^[0-9a-f]{40}$/);
+});
+
+test("snapshot：非 git 目录快照不含 git 字段", async () => {
+  const root = await tmpRoot("doclib-acc-snap-nogit-");
+  await put(root, "src/a.ts", "v1");
+  await runSnapshot(root, {});
+  const state = await loadState(root);
+  assert.equal(state.snapshots[0]!.git, undefined);
 });

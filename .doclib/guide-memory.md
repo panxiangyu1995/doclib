@@ -1,16 +1,17 @@
 ---
-work-as-of: 2026-10-27
-user-as-of: 2026-10-27
+work-as-of: 2026-10-28
+user-as-of: 2026-10-28
 window: 30
 ---
 
 ## 近期工作记忆（窗口 30 天）
 
-- 当前焦点：#43 长程开发闭环 v0.9.0 已归档（commit 104ee88，基线 snap-089/revision 80）；#42 复原基准第三梯队扩容仍待授权执行——载体 .plan/2026-10-27/benchmark-tier2.md
-- 当前焦点（次）：npm 0.9.0 未发布（0.8.0 为 latest）——发版随下一批功能窗口
+- 当前焦点：#44 分支账与主分馆管理 v0.10.0 落地归档（F20）——`doclib branch` 命令族/分支账/快照 git 归属/check 两 notice；测试 392/392，基线 snap-095/revision 86，本仓 dogfooding（.plan/2026-10-28/branch-management.md）
+- 当前焦点（次）：#42 复原基准第三梯队**建馆侧已落地**（9 馆建成于 test/）——复原侧闭环待排期；npm 0.10.0 未发布（0.8.0 为 latest）——发版随下一批功能窗口
 - 近期完成：
+  - 10-28 #44 分支账与主分馆管理 v0.10.0：#13 git 感知基线收编 implemented、#14 多馆管理注记收编（watch 仍 planned）；路线图 v0.2/v0.3 两欠账词条收编；ADR #28（边界条款定向扩展）；踩坑「Markdown 表格裸竖线错位」入 95-lessons
   - 10-27 #43 长程开发闭环 v0.9.0 落地归档（F19）：test-chain 声明+hook 烘焙+check 三新判定+dev 双情形+sync 反哺——测试 372/372，本仓 dogfooding（.plan/2026-10-27/long-horizon-harness.md）
-  - 10-27 #42 规划完成：第三梯队 9 候选（rqlite/syncthing/headscale/yt-dlp/docmost/plausible + meilisearch/zellij + excalidraw/documenso/formbricks）本机实测并分层标注
+  - 10-27 #42 建馆侧落地：9 仓克隆入 test/ + 9 馆建成（646 篇 / 登记簿 6967 条 / AC 1760 条，9/9 strict + 治理 100 A）；ADR #27 交互契约承载面立项
   - 10-27 #41 推广视频落地归档：8.5MB 成片 7200 帧位级一致 + 质检三绿 + 知识层 5 篇入馆（另一实例执行）
   - 10-27 #41 规划完成：HyperFrames 选型四路实证成立；落位②定案；发布链修正清单就绪（npm 0.4.0→0.8.0）
   - 10-27 #40 记忆快照与协作者画像反哺 v0.8.0 落地（F18，commit ee0023c，基线 snap-081 / revision 72）
@@ -25,7 +26,7 @@ window: 30
   - **npm 0.8.0 已发布**（2026-10-27，latest 已指向，SLSA provenance 齐备）——release.yml node 已改 24 自洽 engines；推广视频 CTA 的 npx 安装版本与片中声明一致
   - **本仓存在并发写入实例**（实测：改写基线/占端口/抢带宽/软件著作权 skill 26 文件在飞）——执行前须重核基线/工作区/端口；#43 期其 WIP 阻断门禁经用户拍板「最小登记放行」（ack ×3+config.md 事实登记）——并发冲突处置先例
   - .claude/commands/{intest,r5,review}.md 已 ack standing（待其会话收编）；软著申请资料/ 已入 gitignore+config.md 登记
-  - #42 第三梯队待授权执行；plausible/meilisearch/zellij 三仓**标「未实测」**（Elixir/Rust 钉版工具链下载受阻），宁可缺证不虚报
+  - #42 复原侧闭环待排期（建馆侧已成；9 样本册「复原侧」小节均为待办）；挑战档 meilisearch/zellij **未建馆**（计划标「后置」）——plausible 三仓**标「未实测」**（Elixir/Rust 工具链受阻），宁可缺证不虚报
   - #34 transcript 批量回捞 planned——素材升级依赖它（OpenCode DB 285 会话/2.5 万消息待接入）
   - #23 复原侧闭环待排程（四馆建馆侧已建成，隔离复原未启动）；#19 ast-grep 阶段 1 planned
   - 既有失真已处置：`40-guides/workflow.md` 悬空指针（AGENTS.md / .doclib/guide-project.md / 10-architecture/data-flow.md 三处）已改指真实承载点（`10-architecture/overview.md`·`30-features/guides.md`）
@@ -39,5 +40,6 @@ window: 30
 - 沟通偏好：中文交流；以 RIPER-5 模式协议管控会话（研究→创新→计划→执行→审查，模式切换须显式指令）；研究阶段要求「确切的肯定的研究结果，不包含任何的猜测」——实证优先（context7/gh/实测交叉验证）；方案呈现给推荐+理由由其拍板
 - 决策风格（新观察）：**会主动修正推荐方案的设计方向**（#43 原话「可以少新增一个skill……只做成一个dev skill」「测试标准……也该一样反哺到claude.md和agents.md中」）——推荐项被接受≠设计定稿，交付前用户仍做全局审视并给结构性修正；执行期偏差（语义缺陷/并发冲突）能快速拍板
 - 工作流习惯：新功能必走 .plan 载体双锚点（规划文档先行，按文档实施）；REVIEW 轮独立进行（「全方位漏洞审查」「严格代码审查查找漏洞」）；常要求真实仓库扩展验收（「在 test 目录下的克隆项目中测试」）；对「遗漏入馆」高度敏感（曾实证手动补录 → 拍板 hook 执法路线 #35）；会直接下发 planstore 纪律指令要求规划文档补齐反遗漏自检五项
+- 协作节奏（新观察）：**一次指令下达多仓批量执行**（「克隆…到 test 目录下，然后分别在这些仓库下建馆」）——期望代理自行拆分为逐仓并行子任务并统一收尾纪律，不逐仓确认；本轮两次提问工具拍板**均选推荐项**（9 仓而非 11 仓 / 只建馆不做答卷）
 - 证据偏好（新观察）：**要求「实测」但排斥实测膨胀**——原话「你推荐的都做实测」「有必要搞半天么」「为什么不用 context7 mcp 或者 gh cli」→ 仓库事实走 gh API、SDK 文档走 context7，本机只做编译/测试/运行与 UI 交互探针；报告须分层标注「已实测/未实测」，缺证即标缺证
 - UI/UX 痛点（新观察）：原话「我在使用 agent 开发中实际感受就是 ui/ux 最难复现」→ 关心可断言的交互契约（元素 × 状态 × 手势 × 反馈），而不只是界面描述

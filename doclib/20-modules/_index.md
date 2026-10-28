@@ -17,6 +17,8 @@ status: stable
 | core/fsutil | 遍历/hash/树渲染/ignore 语义 | 待成卷 | src/core/fsutil.ts |
 | core/frontmatter | Markdown frontmatter（covers）解析 | 待成卷 | src/core/frontmatter.ts |
 | core/state | 状态模型 v2、快照链、漂移计算 | 待成卷 | src/core/state.ts |
+| core/gitinfo | git 分支/commit 探测（非 git 优雅降级 null） | 30-features/branch.md | src/core/gitinfo.ts |
+| core/branch | 分支账解析/渲染、git 分支清单、分馆对主馆合并审计（馆差异/revision 分叉/快照撞号） | 30-features/branch.md | src/core/branch.ts |
 | core/detect | 语言/框架/入口探测 | 待成卷 | src/core/detect.ts |
 | core/mapping | covers 索引与路径→文档映射、覆盖报告 | 待成卷 | src/core/mapping.ts |
 | core/version | CLI/结构版本常量（引导戳数据源） | 待成卷 | src/core/version.ts |
@@ -27,7 +29,8 @@ status: stable
 | commands/init | 骨架落位 + agents/skills/引导安装 | 30-features/init-v2.md | src/commands/init.ts |
 | commands/plan | 任务书生成（BUILD/UPDATE/REBUILD） | 待成卷 | src/commands/plan.ts |
 | commands/diff | 漂移报告与受影响文档映射 | 待成卷 | src/commands/diff.ts |
-| commands/snapshot | 基线记录（版本 +1） | 待成卷 | src/commands/snapshot.ts |
+| commands/snapshot | 基线记录（版本 +1；git 仓库自动填充快照归属 branch/commit） | 待成卷 | src/commands/snapshot.ts |
+| commands/branch | 分支账三动作（list 账实对照/register 登记分馆/diff 合并审计报告） | 30-features/branch.md | src/commands/branch.ts |
 | commands/status | 版本/基线/漂移/引导概览 | 待成卷 | src/commands/status.ts |
 | commands/verify | 覆盖度/失效文档/INDEX/引导检查 | 待成卷 | src/commands/verify.ts |
 | commands/sync | 引导规则区与 skills 同步（幂等）+ 门禁幂等补装（缺失补装 strict/在岗不越权/foreign 不覆盖） | 30-features/（待写） | src/commands/sync.ts |

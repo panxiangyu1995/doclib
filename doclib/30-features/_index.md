@@ -25,5 +25,6 @@ status: stable
 | BOOTSTRAP/RESUME 任务书 | 待写 | — | planned |
 | .plan 检测与双锚点提醒 | 待写 | — | planned |
 | 进度对账与 reconcile | [reconcile.md](reconcile.md) | src/commands/reconcile.ts、src/core/reconcile.ts | implemented（v0.34 补规格欠账 + 判定修正） |
+| 分支账与主分馆管理（F20，含 #13 git 感知基线收编） | [branch.md](branch.md) | src/commands/branch.ts、src/core/branch.ts、src/core/gitinfo.ts | implemented（v0.10.0） |
 | F17 规划直通车（bootstrap v2 对话协议 + 工具兼容层 + implement 拆单 + 门禁三件套 + provenance 提醒） | [040-planning-express.md](040-planning-express.md) | src/commands/implement.ts、src/core/implement.ts、src/core/planning.ts、src/core/docquality.ts、src/core/archival.ts、skills/doclib-bootstrap/SKILL.md、skills/doclib-implement/SKILL.md | implemented（v0.7.0） |
 | F19 长程开发闭环（test-chain 馆内声明 + hook 烘焙执法 + 清单状态失真三类判定 + doclib-dev 双情形六步回路 + sync 反哺链块） | [050-harness.md](050-harness.md) | src/core/harness.ts、src/commands/hook.ts、src/core/check.ts、src/commands/check.ts、src/core/guides.ts、assets/guides/light.md、skills/doclib-dev/SKILL.md、skills/doclib-rebuild/SKILL.md、.opencode/commands/intest.md | implemented（v0.9.0） |
