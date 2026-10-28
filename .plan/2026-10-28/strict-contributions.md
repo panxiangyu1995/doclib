@@ -4,6 +4,7 @@
 - 状态：执行中（feature-map #45；ADR #29）
 - 来源：用户原话「项目的参与贡献有些随意，因为现在 ai 时代，pr 提交的代码质量可能会有很大的问题，所以我们的参与贡献的方式设置严格一些，具体的你 context7 mcp 或者 gh cli 找找最佳实践做做参考」；执行期两次全局审视——「这个方案会不会过于严格了啊？」→ γ-lite 修正拍板；「编号推进的太快了，我怕后期没有编号用，在图书馆中制定一个编号推进的规则供 agent 考量，而不是随便推进，同时蒸馏进 claude.md 和 agents.md 中」→ 新增范围 Q10
 - 规划载体：本对话（RIPER-5 RESEARCH → INNOVATE → PLAN → EXECUTE）
+- 会话导出登记：`doclib/98-sessions/strict-contributions-20261028-01.md`（opencode 原生 /export，session-id ses_e7fda242dffeWRmzRWKWi4zM0r；敏感信息自查：会话内无密钥/token/凭据明文——gh CLI 调用均走本机凭据，未在对话中出现）
 
 ## 拍板记录
 
