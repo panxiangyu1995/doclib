@@ -44,3 +44,10 @@
 ## 任务进度
 
 [2026-10-28 规划落盘 + 并发处置] 载体创建；#44 代提交（9f7dcc9）；取号 #45/ADR #29（先查账末：feature-map 44 / decisions 28）。状态：执行中。
+
+[2026-10-28 执行完成]
+- 已修改：CONTRIBUTING.md v2 十节 + .github 六资产（PR 模板/ISSUE_TEMPLATE×3/ci.yml/CODEOWNERS）+ README.md/README.en.md 参与贡献节 + doclib（decisions ADR #29/config CI 节+covers/overview 门面描述/INDEX 计数+numbering 登记/numbering.md 新建/feature-map #45/progress×2/branch.md AC-13/cli-acceptance-suite 增量/95-lessons ×2）+ 簿记 guide-project（编号纪律行+docs-hash×5 刷新）+ guide-memory 重蒸馏瘦身（45→约 35 行）+ 测试修复 ×2（branch.test 夹具 -b main/status.test utimes 后移）
+- 更改：25 步清单全部完成（γ-lite：title 机器校验按拍板拆除）；CI 三跑收敛绿（首跑 394/395→branch 夹具修复；二跑 394/395→status.test 竞态修复——两例均为「本地绿≠CI 绿」环境依赖族，同族排查 planning/plan 两用例已确定性安全）；Ruleset main-protection 落位（id 26020271，bypass 管理员）
+- 原因：用户指令「按你推荐的来」+ 新增范围 Q10（编号推进规则立法）
+- 阻碍因素：并发两次（#44 撞号→代提交 9f7dcc9；#46 在飞→写协调等待收敛 20+ 分钟）——均已按编号纪律处置
+- 状态：成功（待用户确认）
