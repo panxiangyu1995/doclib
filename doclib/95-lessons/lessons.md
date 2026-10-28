@@ -355,3 +355,11 @@ status: living
 - 解决：动账前 `doclib status` 并发重核 + `tail feature-map/decisions` 取 max+1；撞号已发生时按 #44 先例处置（前置门核查→代提交在飞成果→顺延换号）；共享教训（如本条）任一实例可代为入档，标题前缀即匹配键
 - 规划：已成文 `40-guides/numbering.md`（先查账末后取号/一号一事永不换号/执行前并发重核）
 - 来源：.plan/2026-10-28/strict-contributions.md（#45 声明）+ .plan/2026-10-28/workorder-rename.md（#46 亲历顺延，REVIEW 轮代录入档）
+
+## 2026-10-28 · git init 默认分支名是环境变量——依赖「默认分支=main」的测试本地绿 CI 必红
+
+- 现象：#45 首启 ci.yml 后 CI 首跑 394/395——branch 测试 `analyzeBranchDiff(root, "main")` 报「基准分支不存在」，本机 395/395 全绿
+- 根因：测试夹具 `git init` 未显式 `-b main`，初始分支名跟随环境（本机 git 配置 init.defaultBranch=main，GitHub Actions runner 未配置默认 master）——与「时间断言必须显式设定时间戳」同类：**环境默认值不可依赖，须显式钉死**
+- 解决：夹具改 `git init -q -b main <root>`（显式命名初始分支）；同文件 detectMainBranch 测试本就做了 main/master 双探测未受累
+- 规避：测试中一切依赖环境默认值的形态（git 默认分支名/默认编辑器/时区/umask）必须显式设定或双形态探测；CI 是环境默认值差异的显影器——「本地绿 ≠ CI 绿」教训的 git 维度补全
+- 来源：.plan/2026-10-28/strict-contributions.md 任务进度节

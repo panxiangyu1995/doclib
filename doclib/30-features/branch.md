@@ -45,3 +45,4 @@ status: living
 - AC-10 Given 基线含 git 字段，When `doclib diff`，Then 基线行同 AC-9 语义显示归属与跨分支警告。
 - AC-11 Given 当前在非主分支，When `doclib check`，Then 未建账或未登记时出 branch-unregistered notice、账内存在非法行或要素缺失时出 branch-ledger-incomplete notice；主分支与非 git 目录零分支 notice；两类 notice 均为软提示，不入 strict 门禁违规。
 - AC-12 Given 分支账任意条目，When 合并回主馆后，Then 条目翻 merged 保留不删；progress 分馆条目带 `[branch:分支名]` 行内标注，无标注视为主分支（存量兼容）。
+- AC-13 Given 临时夹具仓以 `git init` 创建，When 分支账测试夹具建仓，Then 初始分支名显式 `-b main` 钉死（环境默认值不可依赖——本机 init.defaultBranch 与 CI runner 默认可能不同；2026-10-28 CI 首跑实证，夹具修复 + 95-lessons 入档）。

@@ -89,7 +89,7 @@ test("branch：detectMainBranch 优先 main，缺 main 回落 master，都无返
 async function gitFixture(): Promise<string> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "doclib-branch-audit-"));
   const git = (...args: string[]) => exec("git", ["-C", root, ...args]);
-  await exec("git", ["init", "-q", root]);
+  await exec("git", ["init", "-q", "-b", "main", root]);
   await fs.mkdir(path.join(root, "doclib"), { recursive: true });
   await fs.mkdir(path.join(root, ".doclib"), { recursive: true });
   await fs.writeFile(path.join(root, "doclib", "README.md"), "# 馆", "utf8");
