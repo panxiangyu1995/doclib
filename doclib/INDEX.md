@@ -80,5 +80,6 @@ status: living
 | [50-testing/benchmark/170-excalidraw.md](50-testing/benchmark/170-excalidraw.md) | excalidraw 建馆侧档案（UI/UX 专项：518 登记簿 / 106 交互契约 / 6 无处安放项） | living |
 | [50-testing/benchmark/180-documenso.md](50-testing/benchmark/180-documenso.md) | documenso 建馆侧档案（UI/UX 专项：815 登记簿 / 73 交互契约 / 8 无处安放项） | living |
 | [50-testing/benchmark/190-formbricks.md](50-testing/benchmark/190-formbricks.md) | formbricks 建馆侧档案（UI/UX 专项对照组：885 登记簿 / 54 交互契约 / 8 无处安放项） | living |
+| [50-testing/benchmark/200-cc-switch.md](50-testing/benchmark/200-cc-switch.md) | cc-switch 复原侧档案（F14 首个 Tauri 双端样本：复原闭环 R1–R5 / AC 52 / 回灌 8 项 / snap-004） | stable |
 | [98-sessions/_index.md](98-sessions/_index.md) | 会话档案分区索引（对话原始记录规范：命名/frontmatter 五要素/双向关联） | living |
 | [98-sessions/transcript-archive-20261026-01.md](98-sessions/transcript-archive-20261026-01.md) | 会话记录：对话档案区立项与 M1（session-id 待回填） | archived-session |

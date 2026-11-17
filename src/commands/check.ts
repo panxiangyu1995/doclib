@@ -116,6 +116,8 @@ export async function runCheck(root: string, opts: { json?: boolean; strict?: bo
     const chainStale = count("chain-stale");
     const branchUnregistered = count("branch-unregistered");
     const branchLedger = count("branch-ledger-incomplete");
+    const ledgerReconcile = count("ledger-reconcile");
+    const eventUnregistered = count("event-unregistered");
     const parts: string[] = [];
     if (toolchain > 0) parts.push(`工具链豁免 ${toolchain}`);
     if (guide > 0) parts.push(`引导文件豁免 ${guide}`);
@@ -129,6 +131,8 @@ export async function runCheck(root: string, opts: { json?: boolean; strict?: bo
     if (chainStale > 0) parts.push(`测试链过期 ${chainStale}`);
     if (branchUnregistered > 0) parts.push(`分支未登记 ${branchUnregistered}`);
     if (branchLedger > 0) parts.push(`分支账要素缺失 ${branchLedger}`);
+    if (ledgerReconcile > 0) parts.push(`账实对账不符 ${ledgerReconcile}`);
+    if (eventUnregistered > 0) parts.push(`事件未入账 ${eventUnregistered}`);
     lines.push(`豁免与提示: ${parts.join(" ｜ ")}`);
     const suspectDirs = new Map<string, number>();
     for (const n of notices.filter((x) => x.kind === "toolchain-suspect")) {
@@ -140,7 +144,7 @@ export async function runCheck(root: string, opts: { json?: boolean; strict?: bo
       const detail = notices.find((x) => x.kind === "toolchain-suspect" && x.path === dir)?.detail ?? "";
       lines.push(`  - ${dir}/  —  ${files} 个文件｜${detail}`);
     }
-    for (const k of ["chain-stale", "blocked-residue", "skeleton-open", "branch-unregistered", "branch-ledger-incomplete"] as const) {
+    for (const k of ["chain-stale", "blocked-residue", "skeleton-open", "branch-unregistered", "branch-ledger-incomplete", "ledger-reconcile", "event-unregistered"] as const) {
       for (const n of notices.filter((x) => x.kind === k)) {
         lines.push(`  - ${n.path ?? "(repo)"}  —  ${n.detail}`);
       }

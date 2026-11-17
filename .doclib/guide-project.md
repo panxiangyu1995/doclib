@@ -1,6 +1,6 @@
 ---
-snapshot: 101
-docs-hash: 2758b14f1ea8d48427f44655d9c0f86bf15d9aacce69d59a0294b3ba0ba7a433
+snapshot: 106
+docs-hash: e7f3757374ca3ed6581f1d3a4397e0279553064e2062385c28377ce3795175fc
 volumes-fed: [00-overview, 10-architecture, 20-modules, 30-features, 40-guides, 50-testing, 60-config, 95-lessons]
 volumes-na: [70-deploy, 80-design, 90-reference, 99-archive]
 ---
@@ -9,7 +9,7 @@ volumes-na: [70-deploy, 80-design, 90-reference, 99-archive]
 
 - DocLib：把任意代码项目蒸馏成「可复原的文档图书馆」——任何 agent 或人只凭 `doclib/` 即可从零重建该项目（≥90% 功能复原）（`doclib/00-overview/project.md`）
 - 本仓库 dogfooding：DocLib 以自身图书馆管理自身开发（`doclib/README.md`）
-- 复原基准样本馆：第三梯队 9 馆已建成于 `test/`（不入 git；档案入 `50-testing/benchmark/100~190`），复原侧闭环待排期（`doclib/40-guides/benchmark.md`）
+- 复原基准样本馆：第三梯队 9 馆已建成于 `test/`（不入 git；档案入 `50-testing/benchmark/100~190`）+ cc-switch 首个 Tauri 双端样本复原侧闭环完成（档案 `50-testing/benchmark/200-cc-switch.md`，守卫缺口 R1–R5 回灌 F21，#47）
 
 ## 架构速览
 

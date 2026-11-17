@@ -262,8 +262,8 @@ skills 由 agent 按名称加载，各自绑定一个触发场景：
 | 运行时依赖 | 4 个：`ignore` / `jsonc-parser` / `picomatch` / `web-tree-sitter` | `package.json` `dependencies` |
 | CLI 命令 / Skills | 15 / 11 | `src/commands/` · `skills/` |
 | 图书馆骨架 | 12 卷 + 登记簿族（首批 5 册）+ `99-archive` + `98-sessions`，共 33 个骨架文件 | `assets/templates/library/` |
-| 测试 | 39 个测试文件 / 394 用例 | `package.json` test 脚本 |
-| 源码规模 | 非测试 5,998 行 / 测试 5,760 行 | `src/` |
+| 测试 | 40 个测试文件 / 408 用例 | `package.json` test 脚本 |
+| 源码规模 | 非测试 6,494 行 / 测试 6,436 行 | `src/` |
 | 本仓库自身治理 | 100/100 (A)，违规 0 | `doclib check` |
 | 复原基准 | umami：建馆 97% 覆盖 → 同题共答 96.4%（53/55）→ 回归 100% | `doclib/50-testing/benchmark/` |
 | 基准规模 | 复原产物 124 路由 / 26 模型 / 6.7 万行 | `doclib/40-guides/benchmark.md` |

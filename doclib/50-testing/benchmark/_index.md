@@ -25,3 +25,4 @@ status: living
 | [170-excalidraw.md](170-excalidraw.md) | excalidraw 建馆侧档案（UI/UX 专项，518 条登记簿 / 106 交互契约 / 6 条无处安放项） |
 | [180-documenso.md](180-documenso.md) | documenso 建馆侧档案（UI/UX 专项，815 条登记簿 / 73 交互契约 / 8 条无处安放项） |
 | [190-formbricks.md](190-formbricks.md) | formbricks 建馆侧档案（UI/UX 专项对照组，885 条登记簿 / 54 交互契约 / 8 条无处安放项 + mdx 收编判据） |
+| [200-cc-switch.md](200-cc-switch.md) | cc-switch 复原侧档案（F14 首个 Tauri 双端样本：复原闭环 R1–R5 差异四分类 / AC 52 / 回灌 8 项 / snap-004） |

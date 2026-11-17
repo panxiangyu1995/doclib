@@ -21,6 +21,7 @@ covers:
   - src/core/gitinfo.test.ts
   - src/core/branch.test.ts
   - src/commands/branch.test.ts
+  - src/core/ledger-reconcile.test.ts
   - package.json
 status: stable
 ---
@@ -69,7 +70,7 @@ status: stable
 | `diff.test.ts` | 10 | 三类漂移 + covers 精确/目录级优先 + 截断 + gitignore 语义 |
 | `status.test.ts` | 18 | 概览文本/json 全载荷 + 双锚点提醒 + 引导戳/预算 + 提交门禁四态 + 记忆行三态与降级 |
 | `verify.test.ts` | 12 | 覆盖度 + 失效/无锚点 + INDEX 双向 + 卷级索引 + 分组截断 |
-| `check.test.ts` | 23 | 违规分类逐一构造 + strict 退出码 + 豁免联动 + 治理分组件 + 记忆快照指针与标记污染 + 界定符包裹路径回归 |
+| `check.test.ts` | 27 | 违规分类逐一构造 + strict 退出码 + 豁免联动 + 治理分组件 + 记忆快照指针与标记污染 + 界定符包裹路径回归 + 显示层 kind 白名单回归（ledger-reconcile/event-unregistered 聚合行+明细行，F21） |
 | `ack.test.ts` | 7 | once/standing/remove/note 缺值边界 |
 | `sync.test.ts` | 13 | 幂等/定制区/managed 再生/legacy/无戳跳过/check 闭环/memory 注入两份一致 |
 | `reconcile.test.ts` | 5 | 三段报告文本与 json + 进度不符判定 |
@@ -77,6 +78,7 @@ status: stable
 | `stress.test.ts` | 6 | 2000 文件/25 连续快照/40 层深嵌套/unicode/4MB 大文件/60 文件截断 |
 | `src/core/place.test.ts` | 11 | 建议归宿/收编/入棺/墓碑五要素/指针/covers 硬拦截/还原为原件/索引撤销/占用拒绝【2026-10-22 新增】 |
 | `src/commands/place.test.ts` | 8 | place 五子命令 + 干跑零副作用 + 缺参错误面 + standing 豁免【2026-10-22 新增】 |
+| `src/core/ledger-reconcile.test.ts` | 7 | 节区标题计数声明×同节枚举（反引号列表/表格行）+ 行内声明前缀守卫（≤12 字符）+ 无枚举零误报 + 档案区（benchmark/98-sessions）豁免 + `listen`/`emit` 事件引用 vs 00-overview 事件账正反例与零引用零误报【2026-11-17 新增，F21】 |
 
 复测：`npm test`（先 build 后全量）；单卷复测 `npm run build && node --test dist/commands/<file>.test.js`。测试与源码同目录放置，`package.json` test 脚本显式列出全部 dist 测试文件。
 
@@ -102,5 +104,7 @@ status: stable
 178/178 绿（typecheck 同绿）；未发现新缺陷——2026-10-19/20 两轮修复后行为与规格一致。发现并留档 2 处**规格语义澄清**（非缺陷）：sync 与 init 的空串 --agents 语义差异；孤儿豁免与无归属豁免是两套独立判定。
 
 > 2026-10-28 增量（#44 分支账与主分馆管理 v0.10.0）：新增 `src/core/gitinfo.test.ts`（2）、`src/core/branch.test.ts`（8：账本解析与非法行/行渲染往返/分支清单与非 git 降级/主分支探测/分馆审计三面/主分支自动探测/无簿记降级/非 git 报错）、`src/commands/branch.test.ts`（4：register 落账与三重拦截/list 账实对照三态/diff 审计与未知动作）——`snapshot.test.ts` +2（git 归属落库/非 git 无字段）、`status.test.ts` +1（归属行与跨分支警告）、`diff.test.ts` +1（归属行与跨分支警告）、`core/check.test.ts` +2（分支 notice 三态/主分支与非 git 零 notice）——**全套 394/394 绿（39 测试文件）**；REVIEW 轮加固 +2（register 竖线/换行拒绝、`-` 开头 base 注入拒绝——见 branch.md AC-2/AC-5）；行为规格与 AC 见 [branch.md](../30-features/branch.md)。
+
+> 2026-11-17 增量（#47 面穷举守卫扩展 F21）：新增 `src/core/ledger-reconcile.test.ts`（7：节区标题/行内计数声明×同节枚举/前缀守卫/无枚举零误报/档案区豁免/事件账正反例）、`src/core/surface.test.ts` +5（Tauri 命令面：裸/`name=` 覆盖/camelCase 三形态检出·covers 并集切片感知·非 Tauri repo 不适用·非 pub fn 不判·短名反引号显式登记入账判据）、`src/commands/check.test.ts` +1（显示层 kind 白名单回归——两新 notice 聚合行+明细行不遗漏）——**全套 408/408 绿（40 测试文件）**；**基线校正**：记录值 394 滞后 1 例（#46 工单改名期 +1 未随轮入档，git 历史 CI 实证 394/395 与本轮 `npm test` 实测基线 395 双证），本轮 +13 → 408；行为规格与 AC 见 [check.md](../30-features/check.md)（两新 notice 口径）。
 
 > 2026-10-28 增量（#45 CI 首启实证）：`commands/status.test.ts`「载体文档晚于基线 → 待登记提醒」用例与 plan.test 同病同修——`put` 后未显式设定 mtime，CI overlayfs 整秒粒度下快照与写文件同秒落盘 → `d.mtime > Date.parse(latest.at)` 翻转（二跑 CI 红的唯二失败例之一，branch.test 夹具 `-b main` 之外）。修法同 v0.8.0 先例：`fs.utimes` 显式后移 60s；同族排查确认 planning.test（基线显式回拨 60s 构造性确定）与 plan.test（已 utimes+注释）无恙。用例数不变（395/395），产品行为未改。

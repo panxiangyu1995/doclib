@@ -9,6 +9,7 @@ import { scanBrokenLinks, checkGenreCompliance, assumptionFindings } from "./doc
 import { loadPlanningPaths, planningIgnores } from "./planning.js";
 import { archivalFindings, SOURCE_PATH_TOKEN_RE } from "./archival.js";
 import { acceptanceAnchorFindings } from "./implement.js";
+import { ledgerReconcileNotices, eventRegistrationNotices } from "./ledger-reconcile.js";
 import {
   chainStaleDetail,
   loadTestChain,
@@ -33,7 +34,9 @@ export type CheckNoticeKind =
   | "blocked-residue"
   | "chain-stale"
   | "branch-unregistered"
-  | "branch-ledger-incomplete";
+  | "branch-ledger-incomplete"
+  | "ledger-reconcile"
+  | "event-unregistered";
 
 export type CheckNotice = {
   kind: CheckNoticeKind;
@@ -388,6 +391,12 @@ export async function runCheckCore(
     notices.push({ kind: "chain-stale", detail: chainDetail });
   }
   notices.push(...(await branchLedgerNotices(root)));
+  for (const n of await ledgerReconcileNotices(path.join(root, LIBRARY_DIR))) {
+    notices.push({ kind: "ledger-reconcile", path: `${LIBRARY_DIR}/${n.doc}`, detail: n.detail });
+  }
+  for (const n of await eventRegistrationNotices(path.join(root, LIBRARY_DIR))) {
+    notices.push({ kind: "event-unregistered", path: `${LIBRARY_DIR}/${n.doc}`, detail: n.detail });
+  }
   const assumption = await assumptionFindings(path.join(root, LIBRARY_DIR));
   for (const v of assumption.violations) {
     findings.push({ kind: "assumption-residue", path: `${LIBRARY_DIR}/${v.doc}`, detail: v.detail });

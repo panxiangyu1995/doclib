@@ -12,7 +12,7 @@ status: stable
 
 | 模块 | 职责一句话 | 卷入口 | covers |
 | --- | --- | --- | --- |
-| skills（10 册手册） | agent 手册源 `skills/` 与分发副本 `.claude/skills/`、`.opencode/skills/`（sync 幂等分发）；doclib-accept 收尾含反哺蒸馏步骤（#32 联动）；doclib-dev 实时同步表/双锚点含教训处置位与归档四不变量事实（#35/#36）+ 自检第 4 项含记忆快照刷新（#40 五动作联动）+ 双情形（A 常规/B 长程六步回路+阻塞协议，F19 #43）；doclib-audit 第 8 项教训完备性抽查（#36） | 30-features/guides.md | skills/ |
+| skills（10 册手册） | agent 手册源 `skills/` 与分发副本 `.claude/skills/`、`.opencode/skills/`（sync 幂等分发）；doclib-accept 收尾含反哺蒸馏步骤（#32 联动）；doclib-dev 实时同步表/双锚点含教训处置位与归档四不变量事实（#35/#36）+ 自检第 4 项含记忆快照刷新（#40 五动作联动）+ 双情形（A 常规/B 长程六步回路+阻塞协议，F19 #43）；doclib-audit 第 8 项教训完备性抽查（#36）+ 第 11–13 项账实对账/事件账完备/排除面声明抽查（F21 #47）；doclib-build 面穷举清单含 Tauri 命令面自检/排除面声明/对账行实跑证据/存储契约必填栏（F21 #47） | 30-features/guides.md | skills/ |
 | cli | 参数解析、命令分发、HELP、统一错误出口 | 待成卷 | src/cli.ts |
 | core/fsutil | 遍历/hash/树渲染/ignore 语义 | 待成卷 | src/core/fsutil.ts |
 | core/frontmatter | Markdown frontmatter（covers）解析 | 待成卷 | src/core/frontmatter.ts |
@@ -32,7 +32,7 @@ status: stable
 | commands/snapshot | 基线记录（版本 +1；git 仓库自动填充快照归属 branch/commit） | 待成卷 | src/commands/snapshot.ts |
 | commands/branch | 分支账三动作（list 账实对照/register 登记分馆/diff 合并审计报告） | 30-features/branch.md | src/commands/branch.ts |
 | commands/status | 版本/基线/漂移/引导概览 | 待成卷 | src/commands/status.ts |
-| commands/verify | 覆盖度/失效文档/INDEX/引导检查 | 待成卷 | src/commands/verify.ts |
+| commands/verify | 覆盖度/失效文档/INDEX/引导检查 + 面穷举对账（旗标面/Tauri 命令面，F21） | 待成卷 | src/commands/verify.ts |
 | commands/sync | 引导规则区与 skills 同步（幂等）+ 门禁幂等补装（缺失补装 strict/在岗不越权/foreign 不覆盖） | 30-features/（待写） | src/commands/sync.ts |
 | commands/check | 强验证对账报告与 strict 门禁 | 30-features/check.md | src/commands/check.ts |
 | commands/ack | 路径豁免登记（once/standing/remove） | 30-features/（待写） | src/commands/ack.ts |
@@ -41,13 +41,14 @@ status: stable
 | core/orphan | 馆外文档四态判定（工具链闭集 28 项 + 任意层级引导文件 + 归档指针 + 根级门面文件及其多语言变体模式识别）+ 疑似新工具目录识别 | 30-features/check.md | src/core/orphan.ts |
 | core/place | 归位决策与执行（建议归宿/收编/入棺/墓碑/两级索引/归档账还原） | 30-features/place.md | src/core/place.ts |
 | commands/place | 孤儿归位处置命令族（list/collect/archive/ack/restore，干跑默认） | 30-features/place.md | src/commands/place.ts |
-| core/check | 双账本对账引擎（违规分类 + 馆外文档四态判定 + 豁免与提示 notices + 归档闭环三不变量 + 反哺走查账校验 guideWalkVerdict + 记忆快照指针存在性 memoryPointerNotices） | 30-features/check.md | src/core/check.ts |
+| core/check | 双账本对账引擎（违规分类 + 馆外文档四态判定 + 豁免与提示 notices + 归档闭环三不变量 + 反哺走查账校验 guideWalkVerdict + 记忆快照指针存在性 memoryPointerNotices + 账实对账/事件入账 notices 接线 ledgerReconcileNotices/eventRegistrationNotices，F21） | 30-features/check.md | src/core/check.ts |
 | core/archival | 归档闭环三不变量 + 实施锚点缺失（in-progress 镜像）+ 教训账缺口/教训来源缺失不变量（处置位与来源行存在性 → check strict 执法） | 30-features/check.md | src/core/archival.ts |
 | core/featuremap | feature-map 解析（行/状态/对应文档列切分 + 存在性判定） | 30-features/reconcile.md | src/core/featuremap.ts |
 | core/planning | 规划载体域（声明路径/双轨排除/载体文档枚举/待登记待归档提醒/常见载体检测建议含 _bmad-output/载体形态识别/provenance 源 hash 对账提醒 sourceDrifts） | 待成卷 | src/core/planning.ts |
 | core/reconcile | 进度对账三段报告（漂移行映射/进度不符存在性判定/待推进） | 30-features/reconcile.md | src/core/reconcile.ts |
 | core/docquality | 馆内断链扫描 + 两级索引（卷 _index）核对 + 文体合规检查（Genre 三类/卷默认映射/type 覆盖/结构·卡片化·注记污染·倾倒四检查，PRD §7.6）+ ASSUMPTION 残留检查（narrative，draft 降级） | 待成卷 | src/core/docquality.ts |
-| core/surface | 面穷举守卫（端点/proto/页面 vs 登记簿 Δ）+ 旗标字面量双向对账（benchmark 与 98-sessions 档案区豁免） | 待成卷（#29 规格欠账） | src/core/surface.ts |
+| core/surface | 面穷举守卫（端点/proto/页面 vs 登记簿 Δ）+ 旗标字面量双向对账 + Tauri 命令面单向对账（`#[tauri::command]` 裸/name 覆盖/camelCase 三形态，反引号显式登记入账判据，非 Tauri repo 不适用注记；F21）（benchmark 与 98-sessions 档案区豁免） | 待成卷（#29 规格欠账） | src/core/surface.ts |
+| core/ledger-reconcile | 账实对账纯逻辑（节区标题/行内计数声明 × 同节反引号-斜杠枚举不符 + `listen`/`emit` 事件引用 vs 00-overview 全目录文本；INLINE_PREFIX_MAX=12 行内前缀守卫；benchmark/98-sessions 档案区豁免；soft notice 供 check 接线，F21） | 30-features/check.md | src/core/ledger-reconcile.ts |
 | core/codegraph | 知识图谱门禁与 CJS 桥（Node>=22.5 检测/降级语义/最小类型面）+ 草稿渲染器（routes/modules/dependencies/unused 四册候选） | 30-features/graph.md | src/core/codegraph/ |
 | commands/graph | graph 命令族（index/status/draft/explore；可选增强，telemetry 物理隔离） | 30-features/graph.md | src/commands/graph.ts |
 | commands/implement | 拆单器命令（planned 候选清单/readiness 校验/骨架干跑与 --apply 落盘） | 30-features/040-planning-express.md | src/commands/implement.ts |

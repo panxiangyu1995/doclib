@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { reconcileFlagSurface } from "./surface.js";
+import { reconcileFlagSurface, reconcileTauriCommandSurface } from "./surface.js";
 import { LIBRARY_DIR } from "./state.js";
 
 async function tmpLib(): Promise<string> {
@@ -59,4 +59,99 @@ test("reconcileFlagSurface：长名一致归零；短名与无引号字面量不
   assert.deepEqual(r.inLibNotSrc, []);
   assert.deepEqual(r.inSrcNotLib, []);
   assert.equal(r.libFlags > 0, true);
+});
+
+test("reconcileTauriCommandSurface：裸/name 覆盖/camelCase 三形态检出，源有馆无入账", async () => {
+  const root = await tmpLib();
+  await fs.mkdir(path.join(root, "src-tauri", "src", "commands"), { recursive: true });
+  await fs.writeFile(
+    path.join(root, "src-tauri", "src", "commands", "provider.rs"),
+    [
+      "#[tauri::command]",
+      "pub async fn list_providers(state: tauri::State<AppState>) -> Vec<Provider> { unimplemented!() }",
+      "",
+      '#[tauri::command(rename_all = "camelCase", name = "queryProviderUsage")]',
+      "pub async fn usage_query(state: tauri::State<AppState>) -> Usage { unimplemented!() }",
+      "",
+      '#[tauri::command(rename_all = "camelCase")]',
+      "pub fn get_status() -> Status { unimplemented!() }",
+    ].join("\n"),
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(root, LIBRARY_DIR, "90-reference", "tauri-commands-provider.md"),
+    "---\ntitle: tauri-commands-provider\ncovers:\n  - src-tauri/src/commands/provider.rs\n---\n\n- list_providers\n- queryProviderUsage\n",
+    "utf8",
+  );
+  const r = await reconcileTauriCommandSurface(root, path.join(root, LIBRARY_DIR));
+  assert.equal(r.srcCommands, 3);
+  assert.equal(r.registered, 2);
+  assert.deepEqual(r.inSrcNotLib.map((x) => x.cmd), ["get_status"]);
+});
+
+test("reconcileTauriCommandSurface：只扫 covers 声明面（切片感知，切片外命令不刷噪音）", async () => {
+  const root = await tmpLib();
+  await fs.mkdir(path.join(root, "src-tauri", "src", "commands"), { recursive: true });
+  await fs.writeFile(
+    path.join(root, "src-tauri", "src", "commands", "provider.rs"),
+    "#[tauri::command]\npub async fn in_slice() -> () { unimplemented!() }\n",
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(root, "src-tauri", "src", "tray.rs"),
+    "#[tauri::command]\npub async fn out_of_slice() -> () { unimplemented!() }\n",
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(root, LIBRARY_DIR, "90-reference", "tauri-commands-provider.md"),
+    "---\ntitle: tauri-commands-provider\ncovers:\n  - src-tauri/src/commands/provider.rs\n---\n\n- in_slice\n",
+    "utf8",
+  );
+  const r = await reconcileTauriCommandSurface(root, path.join(root, LIBRARY_DIR));
+  assert.equal(r.srcCommands, 1);
+  assert.equal(r.registered, 1);
+  assert.deepEqual(r.inSrcNotLib, []);
+});
+
+test("reconcileTauriCommandSurface：非 Tauri repo 返回不适用注记", async () => {
+  const root = await tmpLib();
+  const r = await reconcileTauriCommandSurface(root, path.join(root, LIBRARY_DIR));
+  assert.equal(r.srcCommands, 0);
+  assert.equal(r.inSrcNotLib.length, 0);
+  assert.equal(r.notes.length > 0, true);
+});
+
+test("reconcileTauriCommandSurface：非 pub async fn 也是命令（不串到下一个 pub fn）", async () => {
+  const root = await tmpLib();
+  await fs.mkdir(path.join(root, "src-tauri", "src"), { recursive: true });
+  await fs.writeFile(
+    path.join(root, "src-tauri", "src", "lib.rs"),
+    ["/// 更新托盘菜单", "#[tauri::command]", "async fn update_tray_menu(app: tauri::AppHandle) -> bool { unimplemented!() }", "", "pub fn run() {}"].join("\n"),
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(root, LIBRARY_DIR, "90-reference", "tray.md"),
+    "---\ntitle: tray\ncovers:\n  - src-tauri/src/lib.rs\n---\n\n托盘菜单更新逻辑。\n",
+    "utf8",
+  );
+  const r = await reconcileTauriCommandSurface(root, path.join(root, LIBRARY_DIR));
+  assert.equal(r.srcCommands, 1);
+  assert.deepEqual(r.inSrcNotLib.map((x) => x.cmd), ["update_tray_menu"]);
+});
+
+test("reconcileTauriCommandSurface：短名裸词提及不算入账（须反引号显式登记）", async () => {
+  const root = await tmpLib();
+  await fs.mkdir(path.join(root, "src-tauri", "src", "commands"), { recursive: true });
+  await fs.writeFile(
+    path.join(root, "src-tauri", "src", "commands", "mini.rs"),
+    "#[tauri::command]\npub fn go() -> () { unimplemented!() }\n",
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(root, LIBRARY_DIR, "90-reference", "mini.md"),
+    "---\ntitle: mini\ncovers:\n  - src-tauri/src/commands/mini.rs\n---\n\n让用户 go 一下，未登记 go。\n",
+    "utf8",
+  );
+  const r = await reconcileTauriCommandSurface(root, path.join(root, LIBRARY_DIR));
+  assert.deepEqual(r.inSrcNotLib.map((x) => x.cmd), ["go"]);
 });

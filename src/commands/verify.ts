@@ -4,7 +4,7 @@ import { collectFiles } from "../core/fsutil.js";
 import { languageOf } from "../core/detect.js";
 import { buildCoverIndex, groupByTopDir, isDocStale, normalizePath } from "../core/mapping.js";
 import { scanBrokenLinks, checkVolumeIndexes, checkGenreCompliance } from "../core/docquality.js";
-import { surfaceScan, reconcileFlagSurface } from "../core/surface.js";
+import { surfaceScan, reconcileFlagSurface, reconcileTauriCommandSurface } from "../core/surface.js";
 import { LIBRARY_DIR, latestSnapshot, loadState } from "../core/state.js";
 import { guideStampReport } from "../core/guides.js";
 import { loadPlanningPaths, planningIgnores } from "../core/planning.js";
@@ -71,6 +71,7 @@ export async function runVerify(root: string, opts: { json?: boolean }): Promise
   const groups = groupByTopDir(uncovered);
   const surface = await surfaceScan(root, libRoot, files);
   const flagSurface = await reconcileFlagSurface(root, libRoot);
+  const commandSurface = await reconcileTauriCommandSurface(root, libRoot);
 
   if (opts.json) {
     const payload = {
@@ -94,6 +95,12 @@ export async function runVerify(root: string, opts: { json?: boolean }): Promise
         srcFlags: flagSurface.srcFlags,
         inLibNotSrc: flagSurface.inLibNotSrc,
         inSrcNotLib: flagSurface.inSrcNotLib,
+      },
+      commandSurface: {
+        srcCommands: commandSurface.srcCommands,
+        registered: commandSurface.registered,
+        inSrcNotLib: commandSurface.inSrcNotLib,
+        notes: commandSurface.notes,
       },
     };
     return { text: JSON.stringify(payload, null, 2), json: payload };
@@ -142,6 +149,13 @@ export async function runVerify(root: string, opts: { json?: boolean }): Promise
   for (const n of flagSurface.notes) lines.push(`  ⚠ ${n}`);
   if (flagSurface.inSrcNotLib.length === 0 && flagSurface.inLibNotSrc.length === 0)
     lines.push("  旗标对账平衡（Δ0；候选语义仍由 agent 裁决）");
+  lines.push(
+    `Tauri 命令面对账（F15 阶段 0）: 源 ${commandSurface.srcCommands} ↔ 馆 ${commandSurface.registered}（源有馆无 ${commandSurface.inSrcNotLib.length}）`,
+  );
+  for (const x of commandSurface.inSrcNotLib.slice(0, 10)) lines.push(`  - 源有馆无: ${x.cmd}（${x.files.slice(0, 2).join(", ")}${x.files.length > 2 ? " …" : ""}）`);
+  for (const n of commandSurface.notes) lines.push(`  ⚠ ${n}`);
+  if (commandSurface.srcCommands > 0 && commandSurface.inSrcNotLib.length === 0)
+    lines.push("  命令面对账平衡（Δ0）");
   lines.push("");
   return { text: lines.join("\n"), json: { coveragePct: pct, surface } };
 }

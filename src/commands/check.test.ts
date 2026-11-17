@@ -406,3 +406,41 @@ test("check：清单状态失真 → strict 退出码 1", async () => {
     assert.equal(process.exitCode, 1);
   });
 });
+
+test("check：账实对账/事件未入账 notice → 文本显示层不遗漏（聚合行+明细行）", async () => {
+  const root = await tmpRoot("doclib-acc-check-recon-");
+  await put(root, "src/a.ts", "v1");
+  await put(
+    root,
+    "doclib/30-features/a.md",
+    `---
+title: A
+covers:
+  - src/a.ts
+---
+
+# A
+
+## 键表（3）
+
+| 键 | 状态 |
+| --- | --- |
+| a | active |
+| b | active |
+
+listen("foo-bar")
+`,
+  );
+  await runSnapshot(root, { note: "base" });
+  await withExit(async () => {
+    const r = await runCheck(root, {});
+    const j = r.json as { notices: Array<{ kind: string }> };
+    assert.ok(j.notices.some((n) => n.kind === "ledger-reconcile"));
+    assert.ok(j.notices.some((n) => n.kind === "event-unregistered"));
+    assert.match(r.text, /账实对账不符 1/);
+    assert.match(r.text, /事件未入账 1/);
+    assert.match(r.text, /键表（3）/);
+    assert.match(r.text, /foo-bar/);
+    assert.notEqual(process.exitCode, 1);
+  });
+});

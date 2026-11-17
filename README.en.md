@@ -262,8 +262,8 @@ Skills are loaded by the agent by name, and each one is bound to a single trigge
 | Runtime dependencies | 4: `ignore` / `jsonc-parser` / `picomatch` / `web-tree-sitter` | `dependencies` in `package.json` |
 | CLI commands / Skills | 15 / 11 | `src/commands/` · `skills/` |
 | Library skeleton | 12 volumes + ledger family (first 5 books) + `99-archive` + `98-sessions`, 33 skeleton files in total | `assets/templates/library/` |
-| Tests | 39 test files / 394 cases | the test script in `package.json` |
-| Source size | 5,998 lines of non-test code / 5,760 lines of tests | `src/` |
+| Tests | 40 test files / 408 cases | the test script in `package.json` |
+| Source size | 6,494 lines of non-test code / 6,436 lines of tests | `src/` |
 | This repo's own governance | 100/100 (A), zero violations | `doclib check` |
 | Rebuild benchmark | umami: 97% coverage at build time → 96.4% on the same-question double run (53/55) → 100% on regression | `doclib/50-testing/benchmark/` |
 | Benchmark scale | Rebuilt output: 124 routes / 26 models / 67k lines | `doclib/40-guides/benchmark.md` |

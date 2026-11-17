@@ -11,6 +11,8 @@ covers:
   - src/core/archival.ts
   - src/core/archival.test.ts
   - src/core/featuremap.ts
+  - src/core/ledger-reconcile.ts
+  - src/core/ledger-reconcile.test.ts
   - src/commands/ack.ts
   - src/commands/hook.ts
 status: stable
@@ -56,7 +58,7 @@ status: stable
 | 实施锚点缺失 | feature-map 行 status=in-progress 且「对应文档」列为空、"-" 或 "—"（ASCII 与全角空位同判）——沉淀锚点缺失的镜像对称（in-progress 应有 .plan 实施文档或馆内规格在改；v0.40 #39），拦「开工了却无实施载体」 | 是（strict 计入门禁） |
 | 清单状态失真 | plan-skeleton 载体（复用验收锚点同扫描面 `core/harness.ts`）frontmatter `feature: N` 对应 feature-map 行 status=implemented 且实施清单存在未勾选条目（`- [ ]`，TODO(agent) 占位除外；骨架缺失/planned/in-progress/feature 不存在不判）——F19 长程闭环反伪造核心：宣称完成必须清单全勾（v0.9.0 #43）；in-progress 未勾选走 `skeleton-open` notice 不判违规 | 是（strict 计入门禁；不入五分项） |
 
-分类口径统一（v0.29 修正措辞；v0.32 增文体；v0.6.1 增归档闭环三不变量；v0.6.2 增教训账缺口；v0.6.3 增走查账违规并补列 guide-feed-stale——口径行历史上漏计该类，与 union 对齐；v0.6.4 增教训来源缺失；v0.40 增验收锚点缺失/假设残留/实施锚点缺失；v0.8.0 token 截断字符集覆盖 Markdown 界定符——反引号/星号/ASCII 引号/CJK 直角引号包裹路径不带入界定符，且含相对穿越（..）的 token 直接判违规/提示不 stat（lesson-source 与 memory-pointer 共享词面，REVIEW 轮 R-2/R-3 补全）；v0.9.0 增清单状态失真）：**违规 findings 18 类**（unaccounted / uncovered / migration / guide-stale / guide-feed-stale / guide-feed-walk / orphan-doc / doc-quality / genre / carrier-unregistered / ledger-gap / anchor-missing / lesson-gap / lesson-source / acceptance-anchor / assumption-residue / implementation-anchor / skeleton-progress）＋**非违规状态 3 类**（已对账 / 文档先行 / 已豁免）＋**豁免与提示 notices**（不计门禁、不扣治理分，仅计数可见；v0.6.3 增 `guide-feed-walk-absent` 走查缺席提示；v0.41 增 `memory-pointer` 记忆快照指针警告——快照正文路径 token 存在性核对，soft 不阻断；v0.9.0 增 `skeleton-open` 施工中未勾选进度提示 / `blocked-residue` 骨架 blocked 标记未清提醒 / `chain-stale` 提交钩子烘焙测试链与馆内声明失配或单侧缺失提醒——foreign 钩子与未传脚本体不判；v0.10.0 增 `branch-unregistered` 当前 git 分支未建账/未登记提醒与 `branch-ledger-incomplete` 分支账非法行与要素缺失提醒——主分支与非 git 目录优雅跳过，见 [branch.md](branch.md)）。归档闭环四不变量**不计入治理健康分五分项**（公式不变），执法面走 strict 门禁与 pre-commit hook；验收锚点/假设残留/实施锚点三新类同不入五分项（v0.40，公式不变）；清单状态失真同不入五分项（v0.9.0，公式不变）。
+分类口径统一（v0.29 修正措辞；v0.32 增文体；v0.6.1 增归档闭环三不变量；v0.6.2 增教训账缺口；v0.6.3 增走查账违规并补列 guide-feed-stale——口径行历史上漏计该类，与 union 对齐；v0.6.4 增教训来源缺失；v0.40 增验收锚点缺失/假设残留/实施锚点缺失；v0.8.0 token 截断字符集覆盖 Markdown 界定符——反引号/星号/ASCII 引号/CJK 直角引号包裹路径不带入界定符，且含相对穿越（..）的 token 直接判违规/提示不 stat（lesson-source 与 memory-pointer 共享词面，REVIEW 轮 R-2/R-3 补全）；v0.9.0 增清单状态失真）：**违规 findings 18 类**（unaccounted / uncovered / migration / guide-stale / guide-feed-stale / guide-feed-walk / orphan-doc / doc-quality / genre / carrier-unregistered / ledger-gap / anchor-missing / lesson-gap / lesson-source / acceptance-anchor / assumption-residue / implementation-anchor / skeleton-progress）＋**非违规状态 3 类**（已对账 / 文档先行 / 已豁免）＋**豁免与提示 notices**（不计门禁、不扣治理分，仅计数可见；v0.6.3 增 `guide-feed-walk-absent` 走查缺席提示；v0.41 增 `memory-pointer` 记忆快照指针警告——快照正文路径 token 存在性核对，soft 不阻断；v0.9.0 增 `skeleton-open` 施工中未勾选进度提示 / `blocked-residue` 骨架 blocked 标记未清提醒 / `chain-stale` 提交钩子烘焙测试链与馆内声明失配或单侧缺失提醒——foreign 钩子与未传脚本体不判；v0.10.0 增 `branch-unregistered` 当前 git 分支未建账/未登记提醒与 `branch-ledger-incomplete` 分支账非法行与要素缺失提醒——主分支与非 git 目录优雅跳过，见 [branch.md](branch.md)；v0.11.x 增 `ledger-reconcile` 账实对账提醒（馆内文档计数声明 × 同节枚举不符：节区标题「共 18 条」式/行内「16 键」式，行内声明仅匹配 ≤12 字符前缀防长前缀误报；`core/ledger-reconcile.ts`）与 `event-unregistered` 事件未入账提醒（馆内文档正文 `listen`/`emit` 事件引用 vs `00-overview/` 全目录文本命中；Tauri 双端跨进程契约面，F21）——两新 notice 均 soft：不计门禁、不扣治理分、不入五分项（公式不变），先观察误报面再议升级；`50-testing/benchmark` 与 `98-sessions` 档案区豁免（历史快照计数/会话原文非活账）。归档闭环四不变量**不计入治理健康分五分项**（公式不变），执法面走 strict 门禁与 pre-commit hook；验收锚点/假设残留/实施锚点三新类同不入五分项（v0.40，公式不变）；清单状态失真同不入五分项（v0.9.0，公式不变）。
 
 ## 四态判定与三层防线【v0.29】
 
@@ -161,3 +163,7 @@ status: stable
 - Given 用户自由格式 .plan（无 plan-skeleton frontmatter）When check Then 不受验收锚点检查（F9 边界，零误报）
 - Given narrative 正文含未清 ASSUMPTION 词面 When check Then 假设残留检出；status: draft 同况仅警告（[draft 降级] 前缀）
 - Given in-progress 行对应文档列为空或 "—" When check Then 实施锚点缺失检出；列有值 Then 无违规（implemented/planned 行按既有不变量各自判定，互不越界）
+- Given 馆内 narrative 文档节区标题含计数声明（如「共 18 条」）且同节反引号/斜杠枚举条数不符 When check Then `ledger-reconcile` notice（soft：不计门禁不扣治理分，text/json 均可见）；同节枚举相符 Then 无 notice
+- Given 行内短计数声明（「16 键」式，声明前缀 ≤12 字符）同行反引号枚举不符 When check Then `ledger-reconcile` notice；长前缀行（>12 字符）与句中普通数字 Then 不误报（INLINE_PREFIX_MAX 守卫）
+- Given 50-testing/benchmark/ 或 98-sessions/ 档案区文档计数不符 When check Then 豁免零 notice（历史快照/会话原文非活账）
+- Given 馆内文档正文含 `listen`/`emit` 事件引用（字面形态见 EVENT_REF 正则；规格示例事件名 `app-event` 显式标注切片外——非本馆事件账条目，不触发对自身的 notice）且 00-overview/ 全目录文本未含该事件名 When check Then `event-unregistered` notice（soft，doc=首个引用文档，detail 提示补登记或显式标注切片外）；事件名已在 00-overview 任一文档出现 Then 无 notice；馆内零事件引用 Then 零误报

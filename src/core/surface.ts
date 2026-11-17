@@ -28,6 +28,20 @@ const FLAG_LITERAL = /['"](--[a-z][a-z0-9-]*)['"]/g;
 const COMMON_FLAGS = new Set(["--help", "--version"]);
 const LIB_EXEMPT_PREFIXES = ["50-testing/benchmark/", "98-sessions/"];
 
+async function coveredCodeFiles(root: string, libRoot: string): Promise<Set<string>> {
+  const index = await buildCoverIndex(libRoot);
+  const covered = new Set<string>();
+  for (const e of index) for (const c of e.covers) covered.add(c);
+  const allFiles = await collectFiles(root).catch(() => [] as string[]);
+  const set = new Set<string>();
+  for (const f of allFiles) {
+    if (languageOf(f) === null) continue;
+    if (/(^|\/)(tests?|__tests__)\/|\.(test|spec)\.[a-z]+$|_test\.[a-z]+$/.test(f)) continue;
+    if (covered.has(f) || [...covered].some((c) => f.startsWith(`${c}/`))) set.add(f);
+  }
+  return set;
+}
+
 export async function reconcileFlagSurface(root: string, libRoot: string): Promise<FlagSurfaceReport> {
   const libFlags = new Map<string, Set<string>>();
   const mdFiles = (await collectFiles(libRoot).catch(() => [] as string[])).filter((f) => f.endsWith(".md"));
@@ -44,15 +58,7 @@ export async function reconcileFlagSurface(root: string, libRoot: string): Promi
     }
   }
 
-  const index = await buildCoverIndex(libRoot);
-  const covered = new Set<string>();
-  for (const e of index) for (const c of e.covers) covered.add(c);
-  const allFiles = await collectFiles(root).catch(() => [] as string[]);
-  const scanTargets = allFiles.filter((f) => {
-    if (languageOf(f) === null) return false;
-    if (/(^|\/)(tests?|__tests__)\/|\.(test|spec)\.[a-z]+$|_test\.[a-z]+$/.test(f)) return false;
-    return covered.has(f) || [...covered].some((c) => f.startsWith(`${c}/`));
-  });
+  const scanTargets = [...(await coveredCodeFiles(root, libRoot))];
 
   const srcFlags = new Map<string, Set<string>>();
   for (const f of scanTargets) {
@@ -102,6 +108,89 @@ export async function reconcileFlagSurface(root: string, libRoot: string): Promi
     srcFlags: srcFlags.size,
     inLibNotSrc: inLibNotSrc.sort((a, b) => a.flag.localeCompare(b.flag)),
     inSrcNotLib: inSrcNotLib.sort((a, b) => a.flag.localeCompare(b.flag)),
+    notes,
+  };
+}
+
+export type TauriCommandSurfaceReport = {
+  srcCommands: number;
+  registered: number;
+  inSrcNotLib: Array<{ cmd: string; files: string[] }>;
+  notes: string[];
+};
+
+const TAURI_CMD_ATTR = /#\[tauri::command(?:\s*\(([^)]*)\))?\s*\]/g;
+const CMD_NAME_ARG = /\bname\s*=\s*"([^"]+)"/;
+
+export async function reconcileTauriCommandSurface(root: string, libRoot: string): Promise<TauriCommandSurfaceReport> {
+  const covered = await coveredCodeFiles(root, libRoot);
+  const rsFiles = [...covered].filter((f) => f.endsWith(".rs"));
+  const tauriFiles = rsFiles.filter((f) => f.startsWith("src-tauri/") || f.includes("/src-tauri/"));
+  const scanTargets = tauriFiles.length > 0 ? tauriFiles : rsFiles;
+
+  const srcCommands = new Map<string, Set<string>>();
+  let hasTauri = false;
+  for (const f of scanTargets) {
+    const raw = await fs.readFile(path.join(root, f), "utf8").catch(() => null);
+    if (raw === null || !raw.includes("#[tauri::command")) continue;
+    hasTauri = true;
+    for (const m of raw.matchAll(TAURI_CMD_ATTR)) {
+      const args = m[1] ?? "";
+      const nameArg = args.match(CMD_NAME_ARG);
+      let name: string | null = nameArg !== null ? nameArg[1]! : null;
+      if (name === null) {
+        const rest = raw.slice((m.index ?? 0) + m[0].length);
+        const stripped = rest
+          .split("\n")
+          .filter((l) => !l.trimStart().startsWith("///") && !l.trimStart().startsWith("//"))
+          .join("\n");
+        const fn = stripped.match(/(?:pub\s+)?(?:async\s+)?(?:unsafe\s+)?fn\s+([a-zA-Z_][\w]*)/);
+        name = fn !== null ? fn[1]! : null;
+      }
+      if (name === null) continue;
+      const set = srcCommands.get(name) ?? new Set<string>();
+      set.add(f);
+      srcCommands.set(name, set);
+    }
+  }
+  if (!hasTauri) {
+    return {
+      srcCommands: 0,
+      registered: 0,
+      inSrcNotLib: [],
+      notes: ["未检测到 Tauri 命令面（非 Tauri repo）——命令面对账不适用"],
+    };
+  }
+
+  const mdFiles = (await collectFiles(libRoot).catch(() => [] as string[])).filter((f) => f.endsWith(".md"));
+  const kept = mdFiles.filter((f) => !LIB_EXEMPT_PREFIXES.some((p) => f.startsWith(p)));
+  const chunks: string[] = [];
+  for (const f of kept) {
+    chunks.push(await fs.readFile(path.join(libRoot, f), "utf8").catch(() => ""));
+  }
+  const libText = chunks.join("\n");
+
+  const inSrcNotLib: Array<{ cmd: string; files: string[] }> = [];
+  let registered = 0;
+  for (const [cmd, files] of srcCommands) {
+    const hit = /^[a-z]{1,5}$/.test(cmd) ? new RegExp("`" + cmd + "`").test(libText) : libText.includes(cmd);
+    if (hit) registered++;
+    else inSrcNotLib.push({ cmd, files: [...files].sort() });
+  }
+
+  const notes: string[] = [];
+  if (inSrcNotLib.length > 0) {
+    notes.push(
+      `源有馆无 ${inSrcNotLib.length} 项（覆盖面内 Tauri 命令未入账）——agent 裁决：补登记（含切片外小节）或收窄 covers 面: ${inSrcNotLib
+        .slice(0, 8)
+        .map((x) => x.cmd)
+        .join(", ")}${inSrcNotLib.length > 8 ? " …" : ""}`,
+    );
+  }
+  return {
+    srcCommands: srcCommands.size,
+    registered,
+    inSrcNotLib: inSrcNotLib.sort((a, b) => a.cmd.localeCompare(b.cmd)),
     notes,
   };
 }
